@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Playwright Masterclass — Part 2: Page Object Model (POM), Custom Fixtures & Config Deep-Dive</title>
+  <title>Playwright Masterclass (TestLeaf Syllabus) — Day 07–11: Dropdowns, Shadow DOM, iFrames, Popups & Alerts</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -60,7 +60,7 @@
   <div class="partnav">
     <a href="../index.html">🏠 Master Index</a> |
     <a href="Playwright_essentials_part1_study_app.html">◀ Prev Part</a> |
-    <strong>Part 2: Page Object Model (POM), Custom Fixtures & Config Deep-Dive</strong>
+    <strong>Day 07–11: Dropdowns, Shadow DOM, iFrames, Popups & Alerts</strong>
     | <a href="Playwright_essentials_part3_study_app.html">Next Part ▶</a>
   </div>
 
@@ -75,7 +75,7 @@
   </div>
 
   <div class="container">
-    <h1>Playwright Masterclass — Part 2: Page Object Model (POM), Custom Fixtures & Config Deep-Dive</h1>
+    <h1>Playwright Masterclass (TestLeaf Syllabus) — Day 07–11: Dropdowns, Shadow DOM, iFrames, Popups & Alerts</h1>
     <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
     
     <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
@@ -98,89 +98,66 @@
 
     <!-- SECTIONS -->
     
-<h2 id="s1">1. Page Object Model (POM) Design Pattern in TypeScript vs JavaScript <span class="est-time">⏱ ~35 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> Hardcoding locators inside 50 different test files creates a maintenance nightmare when a developer changes an input ID or button label. Page Object Model encapsulates locators and actions into clean, reusable class files.</div>
+<h2 id="s1">1. Day 07 & 11: Handling Dropdowns, Auto-Suggest & Shadow DOM <span class="est-time">⏱ ~35 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Complex enterprise web applications (like Salesforce) hide web components inside a Shadow DOM tree. Standard Selenium locators fail, but Playwright automatically pierces through Shadow DOM natively!</div>
 <p>
       <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
         <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
-        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Page Object Model like organizing tools in a labeled toolbox:\n• Without POM = Strewing 50 screwdrivers and hammers across your garage floor (locators scattered everywhere). If a hammer breaks, you have to search 50 rooms to find it!\n• With POM = Putting all plumbing tools in a drawer labeled "PlumbingPage.ts" and electrical tools in "ElectricalPage.ts". If the plumbing wrench changes, you open 1 drawer, swap 1 wrench, and all your jobs work instantly!</p>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Shadow DOM like a locked glass display case inside a museum:\n• Standard DOM = Items on open tables that anyone can touch.\n• Shadow DOM = Items inside a protective glass display case (Shadow Root).\n• Playwright Shadow Piercing = Playwright has a magical key that reaches through the glass display case automatically without needing special keys or extra steps!</p>
       </div>
 
       <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
-      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">The Page Object Model (POM) creates an abstraction layer between test scenarios and page structure:\n\n1. Page Object Class: A class file (e.g. `LoginPage.ts`) representing a specific web page or UI component.\n2. Locators as Class Properties: Define locators as `readonly` class properties inside constructor (e.g. `this.usernameInput = page.getByLabel("Username")`). Locators are lazy references so they do not query DOM until an action is called.\n3. Reusable Action Methods: High-level business actions like `await loginPage.login("alice", "pass123")` encapsulate fill & click steps.\n4. Test Spec Files: Clean test files (`login.spec.ts`) that read like English business requirements!</p>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright locators naturally penetrate Shadow DOM boundaries by default. When you use `page.getByRole("button")` or `page.locator("my-custom-component button")`, Playwright walks through Shadow Roots automatically!\n\nHandling Dropdowns & Auto-Suggest:\n1. Native `<select>`: Use `page.selectOption("value")`.\n2. Custom React/Salesforce Auto-Suggest: Fill search text, wait for suggestion popup, and click target item: `page.getByRole("option", { name: "Target" }).click()`.</p>
     </p>
 
 
 
 
 <div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>// pages/LoginPage.ts (TypeScript Version)
-import { Page, Locator, expect } from '@playwright/test';
+<pre><code>import { test, expect } from '@playwright/test';
 
-export class LoginPage {
-  readonly page: Page;
-  readonly usernameInput: Locator;
-  readonly passwordInput: Locator;
-  readonly submitButton: Locator;
-  readonly errorMessage: Locator;
+test('Automating Shadow DOM & Auto-Suggest Dropdown', async ({ page }) => {
+  await page.goto('/salesforce-demo');
 
-  constructor(page: Page) {
-    this.page = page;
-    // Locators initialized lazily - NO await required here!
-    this.usernameInput = page.getByLabel('Username');
-    this.passwordInput = page.getByLabel('Password');
-    this.submitButton = page.getByRole('button', { name: 'Sign In' });
-    this.errorMessage = page.getByRole('alert');
-  }
+  // Playwright pierces Shadow DOM natively to find input inside custom web component
+  const shadowInput = page.locator('custom-search-bar').getByRole('textbox');
+  await shadowInput.fill('Salesforce Admin');
 
-  async goto() {
-    await this.page.goto('/login');
-  }
+  // Auto-suggest dropdown selection
+  const suggestionList = page.getByRole('listbox');
+  await expect(suggestionList).toBeVisible();
 
-  async login(user: string, pass: string) {
-    await this.usernameInput.fill(user);
-    await this.passwordInput.fill(pass);
-    await this.submitButton.click();
-  }
-
-  async assertErrorMessage(expectedText: string) {
-    await expect(this.errorMessage).toBeVisible();
-    await expect(this.errorMessage).toContainText(expectedText);
-  }
-}
-
-/* Equivalent JavaScript (JS) Version Note:
-In plain JS, simply remove type declarations like 'readonly page: Page' 
-and parameter types like 'user: string'. The rest of the constructor and 
-methods remain 100% identical! */</code></pre>
+  // Click target option inside auto-suggest dropdown
+  await page.getByRole('option', { name: 'Salesforce Administrator' }).click();
+});</code></pre>
 
 
-<div class="line-annotation"><code>readonly usernameInput: Locator</code> — TypeScript property declaration enforcing Locator type for VS Code auto-complete.</div><div class="line-annotation"><code>this.usernameInput = page.getByLabel(...)</code> — Lazy locator definition inside constructor. Does NOT perform DOM lookup until action is executed.</div><div class="line-annotation"><code>async login(user, pass)</code> — Reusable business action encapsulating form interaction.</div>
+<div class="line-annotation"><code>page.locator('custom-search-bar')</code> — Targets custom Web Component element containing Shadow Root.</div><div class="line-annotation"><code>getByRole('textbox')</code> — Automatically penetrates Shadow Root to find input node.</div><div class="line-annotation"><code>getByRole('option', { name: '...' })</code> — Locates and selects target item inside custom ARIA listbox dropdown.</div>
 
 
 
 <div class="spotbug">
   <details>
     <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Putting `await` inside the Page Object constructor (e.g. `this.usernameInput = await page.getByLabel(...)`).</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Never use `await` inside constructors! Locators are lazy references; `await` is only used when calling actions like `.click()` or `.fill()`.</p>
+    <p><strong>Common Pitfall:</strong> Writing complex `document.querySelector().shadowRoot.querySelector()` JavaScript snippets.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Use standard Playwright locators! Playwright auto-penetrates Shadow DOM natively.</p>
   </details>
 </div>
 
 <div class="predict">
   <details>
     <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> Why are locators defined as class properties in Page Objects without `await`?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> Because locators are lazy references that describe how to find an element, only executing DOM queries when actions or assertions are called.</p>
+    <p><strong>Scenario:</strong> Does Playwright require special syntax or extra configuration to locate elements inside a Shadow DOM?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> No, Playwright locators automatically pierce Shadow DOM boundaries natively by default.</p>
   </details>
 </div>
 
 <div class="quiz-box">
   <h3>🧪 Knowledge Check</h3>
   <details>
-    <summary>Question: What is the primary advantage of using Page Object Model in Playwright suites?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> Single point of maintenance for UI element locators across 100+ test files.</p>
-    <p><em>Rationale:</em> If a button label changes, you update 1 line in the Page Object class instead of editing 100 test files.</p>
+    <summary>Question: How do you select an option from a custom ARIA auto-suggest dropdown component?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> Fill search input, wait for getByRole("listbox") or option, and click page.getByRole("option", { name: "Target" }).</p>
+    <p><em>Rationale:</em> Simulates real user interaction with accessible dropdown components.</p>
   </details>
 </div>
 
@@ -188,87 +165,74 @@ methods remain 100% identical! */</code></pre>
 
 <hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
 
-<h2 id="s2">2. Custom Test Fixtures (base.extend) & Global Setup <span class="est-time">⏱ ~35 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> Instantiating `const loginPage = new LoginPage(page)` inside every test file creates repetitive boilerplate. Playwright custom fixtures inject page objects into test parameters automatically.</div>
+<h2 id="s2">2. Day 08, 09 & 10: Handling iFrames, Dialogs & Multiple Windows/Tabs <span class="est-time">⏱ ~35 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Opening a new window (e.g. "Login with Google") creates a new browser tab. Playwright `page.waitForEvent("popup")` handles multi-tab automation seamlessly.</div>
 <p>
       <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
         <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
-        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Custom Test Fixtures like a hotel room service breakfast:\n• Without Fixtures = Waking up, walking to the grocery store, buying eggs, cooking them, and washing the pan before eating (doing setup boilerplate in every test).\n• With Custom Fixtures = Placing an order tag on your door before sleep (`test.extend<MyFixtures>`). When you open your eyes, a hot breakfast is delivered directly to your bed ready to eat (`({ loginPage, dashboardPage }) => { ... }`)!</p>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of multi-tab automation like juggling two phone calls on your cell phone:\n• Tab 1 (Main Page) = Your call with Customer A.\n• Popup Event (`page.waitForEvent("popup")`) = Customer B calls on call waiting. You press Answer to switch to Customer B's line (`popupPage`).\n• Switching Lines = You can talk to Customer B (`popupPage.fill(...)`), hang up (`popupPage.close()`), and return to Customer A (`page.bringToFront()`)!</p>
       </div>
 
       <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
-      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright built-in fixture system (`test.extend`) allows you to extend the base test runner with custom fixtures.\n\nA fixture is an isolated environment setup/teardown handler. When you define a fixture for `loginPage`, Playwright automatically instantiates `new LoginPage(page)`, passes it into your test function parameter, and performs teardown cleanup after the test finishes.</p>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Multi-Window / Popup Handling:\nWhen clicking a link with `target="_blank"` or an OAuth button, a new page tab opens. Use `Promise.all([ page.waitForEvent("popup"), click() ])` to catch the newly created `Page` instance.\n\nNative Browser Dialogs (`page.on("dialog")`):\nJavaScript `alert()`, `confirm()`, and `prompt()` block browser execution. Register an event handler to accept or dismiss dialogs before clicking the trigger button.</p>
     </p>
 
 
 
 
 <div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>// fixtures/test-options.ts
-import { test as base } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { DashboardPage } from '../pages/DashboardPage';
+<pre><code>import { test, expect } from '@playwright/test';
 
-// Declare TypeScript types for custom fixtures
-export type MyFixtures = {
-  loginPage: LoginPage;
-  dashboardPage: DashboardPage;
-};
+test('Handling Multi-Tab Popups & JS Confirm Dialogs', async ({ page }) => {
+  await page.goto('/multi-tab-demo');
 
-// Extend base test runner with custom page object fixtures
-export const test = base.extend<MyFixtures>({
-  loginPage: async ({ page }, use) => {
-    // 1. Setup: Instantiate Page Object
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    
-    // 2. Pass fixture instance into test execution
-    await use(loginPage);
+  // Catch newly opened browser tab popup
+  const [popupPage] = await Promise.all([
+    page.waitForEvent('popup'),
+    page.getByRole('link', { name: 'Open Terms in New Tab' }).click()
+  ]);
 
-    // 3. Teardown: (Runs after test completes, if needed)
-  },
+  // Interact with newly opened popup page
+  await popupPage.waitForLoadState();
+  await expect(popupPage.getByRole('heading', { name: 'Terms of Service' })).toBeVisible();
+  await popupPage.close();
 
-  dashboardPage: async ({ page }, use) => {
-    const dashboardPage = new DashboardPage(page);
-    await use(dashboardPage);
-  }
-});
+  // Intercept JS Confirm dialog on main page
+  page.on('dialog', async (dialog) => {
+    console.log('Dialog Message:', dialog.message());
+    await dialog.accept(); // Clicks OK on confirm modal
+  });
 
-export { expect } from '@playwright/test';
-
-// Usage in Test File (Clean & Boilerplate-Free):
-// import { test, expect } from './fixtures/test-options';
-// test('User login test', async ({ loginPage }) => {
-//   await loginPage.login('alice', 'pass123');
-// });</code></pre>
+  await page.getByRole('button', { name: 'Reset Account Data' }).click();
+});</code></pre>
 
 
-<div class="line-annotation"><code>base.extend<MyFixtures>({ ... })</code> — Extends Playwright base test runner with strongly-typed custom fixtures.</div><div class="line-annotation"><code>await use(loginPage)</code> — Hands fixture instance over to test function and waits for test completion.</div>
+<div class="line-annotation"><code>page.waitForEvent('popup')</code> — Waits for and captures newly created browser tab instance.</div><div class="line-annotation"><code>await popupPage.close()</code> — Closes child tab after verifying assertions.</div><div class="line-annotation"><code>page.on('dialog', async (dialog) => { ... })</code> — Listens for and automatically accepts native browser alert/confirm modals.</div>
 
 
 
 <div class="spotbug">
   <details>
     <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Forgetting to call `await use(fixtureInstance)` inside custom fixture definitions.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Always call `await use(...)` to pass the fixture payload to the test runner.</p>
+    <p><strong>Common Pitfall:</strong> Calling `page.waitForEvent("popup")` AFTER clicking the link, causing race condition timeouts.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Use `Promise.all([ page.waitForEvent("popup"), link.click() ])` so the event listener is active before the click occurs.</p>
   </details>
 </div>
 
 <div class="predict">
   <details>
     <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> How does custom test fixture injection improve test code quality?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> It eliminates manual page object instantiation boilerplate from test files.</p>
+    <p><strong>Scenario:</strong> Why use Promise.all when catching a popup tab in Playwright?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> To start listening for the popup event concurrently before firing the click action that opens the tab.</p>
   </details>
 </div>
 
 <div class="quiz-box">
   <h3>🧪 Knowledge Check</h3>
   <details>
-    <summary>Question: What is the role of `await use(...)` in Playwright custom fixture functions?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> It passes the initialized fixture object to the test function and marks the boundary between setup and teardown.</p>
-    <p><em>Rationale:</em> Code before `use()` is setup; code after `use()` is teardown.</p>
+    <summary>Question: What method closes a specific child tab window in Playwright?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> popupPage.close()</p>
+    <p><em>Rationale:</em> `close()` closes only the target page instance without terminating the browser context.</p>
   </details>
 </div>
 
@@ -278,13 +242,13 @@ export { expect } from '@playwright/test';
     <!-- CERTIFICATE -->
     <div id="certificate" class="certificate">
       <h2>🏆 Certificate of Completion</h2>
-      <p>Congratulations! You have completed 100% of <strong>Playwright Masterclass — Part 2: Page Object Model (POM), Custom Fixtures & Config Deep-Dive</strong>!</p>
+      <p>Congratulations! You have completed 100% of <strong>Playwright Masterclass (TestLeaf Syllabus) — Day 07–11: Dropdowns, Shadow DOM, iFrames, Popups & Alerts</strong>!</p>
       <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
     </div>
   </div>
 
   <script>
-    const flashcards = [{"q":"What is a Playwright fixture?","a":"An isolated environment setup/teardown component provided to test functions as parameters."},{"q":"What is the difference between test.extend() and new PageObject()?","a":"test.extend() automatically handles setup and teardown across tests via dependency injection."}];
+    const flashcards = [{"q":"How does Playwright handle Shadow DOM?","a":"Playwright locators penetrate Shadow DOM roots automatically without special shadow selectors."},{"q":"How do you catch a popup window opened by clicking a button?","a":"Use `const [popup] = await Promise.all([ page.waitForEvent(\"popup\"), button.click() ])`."}];
     let cardIdx = -1;
     let completedSet = new Set();
     let xp = 0;
