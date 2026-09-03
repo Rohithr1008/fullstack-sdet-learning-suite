@@ -29,9 +29,21 @@
     .btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     .progress-bar-fill { height: 8px; background: var(--success); width: 0%; transition: width 0.3s; margin-bottom: 20px; }
     body.focus-mode-active .top-controls, body.focus-mode-active .progress-bar-fill { display: none !important; }
-  </style>
+  
+.partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #2d3748; color: #e2e8f0; padding: 10px 16px; border-radius: 8px; margin: 10px 0 20px; font-size: 0.95rem; }
+.partnav a { color: #63b3ed; text-decoration: none; font-weight: 600; }
+.partnav a:hover { text-decoration: underline; }
+.partnav strong { color: #fff; }
+
+</style>
 </head>
 <body class="theme-dark">
+
+<div class="partnav">
+  <a href="../index.html">🏠 Master Index</a> |
+  <strong>Part 1: SQL Basics</strong> | <a href="Database_essentials_part2_study_app.html">Part 2: SQL Joins</a> | <a href="Database_essentials_part3_study_app.html">Part 3: ORMs & Testing</a>
+</div>
+
   <div class="container">
     <div class="top-controls">
       <button class="btn" onclick="document.body.classList.toggle('focus-mode-active')">🧘 Focus Mode</button>
