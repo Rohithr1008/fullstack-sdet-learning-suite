@@ -11,6 +11,8 @@
     h1 { color: var(--accent); }
     .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
     pre { background: #111827; color: #f6ad55; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    .btn-launch { display: inline-block; background: #ed8936; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+    .btn-launch:hover { background: #dd6b20; }
   
 /* ADHD Accessibility Additions */
 html.force-dark { color-scheme: dark; --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --border:#28374d; }
@@ -48,6 +50,7 @@ body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer {
         <li><strong>Frontend:</strong> Vanilla JS SPA with responsive card board UI (<code>public/app.js</code>).</li>
         <li><strong>Tests:</strong> Playwright API and E2E test suites (<code>tests/</code>).</li>
       </ul>
+      <a class="btn-launch" href="public/index.html">🚀 Launch Interactive Task Board UI</a>
     </div>
 
     <div class="section-card">
