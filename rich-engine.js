@@ -1,9 +1,67 @@
-<!DOCTYPE html>
+﻿const fs = require('fs');
+const path = require('path');
+
+const baseDir = 'C:\\Users\\rohit\\Documents\\learning-projects';
+
+// Generator helper for Javascript-Essentials style rich study apps
+function generateRichStudyApp(config) {
+  const { title, partName, partNum, folder, prevFile, nextFile, sections, flashcards } = config;
+
+  const sectionsHtml = sections.map((sec, idx) => {
+    const sNum = idx + 1;
+    return `
+<h2 id="s${sNum}">${sNum}. ${sec.title} <span class="est-time">⏱ ~${sec.time || 15} min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> ${sec.why}</div>
+<p>${sec.explanation}</p>
+
+${sec.diagram ? `<div class="why" style="background:#edf2f7;border-left-color:#4a5568;color:#2d3748;"><strong>📊 Visual Concept:</strong><br>${sec.diagram}</div>` : ''}
+
+${sec.code ? `
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>${sec.code}</code></pre>
+` : ''}
+
+${sec.annotations ? sec.annotations.map(ann => `<div class="line-annotation"><code>${ann.code}</code> — ${ann.text}</div>`).join('') : ''}
+
+${sec.sandbox ? sec.sandbox : ''}
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> ${sec.bug.pitfall}</p>
+    <p class="quiz-correct"><strong>Fix:</strong> ${sec.bug.fix}</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> ${sec.predict.q}</p>
+    <p class="quiz-correct"><strong>Answer:</strong> ${sec.predict.a}</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: ${sec.quiz.q}</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> ${sec.quiz.a}</p>
+    <p><em>Rationale:</em> ${sec.quiz.rationale}</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="${sNum}" onclick="toggleSection(${sNum})">Mark Section ${sNum} Complete</button></div>
+`;
+  }).join('\n<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">\n');
+
+  const flashcardsJson = JSON.stringify(flashcards);
+
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TypeScript for Testers — Part 1: Types, Interfaces & Type Narrowing</title>
+  <title>${title} — ${partName}</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -59,9 +117,9 @@
 
   <div class="partnav">
     <a href="../index.html">🏠 Master Index</a> |
-    
-    <strong>Part 1: Types, Interfaces & Type Narrowing</strong>
-    | <a href="Typescript_for_testers_part2_study_app.html">Next Part ▶</a>
+    ${prevFile ? `<a href="${prevFile}">◀ Prev Part</a> |` : ''}
+    <strong>${partName}</strong>
+    ${nextFile ? `| <a href="${nextFile}">Next Part ▶</a>` : ''}
   </div>
 
   <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
@@ -75,10 +133,10 @@
   </div>
 
   <div class="container">
-    <h1>TypeScript for Testers — Part 1: Types, Interfaces & Type Narrowing</h1>
+    <h1>${title} — ${partName}</h1>
     <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
     
-    <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
+    <div id="progressBar">📊 Progress: 0/${sections.length} sections completed (0%)</div>
     
     <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
       <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
@@ -97,138 +155,18 @@
     </div>
 
     <!-- SECTIONS -->
-    
-<h2 id="s1">1. TypeScript Primitives & Explicit vs Inferred Types <span class="est-time">⏱ ~15 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> In JavaScript test automation, passing `undefined` or `string` instead of `number` causes silent test failures. TypeScript catches type errors at compile time before tests run.</div>
-<p>TypeScript adds a static type system on top of JavaScript. Primitive types include `string`, `number`, `boolean`, `null`, `undefined`, and `symbol`. TypeScript uses type inference when variables are initialized, but explicit annotations are best practice for function parameters and test helpers.</p>
-
-
-
-
-<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>// Explicit primitive type annotations
-let testRunner: string = 'Playwright';
-let retryCount: number = 3;
-let isHeadless: boolean = true;
-
-// Custom interface for test user payload
-interface TestUser {
-  id: number;
-  username: string;
-  email: string;
-  role: 'admin' | 'tester' | 'guest'; // Union literal type
-  token?: string; // Optional field
-}
-
-// Function with typed parameters and return value
-function createAuthHeader(user: TestUser): Record<string, string> {
-  if (!user.token) {
-    throw new Error(`User ${user.username} is missing authentication token`);
-  }
-  return { Authorization: `Bearer ${user.token}` };
-}</code></pre>
-
-
-<div class="line-annotation"><code>role: 'admin' | 'tester' | 'guest'</code> — Union literal type. TypeScript compiler blocks any string other than these 3 exact values.</div><div class="line-annotation"><code>token?: string</code> — Optional property syntax (?). Indicates token may be a string or undefined.</div><div class="line-annotation"><code>Record<string, string></code> — Utility type representing an object with string keys and string values.</div>
-
-
-
-<div class="spotbug">
-  <details>
-    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Using `any` type everywhere, which disables all TypeScript compile-time safety.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Use explicit interface definitions or `unknown` when handling dynamic payload objects.</p>
-  </details>
-</div>
-
-<div class="predict">
-  <details>
-    <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> What happens if you run: createAuthHeader({ id: 1, username: "bob", email: "b@b.com", role: "superadmin" })?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> TypeScript compiler throws Error: Type "superadmin" is not assignable to type "admin" | "tester" | "guest".</p>
-  </details>
-</div>
-
-<div class="quiz-box">
-  <h3>🧪 Knowledge Check</h3>
-  <details>
-    <summary>Question: What is the key difference between `unknown` and `any` in TypeScript?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> `unknown` forces type checking/narrowing before usage, whereas `any` completely turns off type checking.</p>
-    <p><em>Rationale:</em> `unknown` is the type-safe counterpart of `any`.</p>
-  </details>
-</div>
-
-<div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
-
-<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
-
-<h2 id="s2">2. Interfaces, Custom Types & Playwright Fixtures <span class="est-time">⏱ ~20 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> Playwright test suites use TypeScript interfaces to define custom Page Object Models and shared test fixtures cleanly.</div>
-<p>Interfaces define contracts for objects. You can extend interfaces (`interface AdminUser extends TestUser`) and pass typed fixtures into Playwright `test.extend<MyFixtures>({ ... })`.</p>
-
-
-
-
-<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>import { test as base } from '@playwright/test';
-
-interface PageFixtures {
-  loginPage: LoginPage;
-  dashboardPage: DashboardPage;
-}
-
-export const test = base.extend<PageFixtures>({
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
-  },
-  dashboardPage: async ({ page }, use) => {
-    await use(new DashboardPage(page));
-  }
-});</code></pre>
-
-
-<div class="line-annotation"><code>base.extend<PageFixtures></code> — Extends Playwright base test runner with custom strongly-typed fixture objects.</div><div class="line-annotation"><code>await use(...)</code> — Passes fixture instance into the test function and cleans up after test completes.</div>
-
-
-
-<div class="spotbug">
-  <details>
-    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Not typing custom Playwright test parameters, leading to auto-complete failure in VS Code.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Always export typed `test` runner extended with custom fixture interfaces.</p>
-  </details>
-</div>
-
-<div class="predict">
-  <details>
-    <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> What happens in VS Code when typing `test("my test", ({ loginPage }) => { loginPage.` if fixtures are typed?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> VS Code IntelliSense instantly shows all methods and properties available on LoginPage.</p>
-  </details>
-</div>
-
-<div class="quiz-box">
-  <h3>🧪 Knowledge Check</h3>
-  <details>
-    <summary>Question: Which TypeScript keyword is used to combine two interfaces together?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> extends (or Intersection type &)</p>
-    <p><em>Rationale:</em> `interface Admin extends User` inherits all fields from User.</p>
-  </details>
-</div>
-
-<div class="mark"><button type="button" class="mark-btn" data-sec="2" onclick="toggleSection(2)">Mark Section 2 Complete</button></div>
-
+    ${sectionsHtml}
 
     <!-- CERTIFICATE -->
     <div id="certificate" class="certificate">
       <h2>🏆 Certificate of Completion</h2>
-      <p>Congratulations! You have completed 100% of <strong>TypeScript for Testers — Part 1: Types, Interfaces & Type Narrowing</strong>!</p>
-      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
+      <p>Congratulations! You have completed 100% of <strong>${title} — ${partName}</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: ${sections.length}/${sections.length} Sections Passed</p>
     </div>
   </div>
 
   <script>
-    const flashcards = [{"q":"Why prefer interface over type for object definitions in TS?","a":"Interfaces support declaration merging and OOP inheritance via extends."},{"q":"How do you mark a property as read-only in TypeScript?","a":"Prepend the property name with the `readonly` modifier."}];
+    const flashcards = ${flashcardsJson};
     let cardIdx = -1;
     let completedSet = new Set();
     let xp = 0;
@@ -241,14 +179,14 @@ export const test = base.extend<PageFixtures>({
     }
 
     function toggleSection(sNum) {
-      const btn = document.querySelector(`[data-sec="${sNum}"]`);
+      const btn = document.querySelector(\`[data-sec="\${sNum}"]\`);
       if (completedSet.has(sNum)) {
         completedSet.delete(sNum);
-        btn.innerText = `Mark Section ${sNum} Complete`;
+        btn.innerText = \`Mark Section \${sNum} Complete\`;
         btn.classList.remove('done');
       } else {
         completedSet.add(sNum);
-        btn.innerText = `✅ Section ${sNum} Completed!`;
+        btn.innerText = \`✅ Section \${sNum} Completed!\`;
         btn.classList.add('done');
         xp += 50;
         document.getElementById('xpCount').innerText = xp + ' XP';
@@ -257,10 +195,10 @@ export const test = base.extend<PageFixtures>({
     }
 
     function updateProgress() {
-      const total = 2;
+      const total = ${sections.length};
       const count = completedSet.size;
       const pct = Math.round((count / total) * 100);
-      document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
+      document.getElementById('progressBar').innerText = \`📊 Progress: \${count}/\${total} sections completed (\${pct}%)\`;
       if (count === total) {
         document.getElementById('certificate').classList.add('unlocked');
       }
@@ -284,9 +222,13 @@ export const test = base.extend<PageFixtures>({
     }
 
     function surpriseMe() {
-      const sec = Math.floor(Math.random() * 2) + 1;
+      const sec = Math.floor(Math.random() * ${sections.length}) + 1;
       document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
     }
   </script>
 </body>
-</html>
+</html>`;
+}
+
+module.exports = { generateRichStudyApp };
+console.log('Rich Study App Engine module created successfully!');
