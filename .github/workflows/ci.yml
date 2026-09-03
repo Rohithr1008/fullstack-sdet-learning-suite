@@ -1,0 +1,85 @@
+﻿name: Monorepo Integrity & Smoke Test CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Monorepo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify HTML Files Integrity
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const glob = (dir) => {
+              let results = [];
+              const list = fs.readdirSync(dir);
+              list.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat && stat.isDirectory() && file !== "node_modules" && file !== ".git") {
+                  results = results.concat(glob(filePath));
+                } else if (file.endsWith(".html")) {
+                  results.push(filePath);
+                }
+              });
+              return results;
+            };
+            const files = glob(process.cwd());
+            console.log(`Verified ${files.length} HTML files.`);
+            if (files.length < 40) process.exit(1);
+          '
+
+      - name: Run Study Apps Smoke Test
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const glob = (dir) => {
+              let results = [];
+              const list = fs.readdirSync(dir);
+              list.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat && stat.isDirectory() && file !== "node_modules" && file !== ".git") {
+                  results = results.concat(glob(filePath));
+                } else if (file.endsWith("study_app.html")) {
+                  results.push(filePath);
+                }
+              });
+              return results;
+            };
+            const apps = glob(process.cwd());
+            let pass = 0;
+            apps.forEach(app => {
+              const content = fs.readFileSync(app, "utf8");
+              if (content.includes("<style") && (content.includes("section-card") || content.includes("quiz-box") || content.includes("container"))) {
+                pass++;
+              } else {
+                console.error(`Smoke test failed for: ${app}`);
+              }
+            });
+            console.log(`Passed ${pass}/${apps.length} study apps.`);
+            if (pass !== apps.length) process.exit(1);
+          '
+
+      - name: Verify Master Index & Documentation
+        run: |
+          test -f index.html
+          test -f README.md
+          test -f learning_roadmap.md
+          test -f fixes_summary.md
+          echo "All master docs and launchpad present."
