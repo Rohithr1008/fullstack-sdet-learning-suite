@@ -1,132 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TypeScript Develop + Test — Part 1</title>
-<style>
-:root{--accent:#3178C6;--bg:#f0f5fb;--text:#152033;--card:#fff;--muted:#5b6b80;--border:#d0dceb}
-html.force-dark,html.force-dark body{--bg:#0d1420;--text:#dbe4ef;--card:#151f30;--muted:#8a9bb0;--border:#28374d}
-html.force-dark{color-scheme:dark}
-body{margin:0;font:16px/1.6 "Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:16px 18px 48px;max-width:880px;margin-inline:auto}
-body.font-sm{font-size:14px} body.font-lg{font-size:18px}
-.skip-link{position:absolute;left:-9999px}
-.skip-link:focus{position:fixed;left:8px;top:8px;z-index:9999;background:#fff;color:var(--accent);padding:8px 14px;border-radius:6px;font-weight:700}
-.partnav{display:flex;gap:8px;flex-wrap:wrap;background:#1e3a5f;color:#e2e8f0;padding:8px 12px;border-radius:8px;margin:6px 0 12px}
-.partnav a{color:#7dd3fc;text-decoration:none;font-weight:600}
-.partnav strong{color:#fff}
-h1{color:var(--accent)} h2{border-bottom:3px solid var(--accent);padding-bottom:6px;margin-top:2rem}
-.why{background:#ebf4ff;border-left:4px solid var(--accent);padding:6px 12px;border-radius:6px;margin:6px 0 10px;font-size:.92rem}
-html.force-dark .why{background:#0f1a2a}
-.quiz-box,.panel,.certificate{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 18px;margin:14px 0}
-.quiz-box details{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin:8px 0}
-summary{cursor:pointer;font-weight:600}
-.quiz-correct{color:#276749;font-weight:700}
-html.force-dark .quiz-correct{color:#68d391}
-#progressBar{background:#1e3a5f;color:#e2e8f0;border-radius:8px;padding:10px 16px;font-weight:600;text-align:center}
-.mark button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-weight:600;cursor:pointer}
-.toolbar{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px;align-items:center}
-.toolbar button,.theme-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;cursor:pointer}
-body.focus-mode #progressBar,body.focus-mode .scope,body.focus-mode footer{display:none!important}
-#focusHint{display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600}
-html.force-dark #focusHint{background:#1a1a2e;color:#c7d2fe}
-.theme-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer}
-pre{overflow:auto;background:var(--card);border:1px solid var(--border);padding:12px;border-radius:8px;font-size:14px}
-.certificate{text-align:center;border-color:#d69e2e}
-.certificate.locked{opacity:.75}
-.scope{background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:.95rem}
-footer{text-align:center;margin-top:28px;color:var(--muted);font-size:13px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TypeScript Develop & Test Loop — Part 1: TypeScript Build Pipeline, tsconfig & Express API Setup</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #4ade80;
+      --warning: #facc15;
+      --code-bg: #090d16;
+      --muted: #94a3b8;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #7dd3fc; margin-top: 36px; font-size: 1.5rem; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: normal; margin-left: 8px; }
+    .why { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; color: #7dd3fc; overflow-x: auto; font-size: 0.95rem; }
+    .code-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.85rem; color: #94a3b8; border: 1px solid var(--border); border-bottom: none; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .line-annotation { background: #131c2e; border-left: 3px solid #38bdf8; padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; color: #cbd5e1; }
+    .line-annotation code { color: #facc15; }
+    .quiz-box { background: #162032; border: 2px solid #0284c7; border-radius: 10px; padding: 16px; margin: 20px 0; }
+    .quiz-box details { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-top: 8px; }
+    .quiz-box summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
+    .quiz-correct { color: #4ade80; }
+    .spotbug details, .predict details { background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .spotbug summary, .predict summary { cursor: pointer; font-weight: bold; color: #facc15; }
+    .mark-btn { background: #16a34a; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .mark-btn.done { background: #475569; }
+    
+    /* Panel / Flashcards / Boost */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 20px 0; }
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #1e293b; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.95rem; }
+    .partnav a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: #1e293b; padding: 10px 16px; border-radius: 8px; }
+    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0f172a; color: #fff; cursor: pointer; font-weight: 600; }
+    #progressBar { font-weight: bold; color: #38bdf8; margin: 14px 0; }
+    
+    /* Focus & Dark Mode */
+    body.focus-mode .partnav, body.focus-mode .toolbar, body.focus-mode #boostBar, body.focus-mode #srPanel { display: none !important; }
+    .focus-banner { display: none; background: #0284c7; color: #fff; text-align: center; padding: 8px; font-weight: bold; border-radius: 6px; margin-bottom: 16px; }
+    body.focus-mode .focus-banner { display: block !important; }
+    
+    /* Certificate */
+    .certificate { display: none; background: linear-gradient(135deg, #1e293b, #0f172a); border: 3px solid #facc15; border-radius: 14px; padding: 28px; text-align: center; margin: 30px 0; }
+    .certificate.unlocked { display: block; }
+  </style>
 </head>
-<body>
-<a class="skip-link" href="#progressBar">Skip to content</a>
-<div class="partnav"><a href="index.html">Hub</a><strong>1 Deeper TS</strong><a href="Typescript_develop_test_part2_study_app.html">2 App →</a><a href="Typescript_develop_test_part3_study_app.html">3 Test →</a></div>
-<h1>TypeScript Develop + Test — Part 1</h1>
-<button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
-<div class="toolbar">
-  <span style="font-weight:600">📐 Size:</span>
-  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
-  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
-  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
-  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
-  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
-  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
+<body id="mainContent">
+
+  <div class="partnav">
+    <a href="../index.html">🏠 Master Index</a> |
+    
+    <strong>Part 1: TypeScript Build Pipeline, tsconfig & Express API Setup</strong>
+    | <a href="Typescript_develop_test_part2_study_app.html">Next Part ▶</a>
+  </div>
+
+  <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
+
+  <div class="toolbar">
+    <span>📐 Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+  </div>
+
+  <div class="container">
+    <h1>TypeScript Develop & Test Loop — Part 1: TypeScript Build Pipeline, tsconfig & Express API Setup</h1>
+    <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
+    
+    <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
+    
+    <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
+      <span>⭐ <strong>XP: <span id="xpCount">0 XP</span></strong></span>
+      <button onclick="surpriseMe()" style="background:#0284c7;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">🎲 Surprise Question</button>
+    </div>
+
+    <!-- FLASHCARD DRILL -->
+    <div id="srPanel" class="panel">
+      <h3 style="margin-top:0;color:#38bdf8;">🃏 Spaced Repetition Flashcard Drill</h3>
+      <p id="cardQ">Click 'Start Review' to begin flashcard testing.</p>
+      <p id="cardA" style="display:none;color:#4ade80;font-weight:bold;margin-top:10px;"></p>
+      <div style="margin-top:12px;">
+        <button id="cardBtn" onclick="nextCard()" style="background:#38bdf8;color:#0f172a;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;">Start Review</button>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    
+<h2 id="s1">1. Configuring tsconfig.json & Modern Build Tooling (tsx, esbuild, tsc) <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Building full-stack applications in TypeScript requires compiling TS files into production JS while maintaining instant hot-reloading during local development.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of TypeScript compilation like translating a book written in secret code (TypeScript) into English (JavaScript):\n• `tsconfig.json` = The translation dictionary rules (e.g. "Strict mode ON", "Target ES2022 JavaScript").\n• `tsc` = The slow, careful official translator who double-checks every single rule before publishing.\n• `tsx` / `esbuild` = The lightning-fast interpreter running live next to you while you write, giving instant feedback!</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">`tsconfig.json` dictates how TypeScript parses and type-checks your codebase. Key settings include:\n\n• `target: "ES2022"`: Controls the version of ECMAScript output.\n• `module: "CommonJS"` or `"NodeNext"`: Controls how `import`/`export` or `require()` statements compile.\n• `strict: true`: Enables strict null checks and prevents implicit `any` types.\n• `outDir: "./dist"`: Specifies where compiled production JS files are emitted.\n\nFor fast local development, toolchains like `tsx` (TypeScript Execute) use `esbuild` under the hood to run `.ts` files directly in Node.js without pre-compiling, making dev server restarts sub-millisecond!</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "tests"]
+}</code></pre>
+
+
+<div class="line-annotation"><code>"strict": true</code> — Enables all strict type-checking options, preventing accidental null crashes in production.</div><div class="line-annotation"><code>"outDir": "./dist"</code> — Places compiled JavaScript output files into dist directory.</div><div class="line-annotation"><code>"rootDir": "./src"</code> — Specifies source folder location for TypeScript input files.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Setting `"strict": false` or `"noImplicitAny": false`, allowing untyped parameters to bypass compiler safety.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Always set `"strict": true` in production tsconfig.json configurations.</p>
+  </details>
 </div>
-<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — progress bar and extras hidden.</div>
-<p>Deeper TypeScript for builders: modules, async, generics, utilities, strict tsconfig, API unions, errors.</p>
-<div class="scope"><strong>Phase B.</strong> Thin <a href="../typescript-for-testers/index.html">typescript-for-testers</a> is not enough for TS-only develop jobs.</div>
-<div id="progressBar" role="status">📊 Progress: 0/10 sections (0%)</div>
 
-<h2 id="s1">1. Beyond thin TS</h2>
-<div class="why">🚩 Phase A = types for tests. Phase B = types for shipping an app you also test.</div>
-<div class="quiz-box"><details><summary>Is thin TS enough for TS-only develop roles?</summary><p class="quiz-correct">No — use Phase B.</p></details></div>
-<div class="mark"><button type="button" onclick="toggleSection(1)">Mark Complete</button></div>
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What does `outDir` specify in tsconfig.json?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> The output directory where compiled JavaScript files (.js) are written by the TypeScript compiler.</p>
+  </details>
+</div>
 
-<h2 id="s2">2. Modules (NodeNext)</h2>
-<div class="why">🚩 ESM + NodeNext → use <code>.js</code> extensions in relative imports.</div>
-<pre><code>import type { Task } from "./types.js";</code></pre>
-<div class="quiz-box"><details><summary>Why import from <code>./types.js</code>?</summary><p class="quiz-correct">Node resolves the emitted path.</p></details></div>
-<div class="mark"><button type="button" onclick="toggleSection(2)">Mark Complete</button></div>
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: Why do developers use `tsx` instead of running `tsc` on every file edit during dev?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> `tsx` uses esbuild to execute TypeScript files instantly in memory without writing slow build files to disk.</p>
+    <p><em>Rationale:</em> `tsx` provides sub-millisecond hot-reloading for local Node.js development.</p>
+  </details>
+</div>
 
-<h2 id="s3">3. Async &amp; Promise typing</h2>
-<div class="why">🚩 Annotate resolved values — use <code>unknown</code> for JSON, then narrow.</div>
-<div class="quiz-box"><details><summary><code>any</code> or <code>unknown</code> for <code>res.json()</code>?</summary><p class="quiz-correct">unknown, then narrow.</p></details></div>
-<div class="mark"><button type="button" onclick="toggleSection(3)">Mark Complete</button></div>
+<div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
 
-<h2 id="s4">4. Generics (light)</h2>
-<div class="why">🚩 One <code>ApiOk&lt;T&gt;</code> for every endpoint payload.</div>
-<pre><code>type ApiOk&lt;T&gt; = { ok: true; data: T };</code></pre>
-<div class="mark"><button type="button" onclick="toggleSection(4)">Mark Complete</button></div>
+<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
 
-<h2 id="s5">5. Utility types</h2>
-<div class="why">🚩 PATCH bodies: <code>Partial</code>, <code>Pick</code>, <code>Omit</code>, <code>Record</code>.</div>
-<div class="mark"><button type="button" onclick="toggleSection(5)">Mark Complete</button></div>
+<h2 id="s2">2. Building Strongly-Typed Express APIs in TypeScript <span class="est-time">⏱ ~35 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Writing Express backend APIs in pure JS leads to missing `req.body` properties and unhandled `undefined` parameters. TypeScript enforces type contracts on HTTP Requests and Responses.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Imagine a post office counter (Express API Router) with a strict dimensions gauge (TypeScript Request Types):\n• If a package fits the exact slot (valid JSON payload matching `TaskPayload` interface), it gets processed and stamped.\n• If a package is oversized or missing a label (missing `title` field), the gauge physically blocks it before it enters the delivery sorting room!</p>
+      </div>
 
-<h2 id="s6">6. Strict tsconfig</h2>
-<div class="why">🚩 <code>strict</code> + <code>noUncheckedIndexedAccess</code> force real null checks.</div>
-<div class="mark"><button type="button" onclick="toggleSection(6)">Mark Complete</button></div>
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">When creating Express routes in TypeScript, we import `Request` and `Response` types from `express`. We define interface DTOs (Data Transfer Objects) for request parameters, request body payloads, and response structures. This ensures that any attempt to read an invalid body key (like `req.body.ttl`) is flagged immediately by TypeScript.</p>
+    </p>
 
-<h2 id="s7">7. Discriminated unions</h2>
-<div class="why">🚩 <code>ok: true | false</code> narrows success vs error shapes.</div>
-<pre><code>type ApiResult&lt;T&gt; = { ok: true; data: T } | { ok: false; error: string; code: string };</code></pre>
-<div class="mark"><button type="button" onclick="toggleSection(7)">Mark Complete</button></div>
 
-<h2 id="s8">8. Error typing</h2>
-<div class="why">🚩 <code>catch (e)</code> is <code>unknown</code>; API <code>code</code> helps tests branch.</div>
-<div class="mark"><button type="button" onclick="toggleSection(8)">Mark Complete</button></div>
 
-<h2 id="s9">9. Practice &amp; pitfalls</h2>
-<div class="why">🚩 Exercises: <code>ApiResult&lt;string&gt;</code> for <code>"pong"</code> · safe <code>firstTask</code> · <code>UpdateTaskBody</code> with <code>Partial</code> + <code>Pick</code>.</div>
-<div class="quiz-box"><details><summary>Write <code>ApiResult&lt;string&gt;</code> for <code>"pong"</code></summary><p class="quiz-correct"><code>{ ok: true, data: "pong" }</code></p></details><details><summary>Bug: <code>ok: boolean</code> on both branches?</summary><p class="quiz-correct">Use literal <code>ok: true</code> / <code>ok: false</code>.</p></details></div>
-<div class="mark"><button type="button" onclick="toggleSection(9)">Mark Complete</button></div>
 
-<h2 id="s10">10. Challenges &amp; answers</h2>
-<div class="why">🚩 <code>unwrap&lt;T&gt;</code> throws on error · <code>Record&lt;TaskStatus, number&gt;</code> needs all keys · stable <code>code</code> helps tests.</div>
-<div class="quiz-box"><details><summary>C1 — <code>unwrap</code> on error?</summary><p class="quiz-correct">Throw with <code>code</code> + <code>error</code>.</p></details><details><summary>C3 — Why body <code>code</code> not just HTTP status?</summary><p class="quiz-correct">Typed stable assertions in TS/tests.</p></details></div>
-<div class="mark"><button type="button" onclick="toggleSection(10)">Mark Complete</button></div>
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>import express, { Request, Response, Router } from 'express';
 
-<div id="cert" class="certificate locked"><h3>🏆 Part 1 Certificate</h3><p>Complete all 10 sections to unlock.</p></div>
-<footer>Part 1 → Part 2: run <code>npm start</code> on TaskBoard</footer>
-<script>
-(function(){
-  const TOTAL=10,PREFIX='tdt1-sec-',THEME='tdt1-theme',FONT='tdt1-font';
-  function done(){let n=0;for(let i=1;i<=TOTAL;i++)if(localStorage.getItem(PREFIX+i)==='1')n++;return n;}
-  window.updateProgress=function(){const n=done();document.getElementById('progressBar').textContent='📊 Progress: '+n+'/'+TOTAL+' sections ('+Math.round(100*n/TOTAL)+'%)';
-    const c=document.getElementById('cert');if(n>=TOTAL){c.classList.remove('locked');c.innerHTML='<h3>🏆 Part 1 Complete!</h3><p>Deeper TS foundations — open Part 2 study app.</p>';}};
-  window.toggleSection=function(i){const k=PREFIX+i;localStorage.setItem(k,localStorage.getItem(k)==='1'?'0':'1');updateProgress();};
-  window.toggleTheme=function(){const d=document.documentElement.classList.toggle('force-dark');localStorage.setItem(THEME,d?'dark':'light');
-    document.getElementById('themeBtn').textContent=d?'☀️ Light mode':'🌙 Dark mode';};
-  window.fontZoom=function(dir){document.body.classList.remove('font-sm','font-lg');let cur=localStorage.getItem(FONT)||'md';
-    if(dir===0)cur='md';else if(dir<0)cur=cur==='lg'?'md':'sm';else cur=cur==='sm'?'md':'lg';
-    localStorage.setItem(FONT,cur);if(cur==='sm')document.body.classList.add('font-sm');if(cur==='lg')document.body.classList.add('font-lg');};
-  window.focusMode=function(btn){const on=document.body.classList.toggle('focus-mode');btn.setAttribute('aria-pressed',on?'true':'false');
-    document.getElementById('focusHint').style.display=on?'block':'none';if(on)collapseAll(false);};
-  window.collapseAll=function(open){document.querySelectorAll('details').forEach(d=>{d.open=!!open;});};
-  if(localStorage.getItem(THEME)==='dark'||(!localStorage.getItem(THEME)&&matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('force-dark');document.getElementById('themeBtn').textContent='☀️ Light mode';}
-  const savedFont=localStorage.getItem(FONT);if(savedFont==='sm')document.body.classList.add('font-sm');if(savedFont==='lg')document.body.classList.add('font-lg');
-  updateProgress();
-})();
-</script>
-<!--P1H-END-->
+// Interface Data Transfer Object (DTO) for Creating Tasks
+export interface CreateTaskDTO {
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high';
+}
+
+// Interface for API Response
+export interface TaskResponse {
+  id: number;
+  title: string;
+  description: string;
+  priority: string;
+  createdAt: string;
+}
+
+const router = Router();
+let taskStore: TaskResponse[] = [];
+
+// Strongly-typed POST handler: Request<Params, ResBody, ReqBody>
+router.post('/tasks', (req: Request<{}, {}, CreateTaskDTO>, res: Response<TaskResponse | { error: string }>) => {
+  const { title, description, priority } = req.body;
+
+  if (!title || title.trim().length === 0) {
+    return res.status(400).json({ error: 'Task title is required' });
+  }
+
+  const newTask: TaskResponse = {
+    id: taskStore.length + 1,
+    title: title.trim(),
+    description: description || '',
+    priority: priority || 'medium',
+    createdAt: new Date().toISOString()
+  };
+
+  taskStore.push(newTask);
+  return res.status(201).json(newTask);
+});
+
+export default router;</code></pre>
+
+
+<div class="line-annotation"><code>req: Request<{}, {}, CreateTaskDTO></code> — Types Express request body parameter as `CreateTaskDTO` interface.</div><div class="line-annotation"><code>res: Response<TaskResponse | { error: string }></code> — Types Express response to guarantee returning a `TaskResponse` or error JSON.</div><div class="line-annotation"><code>priority: priority || 'medium'</code> — Provides fallback default value for optional fields.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Not casting or typing `req.body`, causing `req.body.title` to be inferred as `any`.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Pass request body DTO interface as the 3rd generic parameter in Express `Request<Params, ResBody, ReqBody>`.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What HTTP status code is returned if `title` is missing in the request body?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> HTTP 400 Bad Request with JSON body `{ error: "Task title is required" }`.</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: How do generic parameters in Express Request<P, ResBody, ReqBody> help backend development?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> They enforce static typing on request query params, response body, and request body JSON payloads.</p>
+    <p><em>Rationale:</em> Generics eliminate `any` types on Express route handlers.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="2" onclick="toggleSection(2)">Mark Section 2 Complete</button></div>
+
+
+    <!-- CERTIFICATE -->
+    <div id="certificate" class="certificate">
+      <h2>🏆 Certificate of Completion</h2>
+      <p>Congratulations! You have completed 100% of <strong>TypeScript Develop & Test Loop — Part 1: TypeScript Build Pipeline, tsconfig & Express API Setup</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
+    </div>
+  </div>
+
+  <script>
+    const flashcards = [{"q":"What is tsx in Node.js development?","a":"A fast TypeScript execution CLI tool powered by esbuild that runs .ts files directly."},{"q":"What does strictNullChecks do in tsconfig.json?","a":"It forces developers to explicitly handle null and undefined types, preventing runtime null pointer crashes."}];
+    let cardIdx = -1;
+    let completedSet = new Set();
+    let xp = 0;
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-header').nextElementSibling.innerText;
+      navigator.clipboard.writeText(code);
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy', 2000);
+    }
+
+    function toggleSection(sNum) {
+      const btn = document.querySelector(`[data-sec="${sNum}"]`);
+      if (completedSet.has(sNum)) {
+        completedSet.delete(sNum);
+        btn.innerText = `Mark Section ${sNum} Complete`;
+        btn.classList.remove('done');
+      } else {
+        completedSet.add(sNum);
+        btn.innerText = `✅ Section ${sNum} Completed!`;
+        btn.classList.add('done');
+        xp += 50;
+        document.getElementById('xpCount').innerText = xp + ' XP';
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = 2;
+      const count = completedSet.size;
+      const pct = Math.round((count / total) * 100);
+      document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
+      if (count === total) {
+        document.getElementById('certificate').classList.add('unlocked');
+      }
+    }
+
+    function nextCard() {
+      const q = document.getElementById('cardQ');
+      const a = document.getElementById('cardA');
+      const btn = document.getElementById('cardBtn');
+
+      if (a.style.display === 'none' && cardIdx >= 0) {
+        a.style.display = 'block';
+        btn.innerText = 'Next Flashcard ▶';
+      } else {
+        cardIdx = (cardIdx + 1) % flashcards.length;
+        q.innerText = 'Q: ' + flashcards[cardIdx].q;
+        a.innerText = 'A: ' + flashcards[cardIdx].a;
+        a.style.display = 'none';
+        btn.innerText = 'Show Answer 👁';
+      }
+    }
+
+    function surpriseMe() {
+      const sec = Math.floor(Math.random() * 2) + 1;
+      document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
