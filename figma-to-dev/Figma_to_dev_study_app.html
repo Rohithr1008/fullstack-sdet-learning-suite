@@ -1,220 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Figma to Dev — Handoff & Dev Mode</title>
-<style>
-:root { --accent:#1d4f91; --bg:#f4f7fb; --text:#182333; --card:#fff; --muted:#5b6b80; --border:#d9e2ec; }
-html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
-html.force-dark { color-scheme: dark; }
-body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
-.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
-.partnav a { color:#93c5fd; text-decoration:none; font-weight:600; }
-.partnav strong { color:#fff; }
-.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 12px; align-items:center; }
-.toolbar button { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; cursor:pointer; }
-#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; margin-bottom:16px; }
-.bar { height:8px; background:#334155; border-radius:999px; margin-top:6px; overflow:hidden; }
-.fill { height:100%; background:#38a169; width:0%; transition:width 0.3s; }
-h1 { color:var(--accent); }
-h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
-.quiz-box, .playground { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
-.quiz-box details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
-summary { cursor:pointer; font-weight:600; }
-pre, code { font-family:ui-monospace,Consolas,monospace; }
-pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
-.mark { margin:12px 0; }
-.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; }
-.mark button.done { background:#276749; }
-
-/* Interactive Token Matcher */
-table { width:100%; border-collapse:collapse; margin:10px 0; }
-th, td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
-
-/* ADHD Accessibility Additions */
-html.force-dark { color-scheme: dark; --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --border:#28374d; }
-body.font-sm { font-size: 14px !important; }
-body.font-lg { font-size: 18px !important; }
-.skip-link { position: absolute; left: -9999px; }
-.skip-link:focus { position: fixed; left: 8px; top: 8px; z-index: 9999; background: #fff; color: #1d4f91; padding: 8px 14px; border-radius: 6px; font-weight: 700; }
-.toolbar-adhd { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; align-items: center; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px; }
-.toolbar-adhd button { padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: 600; }
-body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer { display: none !important; }
-.est-time { font-size: 0.82rem; background: #e2e8f0; color: #2d3748; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-
-/* Enhanced Focus Mode */
-body.focus-mode #progressBar,
-body.focus-mode .partnav,
-body.focus-mode footer,
-body.focus-mode .studyplan7,
-body.focus-mode #boostBar,
-body.focus-mode #srPanel,
-body.focus-mode #learningPathPanel { display: none !important; }
-
-body.focus-mode .container { max-width: 760px !important; margin: 20px auto; }
-body.focus-mode h1 { font-size: 1.6rem; text-align: center; }
-body.focus-mode .section-card, body.focus-mode .quiz-box { box-shadow: 0 0 20px rgba(99,179,237,0.3) !important; border-color: #63b3ed !important; }
-
-.focus-banner { display: none; background: #2b6cb0; color: #fff; text-align: center; padding: 6px; font-weight: bold; border-radius: 6px; margin: 10px 0; }
-body.focus-mode .focus-banner { display: block !important; }
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Figma to Developer Essentials — Part 1: Figma Dev Mode, Auto Layout to Flexbox & Design Tokens</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #4ade80;
+      --warning: #facc15;
+      --code-bg: #090d16;
+      --muted: #94a3b8;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #7dd3fc; margin-top: 36px; font-size: 1.5rem; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: normal; margin-left: 8px; }
+    .why { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; color: #7dd3fc; overflow-x: auto; font-size: 0.95rem; }
+    .code-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.85rem; color: #94a3b8; border: 1px solid var(--border); border-bottom: none; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .line-annotation { background: #131c2e; border-left: 3px solid #38bdf8; padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; color: #cbd5e1; }
+    .line-annotation code { color: #facc15; }
+    .quiz-box { background: #162032; border: 2px solid #0284c7; border-radius: 10px; padding: 16px; margin: 20px 0; }
+    .quiz-box details { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-top: 8px; }
+    .quiz-box summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
+    .quiz-correct { color: #4ade80; }
+    .spotbug details, .predict details { background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .spotbug summary, .predict summary { cursor: pointer; font-weight: bold; color: #facc15; }
+    .mark-btn { background: #16a34a; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .mark-btn.done { background: #475569; }
+    
+    /* Panel / Flashcards / Boost */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 20px 0; }
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #1e293b; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.95rem; }
+    .partnav a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: #1e293b; padding: 10px 16px; border-radius: 8px; }
+    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0f172a; color: #fff; cursor: pointer; font-weight: 600; }
+    #progressBar { font-weight: bold; color: #38bdf8; margin: 14px 0; }
+    
+    /* Focus & Dark Mode */
+    body.focus-mode .partnav, body.focus-mode .toolbar, body.focus-mode #boostBar, body.focus-mode #srPanel { display: none !important; }
+    .focus-banner { display: none; background: #0284c7; color: #fff; text-align: center; padding: 8px; font-weight: bold; border-radius: 6px; margin-bottom: 16px; }
+    body.focus-mode .focus-banner { display: block !important; }
+    
+    /* Certificate */
+    .certificate { display: none; background: linear-gradient(135deg, #1e293b, #0f172a); border: 3px solid #facc15; border-radius: 14px; padding: 28px; text-align: center; margin: 30px 0; }
+    .certificate.unlocked { display: block; }
+  </style>
 </head>
 <body id="mainContent">
 
-<a class="skip-link" href="#mainContent">Skip to content</a>
-<div class="focus-banner">🧘 Focus Mode Active</div>
-<div class="toolbar-adhd">
-  <span>📐 Text Size:</span>
-  <button onclick="document.body.classList.remove('font-sm','font-lg')">Default</button>
-  <button onclick="document.body.classList.add('font-sm')">A-</button>
-  <button onclick="document.body.classList.add('font-lg')">A+</button>
-  <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
-</div>
-
-
-<div class="partnav">
-  <strong>Figma to Dev:</strong>
-  <span>Mini Kit (Handoff)</span> ·
-  <a href="index.html">Hub</a>
-</div>
-
-<div class="toolbar">
-  <button id="themeToggle">🌓 Toggle Dark Mode</button>
-</div>
-
-<div id="progressBar">
-  <div id="progressLabel">Mini Kit Progress: 0/4 completed</div>
-  <div class="bar"><div class="fill" id="progressFill"></div></div>
-</div>
-
-<h1>Figma to Dev — Handoff & Dev Mode</h1>
-<p>Master design handoff literacy, Auto Layout to Flexbox mapping, design tokens, and Code Connect principles.</p>
-
-<section id="sec-1">
-  <h2>1. Figma Auto Layout vs CSS Flexbox</h2>
-  <div class="playground">
-    <h3>Design-to-Code Layout Mapping</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Figma Auto Layout Property</th>
-          <th>CSS Equivalent</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Direction (Vertical / Horizontal)</td>
-          <td><code>flex-direction: column / row</code></td>
-        </tr>
-        <tr>
-          <td>Item Spacing (Gap)</td>
-          <td><code>gap: 16px</code></td>
-        </tr>
-        <tr>
-          <td>Padding (Horizontal / Vertical)</td>
-          <td><code>padding: 12px 16px</code></td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="partnav">
+    <a href="../index.html">🏠 Master Index</a> |
+    
+    <strong>Part 1: Figma Dev Mode, Auto Layout to Flexbox & Design Tokens</strong>
+    
   </div>
-  <div class="mark"><button onclick="toggleSec(1)">Mark Section 1 Complete</button></div>
-</section>
 
-<section id="sec-2">
-  <h2>2. Design Tokens Mapping Table</h2>
-  <div class="playground">
-    <h3>Figma Variable to CSS Custom Property</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Figma Design Token</th>
-          <th>CSS Custom Property</th>
-          <th>Sample Value</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>Color/Brand/Primary</code></td>
-          <td><code>--color-brand-primary</code></td>
-          <td><span style="display:inline-block;width:12px;height:12px;background:#1d4f91;border-radius:2px;margin-right:4px;"></span> #1d4f91</td>
-        </tr>
-        <tr>
-          <td><code>Spacing/3</code></td>
-          <td><code>--space-3</code></td>
-          <td>12px</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
+
+  <div class="toolbar">
+    <span>📐 Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
   </div>
-  <div class="mark"><button onclick="toggleSec(2)">Mark Section 2 Complete</button></div>
-</section>
 
-<section id="sec-3">
-  <h2>3. Dev Mode & Code Connect</h2>
-  <pre><code>// Figma Code Connect Mapping Definition
-import { figma } from '@figma/code-connect';
-import { Button } from './Button';
+  <div class="container">
+    <h1>Figma to Developer Essentials — Part 1: Figma Dev Mode, Auto Layout to Flexbox & Design Tokens</h1>
+    <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
+    
+    <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
+    
+    <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
+      <span>⭐ <strong>XP: <span id="xpCount">0 XP</span></strong></span>
+      <button onclick="surpriseMe()" style="background:#0284c7;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">🎲 Surprise Question</button>
+    </div>
 
-figma.connect(Button, 'https://figma.com/file/...', {
-  props: {
-    label: figma.string('Text Content'),
-    variant: figma.enum('Type', { Primary: 'primary', Secondary: 'secondary' })
-  },
-  example: (props) =&gt; &lt;Button variant={props.variant}&gt;{props.label}&lt;/Button&gt;
-});</code></pre>
-  <div class="mark"><button onclick="toggleSec(3)">Mark Section 3 Complete</button></div>
-</section>
+    <!-- FLASHCARD DRILL -->
+    <div id="srPanel" class="panel">
+      <h3 style="margin-top:0;color:#38bdf8;">🃏 Spaced Repetition Flashcard Drill</h3>
+      <p id="cardQ">Click 'Start Review' to begin flashcard testing.</p>
+      <p id="cardA" style="display:none;color:#4ade80;font-weight:bold;margin-top:10px;"></p>
+      <div style="margin-top:12px;">
+        <button id="cardBtn" onclick="nextCard()" style="background:#38bdf8;color:#0f172a;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;">Start Review</button>
+      </div>
+    </div>
 
-<section id="sec-4">
-  <h2>4. Knowledge Check Quiz</h2>
-  <div class="quiz-box">
-    <details>
-      <summary>Q1: How does Auto Layout in Figma map to CSS layout rules?</summary>
-      <p><b>Answer:</b> Auto Layout operates identically to CSS Flexbox, controlling direction, item spacing (gap), and container padding.</p>
-    </details>
-  </div>
-  <div class="mark"><button onclick="toggleSec(4)">Mark Section 4 Complete</button></div>
-</section>
+    <!-- SECTIONS -->
+    
+<h2 id="s1">1. What is Figma Dev Mode & How Designers Communicate Layouts <span class="est-time">⏱ ~25 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Front-end developers and SDETs receive design specs from UI/UX designers in Figma. Understanding how Figma measures padding, gap, typography, and colors prevents pixel-imperfect UI implementations.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Figma like a digital architect blueprint for a house:\n• The UI Designer draws the house blueprint (button colors, screen layouts, fonts).\n• Figma Dev Mode is the measurements tape tool that lets you click any door or window on the blueprint to see exact dimensions in inches (pixels, rems, hex color codes).\n• The Developer is the builder taking those exact blueprint measurements and constructing the physical house in HTML & CSS!</p>
+      </div>
 
-<script>
-const TOTAL_SECS = 4;
-function updateProgress() {
-  let done = 0;
-  for(let i=1; i<=TOTAL_SECS; i++) {
-    if(localStorage.getItem('figma-p1-s'+i) === '1') done++;
-  }
-  document.getElementById('progressLabel').textContent = `Mini Kit Progress: ${done}/${TOTAL_SECS} completed`;
-  document.getElementById('progressFill').style.width = `${(done/TOTAL_SECS)*100}%`;
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Figma Dev Mode transforms visual design elements into inspectable CSS code snippets. When you inspect a frame in Figma Dev Mode, it exposes:\n\n1. Dimensions & Spacing: Width, height, padding (top, right, bottom, left), and gap between elements.\n2. Color Tokens: Hex codes (e.g. `#38bdf8`), RGBA values, or Design Tokens (e.g. `var(--color-primary)`).\n3. Typography: `font-family`, `font-size`, `font-weight`, `line-height`, and `letter-spacing`.\n4. Code Connect & Assets: Direct CSS/Tailwind exports and downloadable SVG/PNG assets.</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>/* CSS implementation extracted directly from Figma Dev Mode inspect panel */
+.button-primary {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 24px; /* Figma: Padding Vertical 12px, Horizontal 24px */
+  gap: 8px; /* Figma: Item Spacing 8px */
   
-  for(let i=1; i<=TOTAL_SECS; i++) {
-    const btn = document.querySelector(`#sec-${i} .mark button`);
-    if(btn) {
-      if(localStorage.getItem('figma-p1-s'+i) === '1') {
-        btn.textContent = `✓ Section ${i} Completed`;
-        btn.classList.add('done');
-      } else {
-        btn.textContent = `Mark Section ${i} Complete`;
+  width: 180px;
+  height: 48px;
+  
+  background: #0284c7; /* Figma Token: primary-600 */
+  border-radius: 8px; /* Figma: Corner Radius 8px */
+  border: none;
+  
+  /* Typography from Figma Specs */
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+}</code></pre>
+
+
+<div class="line-annotation"><code>padding: 12px 24px</code> — Maps to Figma Auto Layout padding fields (12px top/bottom, 24px left/right).</div><div class="line-annotation"><code>gap: 8px</code> — Maps directly to Figma Auto Layout "Item Spacing" between icon and text.</div><div class="line-annotation"><code>border-radius: 8px</code> — Maps to Figma "Corner Radius" setting.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Hardcoding static pixel absolute positions (`top: 140px; left: 80px`) instead of using Flexbox.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Translate Figma Auto Layout directly into CSS `display: flex`, `gap`, and `justify-content`.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> If Figma Auto Layout has direction set to Vertical with 16px spacing between cards, what is the CSS equivalent?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> display: flex; flex-direction: column; gap: 16px;</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: What is the main purpose of Figma Dev Mode for developers?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> To inspect exact measurements, padding, colors, fonts, and CSS code snippets without altering the design canvas.</p>
+    <p><em>Rationale:</em> Dev Mode provides read-only inspection tools tailored for code implementation.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
+
+<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
+
+<h2 id="s2">2. Translating Figma Auto Layout directly into CSS Flexbox <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Figma Auto Layout is literally CSS Flexbox built into a visual UI tool! Mastering the 1:1 translation between Figma controls and CSS properties makes frontend coding 5x faster.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Imagine packing items inside a cardboard box:\n• Auto Layout Direction = Deciding whether to stack items vertically or line them up horizontally.\n• Hug Contents = Shrinking the box wrapper so it fits tightly around the items inside.\n• Fill Container = Stretching an item like an elastic rubber band so it takes up all available space inside the box!</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Here is the exact 1:1 translation matrix between Figma Auto Layout and CSS Flexbox:\n\n• Figma Horizontal Auto Layout ➡️ `display: flex; flex-direction: row;`\n• Figma Vertical Auto Layout ➡️ `display: flex; flex-direction: column;`\n• Figma Item Spacing ➡️ `gap: Xpx;`\n• Figma Padding ➡️ `padding: top right bottom left;`\n• Figma Alignment (Top Left, Center, Space Between) ➡️ `justify-content` & `align-items`\n• Figma "Hug" Sizing ➡️ `width: fit-content;`\n• Figma "Fill Container" Sizing ➡️ `flex-grow: 1;` or `width: 100%;`</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>/* Card Component Translated 1:1 from Figma Frame Specs */
+.card-frame {
+  display: flex;
+  flex-direction: column; /* Figma: Vertical Auto Layout */
+  gap: 16px;              /* Figma: Item Spacing 16px */
+  padding: 20px;          /* Figma: Padding 20px all sides */
+  width: 100%;            /* Figma: Width set to Fill Container */
+  background: #1e293b;
+  border-radius: 12px;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: row;    /* Figma: Horizontal Auto Layout */
+  justify-content: space-between; /* Figma: Alignment Space Between */
+  align-items: center;    /* Figma: Alignment Vertical Center */
+}</code></pre>
+
+
+<div class="line-annotation"><code>flex-direction: column</code> — Translates Figma Vertical Auto Layout frame.</div><div class="line-annotation"><code>justify-content: space-between</code> — Translates Figma "Space Between" distribution setting.</div><div class="line-annotation"><code>width: 100%</code> — Translates Figma "Fill Container" resizing mode.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Using fixed width (e.g. `width: 350px`) for a card set to "Fill Container" in Figma, breaking mobile responsiveness.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Use `width: 100%` or `flex-grow: 1` to honor the "Fill Container" fluid responsive behavior.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What CSS property corresponds to Figma "Hug Contents" for width?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> width: fit-content; (or allowing normal inline-block default behavior).</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: How does Figma Auto Layout Item Spacing translate into modern CSS?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> gap: Xpx;</p>
+    <p><em>Rationale:</em> The CSS gap property sets the exact space between flex items, matching Figma Item Spacing.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="2" onclick="toggleSection(2)">Mark Section 2 Complete</button></div>
+
+
+    <!-- CERTIFICATE -->
+    <div id="certificate" class="certificate">
+      <h2>🏆 Certificate of Completion</h2>
+      <p>Congratulations! You have completed 100% of <strong>Figma to Developer Essentials — Part 1: Figma Dev Mode, Auto Layout to Flexbox & Design Tokens</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
+    </div>
+  </div>
+
+  <script>
+    const flashcards = [{"q":"What is a Design Token in Figma?","a":"A named design variable (e.g. `--color-primary-500`, `--spacing-md`) representing reusable colors, fonts, or elevation shadows."},{"q":"How does Figma \"Fill Container\" map to CSS flexbox?","a":"flex-grow: 1; or width: 100%;"}];
+    let cardIdx = -1;
+    let completedSet = new Set();
+    let xp = 0;
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-header').nextElementSibling.innerText;
+      navigator.clipboard.writeText(code);
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy', 2000);
+    }
+
+    function toggleSection(sNum) {
+      const btn = document.querySelector(`[data-sec="${sNum}"]`);
+      if (completedSet.has(sNum)) {
+        completedSet.delete(sNum);
+        btn.innerText = `Mark Section ${sNum} Complete`;
         btn.classList.remove('done');
+      } else {
+        completedSet.add(sNum);
+        btn.innerText = `✅ Section ${sNum} Completed!`;
+        btn.classList.add('done');
+        xp += 50;
+        document.getElementById('xpCount').innerText = xp + ' XP';
+      }
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const total = 2;
+      const count = completedSet.size;
+      const pct = Math.round((count / total) * 100);
+      document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
+      if (count === total) {
+        document.getElementById('certificate').classList.add('unlocked');
       }
     }
-  }
-}
 
-function toggleSec(n) {
-  const current = localStorage.getItem('figma-p1-s'+n);
-  localStorage.setItem('figma-p1-s'+n, current === '1' ? '0' : '1');
-  updateProgress();
-}
+    function nextCard() {
+      const q = document.getElementById('cardQ');
+      const a = document.getElementById('cardA');
+      const btn = document.getElementById('cardBtn');
 
-document.getElementById('themeToggle').addEventListener('click', () => {
-  document.documentElement.classList.toggle('force-dark');
-});
+      if (a.style.display === 'none' && cardIdx >= 0) {
+        a.style.display = 'block';
+        btn.innerText = 'Next Flashcard ▶';
+      } else {
+        cardIdx = (cardIdx + 1) % flashcards.length;
+        q.innerText = 'Q: ' + flashcards[cardIdx].q;
+        a.innerText = 'A: ' + flashcards[cardIdx].a;
+        a.style.display = 'none';
+        btn.innerText = 'Show Answer 👁';
+      }
+    }
 
-updateProgress();
-</script>
+    function surpriseMe() {
+      const sec = Math.floor(Math.random() * 2) + 1;
+      document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
