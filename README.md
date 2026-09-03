@@ -4,6 +4,7 @@ Welcome to the **Full Stack Developer & SDET Learning Suite** — a comprehensiv
 
 - 🌐 **[Live Interactive Master Dashboard](https://rohithr1008.github.io/fullstack-sdet-learning-suite/)**
 - 🗺️ **[Live Visual Learning Flowchart](https://rohithr1008.github.io/fullstack-sdet-learning-suite/learning_roadmap.html)**
+- 📖 **[File Usage Guide (Where to use which file)](USAGE_GUIDE.md)**
 - 📋 **[Fixes & Completion Summary](fixes_summary.md)**
 - 🤝 **[Project Handoff Guide](HANDOFF.md)**
 
