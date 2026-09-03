@@ -1,247 +1,238 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>git-essentials — Part 1: Git Foundations & Basic Commands</title>
+  <title>Git Essentials — Part 1: The Three Trees of Git & Core CLI Commands</title>
   <style>
     :root {
-      --bg-primary: #1a202c;
-      --bg-card: #2d3748;
-      --text-primary: #e2e8f0;
-      --text-muted: #a0aec0;
-      --accent: #f14e32;
-      --accent-hover: #d03d23;
-      --success: #38a169;
-      --border: #4a5568;
-      --code-bg: #111827;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #4ade80;
+      --warning: #facc15;
+      --code-bg: #090d16;
+      --muted: #94a3b8;
     }
-
-    body.theme-light {
-      --bg-primary: #f7fafc;
-      --bg-card: #ffffff;
-      --text-primary: #1a202c;
-      --text-muted: #4a5568;
-      --border: #cbd5e0;
-      --code-bg: #edf2f7;
-    }
-
-    body.theme-high-contrast {
-      --bg-primary: #000000;
-      --bg-card: #000000;
-      --text-primary: #ffffff;
-      --text-muted: #ffff00;
-      --border: #ffffff;
-      --code-bg: #111111;
-      --accent: #ff5533;
-    }
-
-    html.font-sm { font-size: 14px; }
-    html.font-md { font-size: 16px; }
-    html.font-lg { font-size: 18px; }
-
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .skip-link {
-      position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
-    }
-    .skip-link:focus {
-      position: fixed; left: 8px; top: 8px; z-index: 9999; width: auto; height: auto;
-      background: #fff; color: #1a202c; padding: 8px 14px; border-radius: 6px; font-weight: 700;
-    }
-
-    .partnav {
-      display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: var(--bg-card);
-      padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem;
-    }
-    .partnav a { color: #63b3ed; text-decoration: none; font-weight: 600; }
-    .partnav a:hover { text-decoration: underline; }
-
-    .top-controls {
-      display: flex; gap: 10px; align-items: center; justify-content: flex-end; padding: 10px 20px;
-      background: var(--bg-card); border-bottom: 1px solid var(--border);
-    }
-    .btn {
-      background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px;
-      cursor: pointer; font-weight: 600; font-size: 0.85rem;
-    }
-    .btn:hover { background: var(--accent-hover); }
-
-    .progress-bar-container {
-      width: 100%; background: var(--border); height: 8px;
-    }
-    .progress-bar-fill {
-      height: 100%; background: var(--success); width: 0%; transition: width 0.3s;
-    }
-
-    .container {
-      max-width: 900px; margin: 0 auto; padding: 20px;
-    }
-
-    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-    h2 { color: #63b3ed; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
-
-    .section-card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .est-time {
-      font-size: 0.85rem; background: var(--border); color: var(--text-primary); padding: 4px 10px; border-radius: 12px; font-weight: normal;
-    }
-
-    code, pre {
-      font-family: 'Consolas', 'Courier New', monospace; background: var(--code-bg); color: #f6ad55;
-    }
-    pre { padding: 12px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
-
-    .quiz-box {
-      background: rgba(99, 179, 237, 0.1); border-left: 4px solid #63b3ed; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;
-    }
-    .quiz-box summary { cursor: pointer; font-weight: bold; color: #63b3ed; }
-
-    .checkbox-container {
-      display: flex; align-items: center; gap: 10px; margin-top: 15px; font-weight: bold;
-    }
-
-    /* Focus Mode Rules */
-    body.focus-mode-active .top-controls,
-    body.focus-mode-active .progress-bar-container,
-    body.focus-mode-active .partnav,
-    body.focus-mode-active .sr-box,
-    body.focus-mode-active .certificate {
-      display: none !important;
-    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #7dd3fc; margin-top: 36px; font-size: 1.5rem; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: normal; margin-left: 8px; }
+    .why { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; color: #7dd3fc; overflow-x: auto; font-size: 0.95rem; }
+    .code-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.85rem; color: #94a3b8; border: 1px solid var(--border); border-bottom: none; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .line-annotation { background: #131c2e; border-left: 3px solid #38bdf8; padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; color: #cbd5e1; }
+    .line-annotation code { color: #facc15; }
+    .quiz-box { background: #162032; border: 2px solid #0284c7; border-radius: 10px; padding: 16px; margin: 20px 0; }
+    .quiz-box details { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-top: 8px; }
+    .quiz-box summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
+    .quiz-correct { color: #4ade80; }
+    .spotbug details, .predict details { background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .spotbug summary, .predict summary { cursor: pointer; font-weight: bold; color: #facc15; }
+    .mark-btn { background: #16a34a; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .mark-btn.done { background: #475569; }
+    
+    /* Panel / Flashcards / Boost */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 20px 0; }
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #1e293b; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.95rem; }
+    .partnav a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: #1e293b; padding: 10px 16px; border-radius: 8px; }
+    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0f172a; color: #fff; cursor: pointer; font-weight: 600; }
+    #progressBar { font-weight: bold; color: #38bdf8; margin: 14px 0; }
+    
+    /* Focus & Dark Mode */
+    body.focus-mode .partnav, body.focus-mode .toolbar, body.focus-mode #boostBar, body.focus-mode #srPanel { display: none !important; }
+    .focus-banner { display: none; background: #0284c7; color: #fff; text-align: center; padding: 8px; font-weight: bold; border-radius: 6px; margin-bottom: 16px; }
+    body.focus-mode .focus-banner { display: block !important; }
+    
+    /* Certificate */
+    .certificate { display: none; background: linear-gradient(135deg, #1e293b, #0f172a); border: 3px solid #facc15; border-radius: 14px; padding: 28px; text-align: center; margin: 30px 0; }
+    .certificate.unlocked { display: block; }
   </style>
 </head>
-<body class="theme-dark">
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+<body id="mainContent">
 
   <div class="partnav">
-    <strong>git-essentials:</strong>
-    <a href="Git_essentials_part1_study_app.html">Part 1: Basics & Setup</a> |
-    <a href="Git_essentials_part2_study_app.html">Part 2: Branching & Merging</a> |
-    <a href="Git_essentials_part3_study_app.html">Part 3: Remotes & GitHub PRs</a>
+    <a href="../index.html">🏠 Master Index</a> |
+    
+    <strong>Part 1: The Three Trees of Git & Core CLI Commands</strong>
+    | <a href="Git_essentials_part2_study_app.html">Next Part ▶</a>
   </div>
 
-  <div class="top-controls">
-    <button class="btn" onclick="toggleFocusMode()">🧘 Focus Mode</button>
-    <button class="btn" onclick="cycleTheme()">🎨 Theme</button>
-    <button class="btn" onclick="cycleFontSize()">🔤 Font Size</button>
+  <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
+
+  <div class="toolbar">
+    <span>📐 Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
   </div>
 
-  <div class="progress-bar-container">
-    <div class="progress-bar-fill" id="progressFill"></div>
-  </div>
+  <div class="container">
+    <h1>Git Essentials — Part 1: The Three Trees of Git & Core CLI Commands</h1>
+    <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
+    
+    <div id="progressBar">📊 Progress: 0/1 sections completed (0%)</div>
+    
+    <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
+      <span>⭐ <strong>XP: <span id="xpCount">0 XP</span></strong></span>
+      <button onclick="surpriseMe()" style="background:#0284c7;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">🎲 Surprise Question</button>
+    </div>
 
-  <div class="container" id="main-content">
-    <h1>Git Essentials — Part 1: Foundations & Core Commands</h1>
-    <p>Master version control from absolute zero. Learn how Git tracks changes, stages files, and maintains revision history.</p>
-
-    <!-- Section 1 -->
-    <div class="section-card">
-      <h2>1. What is Version Control & Why Git? <span class="est-time">⏱ ~8 min</span></h2>
-      <p>Git is a <strong>distributed version control system (DVCS)</strong>. Unlike central backups, every developer's machine holds a complete copy of the repository history.</p>
-      <ul>
-        <li><strong>Track History:</strong> Know exactly who changed what line, when, and why.</li>
-        <li><strong>Time Travel:</strong> Revert code back to any state in history if bugs are introduced.</li>
-        <li><strong>Collaboration:</strong> Merge changes from multiple developers safely.</li>
-      </ul>
-      <div class="quiz-box">
-        <details>
-          <summary>💡 Quiz: What makes Git "distributed"?</summary>
-          <p>Every developer has a full copy of the entire repository and its history locally, allowing full offline commits and history inspection.</p>
-        </details>
-      </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="sec-1" onchange="updateProgress()" />
-        <label for="sec-1">Mark Section 1 Complete</label>
+    <!-- FLASHCARD DRILL -->
+    <div id="srPanel" class="panel">
+      <h3 style="margin-top:0;color:#38bdf8;">🃏 Spaced Repetition Flashcard Drill</h3>
+      <p id="cardQ">Click 'Start Review' to begin flashcard testing.</p>
+      <p id="cardA" style="display:none;color:#4ade80;font-weight:bold;margin-top:10px;"></p>
+      <div style="margin-top:12px;">
+        <button id="cardBtn" onclick="nextCard()" style="background:#38bdf8;color:#0f172a;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;">Start Review</button>
       </div>
     </div>
 
-    <!-- Section 2 -->
-    <div class="section-card">
-      <h2>2. Initializing & Staging Files <span class="est-time">⏱ ~10 min</span></h2>
-      <p>Git has 3 main states: <strong>Working Directory</strong>, <strong>Staging Area (Index)</strong>, and <strong>Repository (.git)</strong>.</p>
-      <pre>
-# Initialize a new Git repository
+    <!-- SECTIONS -->
+    
+<h2 id="s1">1. Understanding Git: The Three Trees (Working Directory, Staging Area, Commit History) <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Git is the universal standard for source code version control. Without Git, team members overwrite each other code, and there is no way to revert broken production bugs.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Git like taking photos for a photo album:\n1. Working Directory = Your living room where you get people dressed up and arranged (editing files on your computer).\n2. Staging Area (Index) = Posing everyone in front of the camera lens and checking the frame (running `git add` to review what changes are about to be saved).\n3. Commit History (Repository) = Pressing the camera shutter button to take a permanent snapshot and gluing the photo into your permanent photo album (running `git commit`). You can flip back to any photo snapshot taken in the past whenever you want!</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Git manages your project files across 3 distinct zones:\n\n• Working Directory: The actual physical files on your hard drive that you edit in VS Code. Files here can be Untracked (new) or Modified.\n• Staging Area (Index): A temporary prep area holding snapshots of changes you explicitly want to include in the next commit. `git add filename` moves files into Staging.\n• Local Repository (.git folder): A permanent cryptographic database holding all historical commits. `git commit -m "msg"` records the staged snapshot with a unique SHA-1 hash key (e.g. `4c179ec`), author timestamp, and commit message.</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code># 1. Initialize a new Git repository in current folder
 git init
 
-# Check repository status
+# 2. Check current status of Working Directory and Staging Area
 git status
 
-# Add files to the staging area
-git add index.html
-git add .  # Stages all files
-      </pre>
-      <div class="checkbox-container">
-        <input type="checkbox" id="sec-2" onchange="updateProgress()" />
-        <label for="sec-2">Mark Section 2 Complete</label>
-      </div>
+# 3. Stage specific modified file (move to Staging Area)
+git add src/app.js
+
+# 4. Or stage all modified & new files in current folder
+git add .
+
+# 5. Create a permanent historical snapshot with descriptive commit message
+git commit -m "feat: add user login form validation logic"
+
+# 6. View commit log history timeline
+git log --oneline</code></pre>
+
+
+<div class="line-annotation"><code>git init</code> — Creates hidden .git directory inside folder, turning it into a Git repository.</div><div class="line-annotation"><code>git status</code> — Displays which files are modified, staged for commit, or untracked.</div><div class="line-annotation"><code>git add .</code> — Stages all changed files in current directory into the Staging Index.</div><div class="line-annotation"><code>git commit -m "..."</code> — Takes snapshot of staged files and saves it permanently to local Git repository.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Running `git commit` without running `git add` first, resulting in "nothing to commit, working tree clean".</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Always stage files with `git add` before running `git commit`.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What happens if you edit app.js after running `git add app.js` but BEFORE running `git commit`?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> The commit will only save the version of app.js at the moment `git add` was executed. The new edits remain unstaged in Working Directory.</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: Which Git command moves changed files from the Working Directory into the Staging Area?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> git add</p>
+    <p><em>Rationale:</em> git add prepares and stages files for the upcoming commit snapshot.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
+
+
+    <!-- CERTIFICATE -->
+    <div id="certificate" class="certificate">
+      <h2>🏆 Certificate of Completion</h2>
+      <p>Congratulations! You have completed 100% of <strong>Git Essentials — Part 1: The Three Trees of Git & Core CLI Commands</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 1/1 Sections Passed</p>
     </div>
-
-    <!-- Section 3 -->
-    <div class="section-card">
-      <h2>3. Committing & History Log <span class="est-time">⏱ ~12 min</span></h2>
-      <p>Commits create snapshot checkpoints in your history. Always write meaningful commit messages.</p>
-      <pre>
-# Commit staged changes
-git commit -m "feat: add user authentication form"
-
-# View commit history
-git log --oneline --graph
-      </pre>
-      <div class="checkbox-container">
-        <input type="checkbox" id="sec-3" onchange="updateProgress()" />
-        <label for="sec-3">Mark Section 3 Complete</label>
-      </div>
-    </div>
-
   </div>
 
   <script>
+    const flashcards = [{"q":"What are the 3 states of Git files?","a":"Committed (saved in repository), Staged (marked for next commit), Modified (changed in working directory)."},{"q":"What is a Git commit hash?","a":"A unique 40-character SHA-1 checksum identifying a specific snapshot in history."}];
+    let cardIdx = -1;
+    let completedSet = new Set();
+    let xp = 0;
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-header').nextElementSibling.innerText;
+      navigator.clipboard.writeText(code);
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy', 2000);
+    }
+
+    function toggleSection(sNum) {
+      const btn = document.querySelector(`[data-sec="${sNum}"]`);
+      if (completedSet.has(sNum)) {
+        completedSet.delete(sNum);
+        btn.innerText = `Mark Section ${sNum} Complete`;
+        btn.classList.remove('done');
+      } else {
+        completedSet.add(sNum);
+        btn.innerText = `✅ Section ${sNum} Completed!`;
+        btn.classList.add('done');
+        xp += 50;
+        document.getElementById('xpCount').innerText = xp + ' XP';
+      }
+      updateProgress();
+    }
+
     function updateProgress() {
-      const checks = document.querySelectorAll('input[type="checkbox"]');
-      const checked = Array.from(checks).filter(c => c.checked).length;
-      const pct = (checked / checks.length) * 100;
-      document.getElementById('progressFill').style.width = pct + '%';
-      checks.forEach(c => localStorage.setItem('git-p1-' + c.id, c.checked));
+      const total = 1;
+      const count = completedSet.size;
+      const pct = Math.round((count / total) * 100);
+      document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
+      if (count === total) {
+        document.getElementById('certificate').classList.add('unlocked');
+      }
     }
 
-    function toggleFocusMode() {
-      document.body.classList.toggle('focus-mode-active');
+    function nextCard() {
+      const q = document.getElementById('cardQ');
+      const a = document.getElementById('cardA');
+      const btn = document.getElementById('cardBtn');
+
+      if (a.style.display === 'none' && cardIdx >= 0) {
+        a.style.display = 'block';
+        btn.innerText = 'Next Flashcard ▶';
+      } else {
+        cardIdx = (cardIdx + 1) % flashcards.length;
+        q.innerText = 'Q: ' + flashcards[cardIdx].q;
+        a.innerText = 'A: ' + flashcards[cardIdx].a;
+        a.style.display = 'none';
+        btn.innerText = 'Show Answer 👁';
+      }
     }
 
-    const themes = ['theme-dark', 'theme-light', 'theme-high-contrast'];
-    let currentTheme = 0;
-    function cycleTheme() {
-      document.body.classList.remove(themes[currentTheme]);
-      currentTheme = (currentTheme + 1) % themes.length;
-      document.body.classList.add(themes[currentTheme]);
+    function surpriseMe() {
+      const sec = Math.floor(Math.random() * 1) + 1;
+      document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
     }
-
-    const fonts = ['font-md', 'font-lg', 'font-sm'];
-    let currentFont = 0;
-    function cycleFontSize() {
-      document.documentElement.classList.remove(fonts[currentFont]);
-      currentFont = (currentFont + 1) % fonts.length;
-      document.documentElement.classList.add(fonts[currentFont]);
-    }
-
-    // Load state
-    document.querySelectorAll('input[type="checkbox"]').forEach(c => {
-      if (localStorage.getItem('git-p1-' + c.id) === 'true') c.checked = true;
-    });
-    updateProgress();
   </script>
 </body>
 </html>
