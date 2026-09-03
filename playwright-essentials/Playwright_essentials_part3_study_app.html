@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Playwright Essentials — Part 3: Parallel Execution, Sharding & GitHub Actions CI/CD Integration</title>
+  <title>Playwright Masterclass — Part 3: Network Interception, API Mocking & Authentication State Reuse</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -60,8 +60,8 @@
   <div class="partnav">
     <a href="../index.html">🏠 Master Index</a> |
     <a href="Playwright_essentials_part2_study_app.html">◀ Prev Part</a> |
-    <strong>Part 3: Parallel Execution, Sharding & GitHub Actions CI/CD Integration</strong>
-    
+    <strong>Part 3: Network Interception, API Mocking & Authentication State Reuse</strong>
+    | <a href="Playwright_essentials_part4_study_app.html">Next Part ▶</a>
   </div>
 
   <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
@@ -75,10 +75,10 @@
   </div>
 
   <div class="container">
-    <h1>Playwright Essentials — Part 3: Parallel Execution, Sharding & GitHub Actions CI/CD Integration</h1>
+    <h1>Playwright Masterclass — Part 3: Network Interception, API Mocking & Authentication State Reuse</h1>
     <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
     
-    <div id="progressBar">📊 Progress: 0/1 sections completed (0%)</div>
+    <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
     
     <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
       <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
@@ -98,86 +98,168 @@
 
     <!-- SECTIONS -->
     
-<h2 id="s1">1. Parallel Execution, Worker Processes & Test Sharding <span class="est-time">⏱ ~30 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> A suite of 500 E2E tests running sequentially on a single thread can take 2 hours to execute. Playwright parallel workers and CI sharding reduce execution time down to 5 minutes!</div>
+<h2 id="s1">1. Network Interception & API Mocking with page.route() <span class="est-time">⏱ ~35 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Testing against third-party APIs (Stripe, Twilio, OAuth) causes flaky, slow, and expensive test runs. Intercepting network requests lets you simulate 500 server errors, slow 3G networks, and edge-case payloads instantly.</div>
 <p>
       <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
         <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
-        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Imagine grading 100 student exam papers:\n• Sequential = 1 teacher grading every paper one by one (takes 10 hours).\n• Parallel Workers = 4 teachers sitting at the same table grading 25 papers each simultaneously (takes 2.5 hours).\n• CI Sharding = Splitting the papers into 4 separate schools (GitHub Actions runner VMs) where each school runs 4 teachers in parallel (takes 30 seconds!).</p>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Network Interception like a mail interception officer sitting at a post office checkpoint:\n• Normal Network Flow = App sends a letter (HTTP Request) to the backend server across the ocean, waits 5 seconds for a response letter, and receives data.\n• Playwright `page.route()` = Playwright intercepts the letter BEFORE it leaves your building, inspects the address, and immediately hands back a custom reply envelope (`route.fulfill()`) containing fake data or a simulated 500 error in less than 1 millisecond!</p>
       </div>
 
       <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
-      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">By default, Playwright runs test files in parallel across worker processes (`fullyParallel: true`). Each worker process runs its own isolated browser context instance (cookies, localStorage, session cache are completely clean).\n\nFor massive enterprise test suites, Playwright supports matrix sharding (`npx playwright test --shard=1/4`, `--shard=2/4`). In GitHub Actions, 4 parallel cloud VMs run different shards simultaneously, merging HTML reports into a single unified report at the end.</p>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright intercepts network traffic at the browser protocol level. Using `page.route(urlPattern, handler)`, you can:\n\n1. Mock Synthetic Responses (`route.fulfill()`): Return custom HTTP status codes (200, 401, 500), headers, and JSON body payloads.\n2. Modify Real Requests (`route.continue()`): Add or override HTTP headers before forwarding request to live backend.\n3. Block Assets (`route.abort()`): Cancel outgoing requests for images, fonts, or tracking scripts to speed up test execution.</p>
     </p>
 
 
 
 
 <div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>// playwright.config.ts
-import { defineConfig, devices } from '@playwright/test';
+<pre><code>import { test, expect } from '@playwright/test';
 
-export default defineConfig({
-  testDir: './tests',
-  fullyParallel: true, // Run tests within files in parallel
-  forbidOnly: !!process.env.CI, // Prevent accidental test.only in CI
-  retries: process.env.CI ? 2 : 0, // Automatically retry flaky tests in CI
-  workers: process.env.CI ? 4 : undefined, // 4 parallel worker threads in CI
-  reporter: [
-    ['html', { open: 'never' }],
-    ['github'] // Integrates failure annotations directly into GitHub PRs
-  ],
-  use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry', // Record full DOM trace when a test fails
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
-  }
+test('Simulate 500 Server Error on Checkout API', async ({ page }) => {
+  // 1. Register network route interceptor BEFORE triggering action
+  await page.route('**/api/checkout/process', async (route) => {
+    // Intercept and return synthetic HTTP 500 error response
+    await route.fulfill({
+      status: 500,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 'PAYMENT_GATEWAY_TIMEOUT',
+        message: 'Payment processor is currently offline.'
+      })
+    });
+  });
+
+  // 2. Navigate and trigger action
+  await page.goto('/checkout');
+  await page.getByRole('button', { name: 'Pay Now' }).click();
+
+  // 3. Assert frontend UI error handling banner
+  const errorAlert = page.getByRole('alert');
+  await expect(errorAlert).toBeVisible();
+  await expect(errorAlert).toContainText('Payment processor is currently offline.');
 });</code></pre>
 
 
-<div class="line-annotation"><code>fullyParallel: true</code> — Enables parallel test execution inside individual test files.</div><div class="line-annotation"><code>retries: process.env.CI ? 2 : 0</code> — Automatically retries failing tests up to 2 times in CI pipeline.</div><div class="line-annotation"><code>trace: 'on-first-retry'</code> — Generates visual Playwright trace file on first failure for post-mortem debugging.</div>
+<div class="line-annotation"><code>page.route('**/api/checkout/process', ...)</code> — Glob pattern matching target network request URL.</div><div class="line-annotation"><code>route.fulfill({ status: 500, body: ... })</code> — Intercepts request and returns mock HTTP 500 response instantly.</div><div class="line-annotation"><code>page.getByRole("alert")</code> — Validates that web frontend handles API errors gracefully.</div>
 
 
 
 <div class="spotbug">
   <details>
     <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Sharing global mutable state or fixed database user accounts across parallel tests.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Use dynamic unique user identifiers (e.g. `user_${Date.now()}`) so parallel worker tests do not collide.</p>
+    <p><strong>Common Pitfall:</strong> Registering `page.route()` AFTER triggering the action (like clicking the button).</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Always register network route handlers BEFORE triggering actions or navigating.</p>
   </details>
 </div>
 
 <div class="predict">
   <details>
     <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> What is the purpose of Playwright trace viewer (`npx playwright show-trace`)?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> It displays a step-by-step visual timeline of DOM snapshots, network calls, and console logs for failed tests.</p>
+    <p><strong>Scenario:</strong> What happens if you call `route.abort()` inside a Playwright route handler?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Playwright cancels the outgoing HTTP request immediately, simulating a network failure or blocking asset loading.</p>
   </details>
 </div>
 
 <div class="quiz-box">
   <h3>🧪 Knowledge Check</h3>
   <details>
-    <summary>Question: What command splits a Playwright test suite into 4 parallel shards on CI?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> npx playwright test --shard=1/4 (and 2/4, 3/4, 4/4 on separate runner machines)</p>
-    <p><em>Rationale:</em> Sharding distributes test files across independent cloud runner virtual machines.</p>
+    <summary>Question: Why is network mocking beneficial for frontend E2E testing?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> It isolates frontend testing, speeds up test execution to milliseconds, and allows testing error edge cases (500, 403, timeouts).</p>
+    <p><em>Rationale:</em> Mocking removes dependency on live backend database state.</p>
   </details>
 </div>
 
 <div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
 
+<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
+
+<h2 id="s2">2. Authentication Reuse with storageState (Bypassing Login Steps) <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Executing UI login steps (entering username/password) before all 100 test files adds 10+ minutes of useless overhead. `storageState` logs in once and reuses authenticated cookies across all tests.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of storageState like getting a VIP Stamp on your wrist at a night club entrance:\n• Without storageState = Standing in the 20-minute ID check line every single time you step outside to take a phone call (logging in repeatedly before every test).\n• With storageState = Showing your VIP Wristband once (`state.json`). You walk straight past the security line through the VIP side door for the rest of the night!</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright allows saving authenticated browser session state (cookies and localStorage) to a JSON file (`storageState`).\n\nWorkflow:\n1. Setup Project / Global Setup: A single setup file logs in via UI or API once and executes `await page.context().storageState({ path: "playwright/.auth/user.json" })`.\n2. Playwright Config: Configure `use: { storageState: "playwright/.auth/user.json" }` in `playwright.config.ts`.\n3. All Tests: Every test in the suite opens fully authenticated automatically without running login steps!</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>// tests/auth.setup.ts (Setup Task)
+import { test as setup, expect } from '@playwright/test';
+
+const authFile = 'playwright/.auth/user.json';
+
+setup('Authenticate as Admin User', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Username').fill('admin_user');
+  await page.getByLabel('Password').fill('SecretAdmin123!');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+
+  await expect(page).toHaveURL('/dashboard');
+
+  // Save authenticated cookies and localStorage to JSON file
+  await page.context().storageState({ path: authFile });
+});
+
+// playwright.config.ts Configuration snippet:
+// projects: [
+//   { name: 'setup', testMatch: /.*\.setup\.ts/ },
+//   {
+//     name: 'e2e tests',
+//     use: { storageState: 'playwright/.auth/user.json' },
+//     dependencies: ['setup']
+//   }
+// ]</code></pre>
+
+
+<div class="line-annotation"><code>page.context().storageState({ path: authFile })</code> — Saves current session cookies and localStorage to JSON file.</div><div class="line-annotation"><code>use: { storageState: 'playwright/.auth/user.json' }</code> — Injects saved auth state into every test browser context.</div><div class="line-annotation"><code>dependencies: ['setup']</code> — Ensures setup project runs and creates auth file before e2e tests start.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Not adding `playwright/.auth/` to `.gitignore`, committing sensitive session tokens to public Git.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Add `playwright/.auth/` to `.gitignore` to prevent committing auth files.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What data is captured and saved inside a Playwright `storageState` JSON file?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Browser cookies and localStorage key-value pairs.</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: How much execution time can `storageState` save in a 100-test suite?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> It saves 5–15+ minutes by eliminating repeated UI login form interactions.</p>
+    <p><em>Rationale:</em> Bypassing login steps accelerates total test suite runtime.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="2" onclick="toggleSection(2)">Mark Section 2 Complete</button></div>
+
 
     <!-- CERTIFICATE -->
     <div id="certificate" class="certificate">
       <h2>🏆 Certificate of Completion</h2>
-      <p>Congratulations! You have completed 100% of <strong>Playwright Essentials — Part 3: Parallel Execution, Sharding & GitHub Actions CI/CD Integration</strong>!</p>
-      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 1/1 Sections Passed</p>
+      <p>Congratulations! You have completed 100% of <strong>Playwright Masterclass — Part 3: Network Interception, API Mocking & Authentication State Reuse</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
     </div>
   </div>
 
   <script>
-    const flashcards = [{"q":"What is worker isolation in Playwright?","a":"Each worker runs in an independent OS process with isolated browser contexts, preventing test state bleed."},{"q":"What does forbidOnly do in Playwright config?","a":"It fails CI build pipelines if a developer accidentally leaves `test.only()` in committed code."}];
+    const flashcards = [{"q":"What is storageState in Playwright?","a":"A feature that saves and reuses cookies and localStorage to keep test browser contexts authenticated."},{"q":"What is route.continue()?","a":"A method inside page.route() that allows an intercepted network request to pass through to the real server."}];
     let cardIdx = -1;
     let completedSet = new Set();
     let xp = 0;
@@ -206,7 +288,7 @@ export default defineConfig({
     }
 
     function updateProgress() {
-      const total = 1;
+      const total = 2;
       const count = completedSet.size;
       const pct = Math.round((count / total) * 100);
       document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
@@ -233,7 +315,7 @@ export default defineConfig({
     }
 
     function surpriseMe() {
-      const sec = Math.floor(Math.random() * 1) + 1;
+      const sec = Math.floor(Math.random() * 2) + 1;
       document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
     }
   </script>
