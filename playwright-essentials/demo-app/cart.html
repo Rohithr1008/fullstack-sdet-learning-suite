@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cart — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html" aria-current="page">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Your cart</h1>
+    <div id="empty" class="card" hidden>
+      <p>Cart is empty. <a href="products.html">Browse products</a>.</p>
+    </div>
+    <div id="filled" hidden>
+      <table>
+        <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+      <p data-testid="cart-total"><strong>Total: $<span id="total">0</span></strong></p>
+      <button type="button" class="btn ghost" id="clearBtn">Clear cart</button>
+      <a class="btn" href="checkout.html">Go to checkout</a>
+    </div>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      function render() {
+        var cart = ShopLite.readCart();
+        var empty = document.getElementById("empty");
+        var filled = document.getElementById("filled");
+        var body = document.getElementById("cartBody");
+        body.innerHTML = "";
+        if (!cart.length) {
+          empty.hidden = false;
+          filled.hidden = true;
+          return;
+        }
+        empty.hidden = true;
+        filled.hidden = false;
+        cart.forEach(function (row) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td>" + row.name + "</td><td>" + row.qty + "</td><td>$" + (row.price * row.qty) + "</td>";
+          body.appendChild(tr);
+        });
+        document.getElementById("total").textContent = String(ShopLite.cartTotal());
+      }
+      document.getElementById("clearBtn").addEventListener("click", function () {
+        ShopLite.clearCart();
+        render();
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

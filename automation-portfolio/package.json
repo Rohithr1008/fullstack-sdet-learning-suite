@@ -1,0 +1,23 @@
+{
+  "name": "automation-portfolio",
+  "version": "1.0.0",
+  "description": "TaskBoard — portfolio: web app + API + Playwright E2E/API tests + GitHub Actions CI",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "playwright test",
+    "test:e2e": "playwright test --project=e2e",
+    "test:api": "playwright test --project=api",
+    "test:report": "playwright show-report",
+    "ci": "playwright test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.1"
+  }
+}

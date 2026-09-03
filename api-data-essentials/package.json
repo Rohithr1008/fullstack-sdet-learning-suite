@@ -1,0 +1,15 @@
+{
+  "name": "api-data-essentials",
+  "private": true,
+  "version": "1.0.0",
+  "description": "API & Data Essentials study kit — REST, auth, contracts, SQL-for-testers (three editions + mock API).",
+  "scripts": {
+    "mock-api": "node mock-api/server.js",
+    "lab:part1": "node labs/part1/smoke.mjs",
+    "lab:part2": "node labs/part2/auth-negatives.mjs",
+    "lab:part3": "node labs/part3/api-db-check.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

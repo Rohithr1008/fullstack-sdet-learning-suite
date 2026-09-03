@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML &amp; CSS Essentials — Part 2</title>
+<style>
+:root { --accent:#1d4f91; --bg:#f4f7fb; --text:#182333; --card:#fff; --muted:#5b6b80; --border:#d9e2ec; }
+html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+body.font-sm { font-size:14px; } body.font-lg { font-size:18px; }
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; background:#fff; color:var(--accent); padding:8px 14px; border-radius:6px; font-weight:700; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#93c5fd; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+.theme-btn, button { cursor:pointer; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.why { background:#ebf4ff; border-left:4px solid #3182ce; padding:6px 12px; border-radius:6px; margin:6px 0 10px; font-size:0.92rem; }
+html.force-dark .why { background:#0f1a2a; }
+.quiz-box, .panel, .mock, .certificate, .playground { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details, .flash details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+.quiz-correct { color:#276749; font-weight:700; }
+html.force-dark .quiz-correct { color:#68d391; }
+.badge { display:inline-block; font-size:12px; padding:2px 9px; border-radius:999px; font-weight:700; margin-left:6px; }
+.b-green { background:#c6f6d5; color:#22543d; }
+.b-yellow { background:#fefcbf; color:#744210; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; align-items:center; }
+.toolbar button, .theme-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; }
+#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; }
+.mark { margin:8px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:600; }
+body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #srPanel, body.focus-mode .studyplan7 { display:none !important; }
+#focusHint { display:none; background:#eef2ff; border:2px solid #5a67d8; border-radius:8px; padding:8px 14px; margin:6px 0; color:#3730a3; font-weight:600; }
+html.force-dark #focusHint { background:#1a1a2e; color:#c7d2fe; }
+table { border-collapse:collapse; width:100%; margin:10px 0; }
+th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+pre, code { font-family:ui-monospace,Consolas,monospace; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.playground label { display:block; margin:6px 0 2px; font-weight:600; }
+.playground input, .playground select, .playground textarea { width:100%; max-width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); box-sizing:border-box; }
+.playground .out { margin-top:10px; padding:10px; border-radius:8px; background:var(--bg); font-family:ui-monospace,Consolas,monospace; font-size:14px; white-space:pre-wrap; }
+.playground .stage { margin-top:10px; padding:12px; border:1px dashed var(--border); border-radius:8px; min-height:48px; background:var(--bg); }
+.demo-box { padding:12px; border:2px solid var(--accent); margin:8px 0; background:#fff; color:#182333; }
+html.force-dark .demo-box { background:#1a2332; color:#dbe4ef; }
+.certificate { text-align:center; border-color:#d69e2e; background:linear-gradient(135deg,#ebf4ff,#fef9c3); }
+html.force-dark .certificate { background:linear-gradient(135deg,#0f1a2a,#422006); }
+.certificate.locked { opacity:0.75; }
+.mood { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; }
+.mood input { display:none; }
+.mood label { border:1px solid var(--border); border-radius:999px; padding:4px 12px; background:var(--card); cursor:pointer; font-size:14px; }
+.mood input:checked + label { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+.studyplan7 { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:14px 0; }
+.checklist { list-style:none; padding-left:0; }
+.checklist li { margin:6px 0; }
+footer { text-align:center; margin-top:28px; color:var(--muted); font-size:13px; }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+@media print { .toolbar, .theme-btn, #boostBar, #srPanel { display:none !important; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+<h1>HTML &amp; CSS Essentials — Part 2</h1>
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Html_css_essentials_part1_study_app.html">1</a>
+  <a href="Html_css_essentials_part2_study_app.html">2</a>
+  <a href="Html_css_essentials_part3_study_app.html">3</a>
+  <strong>Part 2: Layout & a11y</strong>
+  
+</div>
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+<div class="toolbar">
+  <span style="font-weight:600;">📐 Size:</span>
+  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
+  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
+  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
+  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
+  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
+  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — extra panels hidden. Click Focus Mode again to restore.</div>
+<p>Flex/Grid, responsive, specificity, and accessibility markup that makes locators kinder.</p>
+<div id="progressBar" role="status">📊 Progress: 0/10 sections (0%)</div>
+<div id="boostBar" class="panel" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <strong>⚡ <span id="streakCount">0-day streak</span></strong>
+  <strong>⭐ <span id="pointCount">0 XP</span></strong>
+  <button type="button" onclick="surpriseJump()">🎲 Surprise me</button>
+</div>
+<details class="studyplan7"><summary>📅 Suggested study plan</summary>
+<ol><li>Day 1: §§1–4</li><li>Day 2: §§5–7</li><li>Day 3: §§8–10</li></ol>
+</details>
+<div id="learningPathPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🧭 Learning Path</h3>
+  <div id="learningPathContent">Complete a section to get a next-step tip.</div>
+</div>
+<div id="srPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🃏 Flashcard drill</h3>
+  <p id="srQ">Click Start to begin.</p>
+  <p id="srA" style="display:none;color:var(--accent);font-weight:600;"></p>
+  <div id="srBtns"><button type="button" onclick="srStart()">Start Review</button></div>
+</div>
+<h2 id="s1">1. CSS mental model</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Cascade + specificity explain “why didn’t my style apply?” — same root cause as flaky visual asserts.</div>
+<p>Browser: parse HTML → build DOM → apply CSS (cascade) → layout → paint.</p>
+<table><tr><th>Layer</th><th>Tester angle</th></tr>
+<tr><td>Author styles</td><td>Your stylesheet / component CSS</td></tr>
+<tr><td>Inline style</td><td>Often wins — check Elements</td></tr>
+<tr><td>!important</td><td>Escape hatch; smell in reviews</td></tr>
+</table>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Where do you verify the final style?</summary><p class="quiz-correct">Computed styles in DevTools.</p></details><details><summary>Does class order in HTML set specificity?</summary><p class="quiz-correct">No — specificity + source order in CSS matter.</p></details></div>
+<div class="mark"><button type="button" data-sec="1" onclick="toggleSection(1)">Mark Complete</button></div>
+
+<h2 id="s2">2. Selectors &amp; specificity (practical)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Knowing specificity stops blind !important wars and helps you read component CSS.</div>
+<table><tr><th>Selector</th><th>Rough weight</th></tr>
+<tr><td>element (<code>button</code>)</td><td>0,0,1</td></tr>
+<tr><td>class / attr (<code>.btn</code>, <code>[data-x]</code>)</td><td>0,1,0</td></tr>
+<tr><td>id (<code>#pay</code>)</td><td>1,0,0</td></tr>
+<tr><td>inline style</td><td>beats ids (unless !important fights)</td></tr>
+</table>
+<pre><code>button.primary { }          /* class beats bare button */
+#nav .link { }              /* id context wins over .link alone */
+</code></pre>
+<div class="playground">
+<strong>🧪 Specificity guess</strong>
+<label for="p2SpecA">Rule A</label>
+<input id="p2SpecA" value=".btn.primary" />
+<label for="p2SpecB">Rule B</label>
+<input id="p2SpecB" value="button#submit" />
+<p><button type="button" onclick="p2Spec()">Which wins (typical)?</button></p>
+<div class="out" id="p2SpecOut">Compare rough weights.</div>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Does <code>#id</code> beat <code>.class.class</code>?</summary><p class="quiz-correct">Yes — one id beats any number of classes.</p></details><details><summary>Best fix for “style not applying”?</summary><p class="quiz-correct">Inspect computed + check more specific rule, not random !important.</p></details></div>
+<div class="mark"><button type="button" data-sec="2" onclick="toggleSection(2)">Mark Complete</button></div>
+
+<h2 id="s3">3. Flexbox essentials</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Most modern toolbars, navs, and card rows are flex — layout bugs show as overflow/overlap in tests.</div>
+<pre><code>.row {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between; /* main axis */
+  align-items: center;            /* cross axis */
+}
+</code></pre>
+<table><tr><th>Prop</th><th>Job</th></tr>
+<tr><td><code>flex-direction</code></td><td>row / column</td></tr>
+<tr><td><code>justify-content</code></td><td>main-axis packing</td></tr>
+<tr><td><code>align-items</code></td><td>cross-axis alignment</td></tr>
+<tr><td><code>flex-wrap</code></td><td>allow wrapping</td></tr>
+</table>
+<div class="playground">
+<strong>🧪 Flex lab</strong>
+<label>justify-content
+<select id="p2FlexJ" onchange="p2Flex()"><option>flex-start</option><option selected>space-between</option><option>center</option><option>space-around</option></select>
+</label>
+<label>align-items
+<select id="p2FlexA" onchange="p2Flex()"><option>stretch</option><option selected>center</option><option>flex-start</option></select>
+</label>
+<div class="stage" id="p2FlexStage" style="display:flex;gap:8px;min-height:80px;justify-content:space-between;align-items:center;">
+  <div class="demo-box">A</div><div class="demo-box">B</div><div class="demo-box">C</div>
+</div>
+<div class="out" id="p2FlexOut">Tweaking flex…</div>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Main axis for default flex-direction:row?</summary><p class="quiz-correct">Horizontal (left→right in LTR).</p></details><details><summary>Prop for spacing between items without margins?</summary><p class="quiz-correct"><code>gap</code></p></details></div>
+<div class="mark"><button type="button" data-sec="3" onclick="toggleSection(3)">Mark Complete</button></div>
+
+<h2 id="s4">4. CSS Grid essentials</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Dashboards and form layouts often use Grid — broken tracks look like “missing” UI in screenshots.</div>
+<pre><code>.layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+}
+</code></pre>
+<p><code>fr</code> = fraction of free space. <code>repeat(3, 1fr)</code> = three equal columns.</p>
+<div class="playground">
+<strong>🧪 Grid lab</strong>
+<label>columns
+<select id="p2GridCols" onchange="p2Grid()">
+<option value="1fr">1fr</option>
+<option value="1fr 1fr" selected>1fr 1fr</option>
+<option value="200px 1fr">200px 1fr</option>
+<option value="repeat(3,1fr)">repeat(3,1fr)</option>
+</select></label>
+<div class="stage" id="p2GridStage" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+  <div class="demo-box">1</div><div class="demo-box">2</div><div class="demo-box">3</div><div class="demo-box">4</div>
+</div>
+<div class="out" id="p2GridOut">Grid columns: 1fr 1fr</div>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>What does <code>1fr</code> mean?</summary><p class="quiz-correct">One share of remaining free space.</p></details><details><summary>Flex vs Grid one-liner?</summary><p class="quiz-correct">Flex = 1D; Grid = 2D tracks.</p></details></div>
+<div class="mark"><button type="button" data-sec="4" onclick="toggleSection(4)">Mark Complete</button></div>
+
+<h2 id="s5">5. Responsive basics &amp; media queries</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Mobile failures are real bugs — Playwright projects often run a mobile project for a reason.</div>
+<pre><code>.nav { display: flex; }
+@media (max-width: 600px) {
+  .nav { flex-direction: column; }
+}
+</code></pre>
+<ul>
+<li>Design mobile-first (<code>min-width</code> queries) when you can</li>
+<li>Test at common widths: ~375, 768, 1280</li>
+<li><code>viewport</code> meta is required for real mobile layout</li>
+</ul>
+<div class="playground">
+<strong>🧪 Width reporter</strong>
+<p><button type="button" onclick="p2Width()">Read window width</button></p>
+<div class="out" id="p2WidthOut">Click to sample current width (resize then re-click).</div>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Meta tag needed for mobile CSS?</summary><p class="quiz-correct"><code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></p></details><details><summary>Why retest at 375px?</summary><p class="quiz-correct">Nav/stack breakpoints often hide or move controls.</p></details></div>
+<div class="mark"><button type="button" data-sec="5" onclick="toggleSection(5)">Mark Complete</button></div>
+
+<h2 id="s6">6. Units: rem, %, vw/vh</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Font zoom + responsive units change hit targets — a11y and mobile projects care.</div>
+<table><tr><th>Unit</th><th>Relative to</th></tr>
+<tr><td><code>px</code></td><td>absolute CSS pixels</td></tr>
+<tr><td><code>rem</code></td><td>root font size</td></tr>
+<tr><td><code>%</code></td><td>parent (context-dependent)</td></tr>
+<tr><td><code>vw</code>/<code>vh</code></td><td>viewport width/height</td></tr>
+</table>
+<p>Prefer <code>rem</code> for type/spacing so user font settings scale the UI.</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Best unit for scalable typography?</summary><p class="quiz-correct"><code>rem</code></p></details><details><summary>100vw is…?</summary><p class="quiz-correct">Full viewport width.</p></details></div>
+<div class="mark"><button type="button" data-sec="6" onclick="toggleSection(6)">Mark Complete</button></div>
+
+<h2 id="s7">7. Accessibility markup that helps tests</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Good a11y markup = stable <code>getByRole</code> / <code>getByLabel</code> — less testid spam.</div>
+<ul>
+<li>Real <code>&lt;button&gt;</code> / <code>&lt;a href&gt;</code> — not clickable divs</li>
+<li>Label every input</li>
+<li>One <code>h1</code>; don’t skip heading levels wildly</li>
+<li><code>alt</code> on meaningful images; <code>alt=""</code> when decorative</li>
+<li><code>lang</code> on <code>&lt;html&gt;</code></li>
+</ul>
+<pre><code>&lt;button aria-pressed="false"&gt;Mute&lt;/button&gt;
+&lt;nav aria-label="Primary"&gt;…&lt;/nav&gt;
+</code></pre>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Why does aria-label on nav help?</summary><p class="quiz-correct">Distinguishes landmarks; names the navigation for AT + roles.</p></details><details><summary>Clickable div vs button?</summary><p class="quiz-correct">Prefer button for keyboard/role.</p></details></div>
+<div class="mark"><button type="button" data-sec="7" onclick="toggleSection(7)">Mark Complete</button></div>
+
+<h2 id="s8">8. Color, contrast &amp; focus (light)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Low contrast and missing focus rings fail a11y checks and keyboard testing.</div>
+<ul>
+<li>Aim for WCAG AA contrast (≈ 4.5:1 normal text)</li>
+<li>Never remove <code>:focus</code> outlines without a visible replacement</li>
+<li>Don’t rely on color alone for errors</li>
+</ul>
+<pre><code>button:focus-visible {
+  outline: 3px solid #1d4f91;
+  outline-offset: 2px;
+}
+</code></pre>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Is outline:none OK with no replacement?</summary><p class="quiz-correct">No — keyboard users lose position.</p></details><details><summary>AA contrast ballpark for normal text?</summary><p class="quiz-correct">About 4.5:1</p></details></div>
+<div class="mark"><button type="button" data-sec="8" onclick="toggleSection(8)">Mark Complete</button></div>
+
+<h2 id="s9">9. Layout pitfalls for testers</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Overlap, overflow hidden, and sticky headers cause “not visible” / wrong click targets.</div>
+<table><tr><th>Smell</th><th>What you see</th></tr>
+<tr><td><code>overflow: hidden</code></td><td>Clipped content; Playwright may still think attached</td></tr>
+<tr><td>z-index stacking</td><td>Click hits overlay</td></tr>
+<tr><td>fixed header</td><td>Element covered; need scroll-into-view offset</td></tr>
+<tr><td>duplicate names</td><td>getByRole strict mode violation</td></tr>
+</table>
+<div class="quiz-box"><strong>🐞 Spot-the-Bug</strong>
+<details><summary>Test clicks “Save” but hits a transparent marketing banner</summary><p class="quiz-correct">Stacking/overlay — inspect z-index &amp; pointer-events; dismiss banner or target with trial.</p></details>
+<details><summary>Two buttons named Submit on page</summary><p class="quiz-correct">Strict mode ambiguity — scope to form or use testid.</p></details>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Covered by sticky header — first check?</summary><p class="quiz-correct">Scroll into view / layout; maybe offset or dismiss chrome.</p></details><details><summary>Strict mode violation means?</summary><p class="quiz-correct">Locator resolved to multiple elements.</p></details></div>
+<div class="mark"><button type="button" data-sec="9" onclick="toggleSection(9)">Mark Complete</button></div>
+
+<h2 id="s10">10. Practice, challenges &amp; answer key</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Build tiny layout fluency before Part 3’s mini page.</div>
+<ol>
+<li>Make a flex header: logo left, nav right.</li>
+<li>Make a 2-column grid that becomes 1 column under 600px.</li>
+<li>Add <code>:focus-visible</code> outline to buttons.</li>
+<li>Label a search field accessibly.</li>
+<li>Explain why <code>#app .btn</code> beats <code>.btn</code>.</li>
+</ol>
+<details><summary>Answer key (sketch)</summary>
+<ol>
+<li><code>display:flex; justify-content:space-between; align-items:center</code></li>
+<li><code>grid-template-columns:1fr 1fr</code> + <code>@media (max-width:600px){ … 1fr }</code></li>
+<li>outline + offset on <code>:focus-visible</code></li>
+<li><code>&lt;label for="q"&gt;</code> + <code>id="q"</code></li>
+<li>Higher specificity (extra id + class vs class)</li>
+</ol>
+</details>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>After Part 2, what’s next?</summary><p class="quiz-correct">Part 3 mini page + Playwright checklist (not full E2E course).</p></details></div>
+<div class="mark"><button type="button" data-sec="10" onclick="toggleSection(10)">Mark Complete</button></div>
+
+<h2 id="certificate">🏆 Certificate of Completion</h2>
+<div class="certificate locked" id="certPanel">
+  <p class="big" id="certStatus">Complete all <strong>10 sections</strong> to unlock your optional certificate.</p>
+  <div id="certBody" hidden>
+    <h3 style="margin:0 0 8px;border:none;">HTML & CSS Essentials — Part 2</h3>
+    <p>You can reason about Flex/Grid, breakpoints, specificity, and a11y markup.</p>
+    <p><em>Automation Tester Path · optional certificate</em></p>
+  </div>
+</div>
+<footer>HTML &amp; CSS Essentials · Part 2 · works offline · sibling to JE / Playwright kits</footer>
+<script>
+(function () {
+  const TOTAL = 10;
+  const KEY = (n) => 'p2-sec-' + n;
+  const BOOST = 'p2-boost';
+  const FONT = 'p2-font';
+  const THEME = 'p2-theme';
+  const cards = [{"q":"Flex vs Grid?","a":"Flex = one dimension; Grid = two-dimensional tracks"},{"q":"Does #id beat .class?","a":"Yes"},{"q":"Mobile meta tag?","a":"viewport width=device-width"},{"q":"focus outline:none without replacement?","a":"Not OK for keyboard users"},{"q":"Preferred typography unit?","a":"rem"}];
+  let srIndex = 0, srShow = false;
+  const PATHS = [{"min":0,"text":"Start with cascade + specificity (§1–2)."},{"min":3,"text":"Practice Flex + Grid labs (§3–4)."},{"min":6,"text":"Responsive + a11y + focus (§5–8)."},{"min":10,"text":"Part 2 done — build the Part 3 mini page."}];
+
+  function doneCount() {
+    let n = 0;
+    for (let i = 1; i <= TOTAL; i++) if (localStorage.getItem(KEY(i)) === '1') n++;
+    return n;
+  }
+  function updateProgress() {
+    const n = doneCount();
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progressBar').textContent = '📊 Progress: ' + n + '/' + TOTAL + ' sections (' + pct + '%)';
+    for (let i = 1; i <= TOTAL; i++) {
+      const btn = document.querySelector('button[data-sec="' + i + '"]');
+      if (btn) btn.textContent = localStorage.getItem(KEY(i)) === '1' ? '✅ Completed' : 'Mark Complete';
+    }
+    const path = document.getElementById('learningPathContent');
+    let tip = PATHS[0];
+    for (const p of PATHS) if (n >= p.min) tip = p.text;
+    path.textContent = tip;
+    const cert = document.getElementById('certPanel');
+    const status = document.getElementById('certStatus');
+    const body = document.getElementById('certBody');
+    if (n >= TOTAL) {
+      cert.classList.remove('locked');
+      status.hidden = true;
+      body.hidden = false;
+      cert.style.background = '';
+    } else {
+      cert.classList.add('locked');
+      status.hidden = false;
+      body.hidden = true;
+      cert.style.background = '';
+      status.innerHTML = 'Complete all <strong>' + TOTAL + ' sections</strong> to unlock your optional certificate. (' + n + '/' + TOTAL + ')';
+    }
+  }
+  window.toggleSection = function (n) {
+    const on = localStorage.getItem(KEY(n)) === '1';
+    localStorage.setItem(KEY(n), on ? '0' : '1');
+    if (!on) addXp(5);
+    updateProgress();
+  };
+  function loadBoost() { try { return JSON.parse(localStorage.getItem(BOOST) || '{}'); } catch { return {}; } }
+  function saveBoost(b) { localStorage.setItem(BOOST, JSON.stringify(b)); }
+  function addXp(x) {
+    const b = loadBoost();
+    b.xp = (b.xp || 0) + x;
+    const today = new Date().toDateString();
+    if (b.last !== today) {
+      b.streak = (b.last && (Date.now() - new Date(b.last).getTime() < 172800000)) ? (b.streak || 0) + 1 : 1;
+      b.last = today;
+    }
+    saveBoost(b); renderBoost();
+  }
+  window.addXp = addXp;
+  function renderBoost() {
+    const b = loadBoost();
+    document.getElementById('pointCount').textContent = (b.xp || 0) + ' XP';
+    document.getElementById('streakCount').textContent = (b.streak || 0) + '-day streak';
+  }
+  window.fontZoom = function (dir) {
+    document.body.classList.remove('font-sm', 'font-lg');
+    let cur = localStorage.getItem(FONT) || 'md';
+    if (dir === 0) cur = 'md';
+    else if (dir < 0) cur = cur === 'lg' ? 'md' : 'sm';
+    else cur = cur === 'sm' ? 'md' : 'lg';
+    localStorage.setItem(FONT, cur);
+    if (cur === 'sm') document.body.classList.add('font-sm');
+    if (cur === 'lg') document.body.classList.add('font-lg');
+  };
+  window.toggleTheme = function () {
+    const html = document.documentElement;
+    const dark = html.classList.toggle('force-dark');
+    html.classList.toggle('force-light', !dark);
+    localStorage.setItem(THEME, dark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
+  };
+  window.focusMode = function (btn) {
+    const on = document.body.classList.toggle('focus-mode');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.getElementById('focusHint').style.display = on ? 'block' : 'none';
+    if (on) collapseAll(false);
+  };
+  window.collapseAll = function (open) {
+    document.querySelectorAll('details').forEach((d) => { d.open = !!open; });
+  };
+  window.surpriseJump = function () {
+    const n = 1 + Math.floor(Math.random() * TOTAL);
+    const el = document.getElementById('s' + n);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  window.srStart = function () { srIndex = 0; srShow = false; renderSr(); };
+  function renderSr() {
+    const c = cards[srIndex % cards.length];
+    document.getElementById('srQ').textContent = c.q;
+    const a = document.getElementById('srA');
+    a.style.display = srShow ? 'block' : 'none';
+    a.textContent = c.a;
+    document.getElementById('srBtns').innerHTML = srShow
+      ? '<button type="button" onclick="srNext()">Next</button>'
+      : '<button type="button" onclick="srReveal()">Show answer</button>';
+  }
+  window.srReveal = function () { srShow = true; renderSr(); };
+  window.srNext = function () { srIndex++; srShow = false; renderSr(); addXp(1); };
+  
+  window.p2Spec = function () {
+    function score(s) {
+      s = s.trim();
+      let id = (s.match(/#[\w-]+/g) || []).length;
+      let cls = (s.match(/\.[\w-]+/g) || []).length + (s.match(/\[[^\]]+\]/g) || []).length;
+      let el = (s.match(/^[a-z]+|[\s>+~][a-z]+/gi) || []).length;
+      return { id, cls, el, raw: s };
+    }
+    const a = score(document.getElementById('p2SpecA').value);
+    const b = score(document.getElementById('p2SpecB').value);
+    let winner = 'Tie / depends on source order';
+    if (a.id !== b.id) winner = (a.id > b.id ? 'A' : 'B') + ' wins (more ids)';
+    else if (a.cls !== b.cls) winner = (a.cls > b.cls ? 'A' : 'B') + ' wins (more classes/attrs)';
+    else if (a.el !== b.el) winner = (a.el > b.el ? 'A' : 'B') + ' wins (more elements)';
+    document.getElementById('p2SpecOut').textContent =
+      'A ~ (' + a.id + ',' + a.cls + ',' + a.el + ')\nB ~ (' + b.id + ',' + b.cls + ',' + b.el + ')\n' + winner;
+    addXp(1);
+  };
+  window.p2Flex = function () {
+    const st = document.getElementById('p2FlexStage');
+    st.style.justifyContent = document.getElementById('p2FlexJ').value;
+    st.style.alignItems = document.getElementById('p2FlexA').value;
+    document.getElementById('p2FlexOut').textContent = 'justify=' + st.style.justifyContent + '; align=' + st.style.alignItems;
+    addXp(1);
+  };
+  window.p2Grid = function () {
+    const v = document.getElementById('p2GridCols').value;
+    document.getElementById('p2GridStage').style.gridTemplateColumns = v;
+    document.getElementById('p2GridOut').textContent = 'Grid columns: ' + v;
+    addXp(1);
+  };
+  window.p2Width = function () {
+    const w = window.innerWidth;
+    let tip = 'Desktop-ish';
+    if (w <= 600) tip = 'Mobile breakpoint territory — expect stacked nav';
+    else if (w <= 900) tip = 'Tablet-ish — check wrapping';
+    document.getElementById('p2WidthOut').textContent = 'innerWidth=' + w + 'px → ' + tip;
+    addXp(1);
+  };
+
+  const theme = localStorage.getItem(THEME);
+  if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('force-dark');
+    document.getElementById('themeBtn').textContent = '☀️ Light mode';
+  } else {
+    document.documentElement.classList.add('force-light');
+  }
+  fontZoom(0);
+  const savedFont = localStorage.getItem(FONT);
+  if (savedFont === 'sm') document.body.classList.add('font-sm');
+  if (savedFont === 'lg') document.body.classList.add('font-lg');
+  renderBoost();
+  updateProgress();
+})();
+</script>
+<!--P2H-END-->
+</body>
+</html>

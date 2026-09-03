@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>phase-bc-fullstack-app — Full-Stack Architecture & Testing Companion</title>
+  <style>
+    :root { --bg-primary: #1a202c; --bg-card: #2d3748; --text-primary: #e2e8f0; --accent: #61dafbaa; --border: #4a5568; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: #61dafb; }
+    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+    pre { background: #111827; color: #61dafb; padding: 12px; border-radius: 8px; overflow-x: auto; }
+  
+/* ADHD Accessibility Additions */
+html.force-dark { color-scheme: dark; --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --border:#28374d; }
+body.font-sm { font-size: 14px !important; }
+body.font-lg { font-size: 18px !important; }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { position: fixed; left: 8px; top: 8px; z-index: 9999; background: #fff; color: #1d4f91; padding: 8px 14px; border-radius: 6px; font-weight: 700; }
+.toolbar-adhd { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; align-items: center; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px; }
+.toolbar-adhd button { padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: 600; }
+body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer { display: none !important; }
+.est-time { font-size: 0.82rem; background: #e2e8f0; color: #2d3748; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+</style>
+</head>
+<body id="mainContent">
+
+<a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="toolbar-adhd">
+  <span>📐 Text Size:</span>
+  <button onclick="document.body.classList.remove('font-sm','font-lg')">Default</button>
+  <button onclick="document.body.classList.add('font-sm')">A-</button>
+  <button onclick="document.body.classList.add('font-lg')">A+</button>
+  <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+</div>
+
+  <div class="container">
+    <h1>phase-bc-fullstack-app — Full-Stack Integration Walkthrough</h1>
+    
+    <div class="section-card">
+      <h2>1. Capstone Architecture</h2>
+      <p>This capstone project combines modern React component architecture with Node.js/Express backend APIs and Playwright automated tests.</p>
+      <ul>
+        <li><strong>Frontend:</strong> React (JSX, Hooks, CSS Modules) built with Vite (<code>src/</code>).</li>
+        <li><strong>Backend:</strong> Express REST server with JSON seed data (<code>server/</code>).</li>
+        <li><strong>E2E Tests:</strong> Playwright test suite (<code>tests/e2e/</code>).</li>
+      </ul>
+    </div>
+
+    <div class="section-card">
+      <h2>2. Development & Testing Commands</h2>
+      <pre>
+# Run fullstack app in dev mode
+npm run dev
+
+# Execute Playwright E2E tests
+npx playwright test
+      </pre>
+    </div>
+  </div>
+</body>
+</html>

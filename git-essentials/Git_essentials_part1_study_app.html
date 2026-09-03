@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>git-essentials — Part 1: Git Foundations & Basic Commands</title>
+  <style>
+    :root {
+      --bg-primary: #1a202c;
+      --bg-card: #2d3748;
+      --text-primary: #e2e8f0;
+      --text-muted: #a0aec0;
+      --accent: #f14e32;
+      --accent-hover: #d03d23;
+      --success: #38a169;
+      --border: #4a5568;
+      --code-bg: #111827;
+    }
+
+    body.theme-light {
+      --bg-primary: #f7fafc;
+      --bg-card: #ffffff;
+      --text-primary: #1a202c;
+      --text-muted: #4a5568;
+      --border: #cbd5e0;
+      --code-bg: #edf2f7;
+    }
+
+    body.theme-high-contrast {
+      --bg-primary: #000000;
+      --bg-card: #000000;
+      --text-primary: #ffffff;
+      --text-muted: #ffff00;
+      --border: #ffffff;
+      --code-bg: #111111;
+      --accent: #ff5533;
+    }
+
+    html.font-sm { font-size: 14px; }
+    html.font-md { font-size: 16px; }
+    html.font-lg { font-size: 18px; }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .skip-link {
+      position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+    }
+    .skip-link:focus {
+      position: fixed; left: 8px; top: 8px; z-index: 9999; width: auto; height: auto;
+      background: #fff; color: #1a202c; padding: 8px 14px; border-radius: 6px; font-weight: 700;
+    }
+
+    .partnav {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center; background: var(--bg-card);
+      padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem;
+    }
+    .partnav a { color: #63b3ed; text-decoration: none; font-weight: 600; }
+    .partnav a:hover { text-decoration: underline; }
+
+    .top-controls {
+      display: flex; gap: 10px; align-items: center; justify-content: flex-end; padding: 10px 20px;
+      background: var(--bg-card); border-bottom: 1px solid var(--border);
+    }
+    .btn {
+      background: var(--accent); color: #fff; border: none; padding: 6px 12px; border-radius: 6px;
+      cursor: pointer; font-weight: 600; font-size: 0.85rem;
+    }
+    .btn:hover { background: var(--accent-hover); }
+
+    .progress-bar-container {
+      width: 100%; background: var(--border); height: 8px;
+    }
+    .progress-bar-fill {
+      height: 100%; background: var(--success); width: 0%; transition: width 0.3s;
+    }
+
+    .container {
+      max-width: 900px; margin: 0 auto; padding: 20px;
+    }
+
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+    h2 { color: #63b3ed; margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+
+    .section-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .est-time {
+      font-size: 0.85rem; background: var(--border); color: var(--text-primary); padding: 4px 10px; border-radius: 12px; font-weight: normal;
+    }
+
+    code, pre {
+      font-family: 'Consolas', 'Courier New', monospace; background: var(--code-bg); color: #f6ad55;
+    }
+    pre { padding: 12px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+
+    .quiz-box {
+      background: rgba(99, 179, 237, 0.1); border-left: 4px solid #63b3ed; padding: 12px 16px; margin: 16px 0; border-radius: 0 8px 8px 0;
+    }
+    .quiz-box summary { cursor: pointer; font-weight: bold; color: #63b3ed; }
+
+    .checkbox-container {
+      display: flex; align-items: center; gap: 10px; margin-top: 15px; font-weight: bold;
+    }
+
+    /* Focus Mode Rules */
+    body.focus-mode-active .top-controls,
+    body.focus-mode-active .progress-bar-container,
+    body.focus-mode-active .partnav,
+    body.focus-mode-active .sr-box,
+    body.focus-mode-active .certificate {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div class="partnav">
+    <strong>git-essentials:</strong>
+    <a href="Git_essentials_part1_study_app.html">Part 1: Basics & Setup</a> |
+    <a href="Git_essentials_part2_study_app.html">Part 2: Branching & Merging</a> |
+    <a href="Git_essentials_part3_study_app.html">Part 3: Remotes & GitHub PRs</a>
+  </div>
+
+  <div class="top-controls">
+    <button class="btn" onclick="toggleFocusMode()">🧘 Focus Mode</button>
+    <button class="btn" onclick="cycleTheme()">🎨 Theme</button>
+    <button class="btn" onclick="cycleFontSize()">🔤 Font Size</button>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+
+  <div class="container" id="main-content">
+    <h1>Git Essentials — Part 1: Foundations & Core Commands</h1>
+    <p>Master version control from absolute zero. Learn how Git tracks changes, stages files, and maintains revision history.</p>
+
+    <!-- Section 1 -->
+    <div class="section-card">
+      <h2>1. What is Version Control & Why Git? <span class="est-time">⏱ ~8 min</span></h2>
+      <p>Git is a <strong>distributed version control system (DVCS)</strong>. Unlike central backups, every developer's machine holds a complete copy of the repository history.</p>
+      <ul>
+        <li><strong>Track History:</strong> Know exactly who changed what line, when, and why.</li>
+        <li><strong>Time Travel:</strong> Revert code back to any state in history if bugs are introduced.</li>
+        <li><strong>Collaboration:</strong> Merge changes from multiple developers safely.</li>
+      </ul>
+      <div class="quiz-box">
+        <details>
+          <summary>💡 Quiz: What makes Git "distributed"?</summary>
+          <p>Every developer has a full copy of the entire repository and its history locally, allowing full offline commits and history inspection.</p>
+        </details>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="sec-1" onchange="updateProgress()" />
+        <label for="sec-1">Mark Section 1 Complete</label>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section-card">
+      <h2>2. Initializing & Staging Files <span class="est-time">⏱ ~10 min</span></h2>
+      <p>Git has 3 main states: <strong>Working Directory</strong>, <strong>Staging Area (Index)</strong>, and <strong>Repository (.git)</strong>.</p>
+      <pre>
+# Initialize a new Git repository
+git init
+
+# Check repository status
+git status
+
+# Add files to the staging area
+git add index.html
+git add .  # Stages all files
+      </pre>
+      <div class="checkbox-container">
+        <input type="checkbox" id="sec-2" onchange="updateProgress()" />
+        <label for="sec-2">Mark Section 2 Complete</label>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section-card">
+      <h2>3. Committing & History Log <span class="est-time">⏱ ~12 min</span></h2>
+      <p>Commits create snapshot checkpoints in your history. Always write meaningful commit messages.</p>
+      <pre>
+# Commit staged changes
+git commit -m "feat: add user authentication form"
+
+# View commit history
+git log --oneline --graph
+      </pre>
+      <div class="checkbox-container">
+        <input type="checkbox" id="sec-3" onchange="updateProgress()" />
+        <label for="sec-3">Mark Section 3 Complete</label>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function updateProgress() {
+      const checks = document.querySelectorAll('input[type="checkbox"]');
+      const checked = Array.from(checks).filter(c => c.checked).length;
+      const pct = (checked / checks.length) * 100;
+      document.getElementById('progressFill').style.width = pct + '%';
+      checks.forEach(c => localStorage.setItem('git-p1-' + c.id, c.checked));
+    }
+
+    function toggleFocusMode() {
+      document.body.classList.toggle('focus-mode-active');
+    }
+
+    const themes = ['theme-dark', 'theme-light', 'theme-high-contrast'];
+    let currentTheme = 0;
+    function cycleTheme() {
+      document.body.classList.remove(themes[currentTheme]);
+      currentTheme = (currentTheme + 1) % themes.length;
+      document.body.classList.add(themes[currentTheme]);
+    }
+
+    const fonts = ['font-md', 'font-lg', 'font-sm'];
+    let currentFont = 0;
+    function cycleFontSize() {
+      document.documentElement.classList.remove(fonts[currentFont]);
+      currentFont = (currentFont + 1) % fonts.length;
+      document.documentElement.classList.add(fonts[currentFont]);
+    }
+
+    // Load state
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => {
+      if (localStorage.getItem('git-p1-' + c.id) === 'true') c.checked = true;
+    });
+    updateProgress();
+  </script>
+</body>
+</html>

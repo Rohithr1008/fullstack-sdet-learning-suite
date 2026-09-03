@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeScript for Testers — Parts 1–2</title>
+<style>
+  :root{color-scheme:light dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px/1.6 "Segoe UI",system-ui,sans-serif;background:#f0f5fb;color:#152033}
+  @media (prefers-color-scheme:dark){body{background:#0d1420;color:#dbe4ef}}
+  .wrap{max-width:680px;padding:32px;text-align:center}
+  h1{color:#3178C6;margin:0 0 6px}
+  @media (prefers-color-scheme:dark){h1{color:#6cb6ff}}
+  p.sub{color:#5b6b80;margin:0 0 16px}
+  .note{text-align:left;background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:12px 14px;margin:0 0 22px;font-size:14px;color:#9a3412}
+  @media (prefers-color-scheme:dark){.note{background:#2a1a0e;border-color:#9a3412;color:#fdba74}}
+  .cards{display:grid;gap:14px}
+  a.card{display:block;padding:18px 22px;border-radius:12px;text-decoration:none;border:1px solid #d0dceb;background:#fff;color:inherit;text-align:left;transition:transform .15s,box-shadow .15s}
+  a.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,30,60,.12)}
+  @media (prefers-color-scheme:dark){a.card{background:#151f30;border-color:#28374d}}
+  .card b{display:block;font-size:17px}
+  .card span{color:#5b6b80;font-size:14px}
+  .part-meta{font-size:13px;color:#5b6b80;margin:4px 0 0;text-align:left}
+  h2{margin:22px 0 6px;font-size:20px;text-align:left}
+  h2.p1{color:#3178C6}
+  h2.p2{color:#0f766e}
+  footer{margin-top:28px;font-size:13px;color:#5b6b80}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TypeScript for Testers</h1>
+  <p class="sub">Parts 1–2 — thin Phase A kit (three formats, works offline)</p>
+  <div class="note"><strong>Not a full TS career kit.</strong> Test-oriented types only. Phase B = TypeScript Develop + Test for app + tests depth.</div>
+
+  <h2 class="p1">Part 1 — Basics for testers</h2>
+  <p class="part-meta">Why TS · types · interfaces · unions · optional</p>
+  <div class="cards">
+    <a class="card" href="Typescript_for_testers_part1_study_app.html"><b>Part 1 · Interactive Study App</b><span>Dark mode · progress · type drills · optional certificate</span></a>
+    <a class="card" href="Typescript_for_testers_part1_interactive.md"><b>Part 1 · Interactive Markdown</b><span>Quizzes &amp; flashcards — VS Code preview (Ctrl+Shift+V)</span></a>
+    <a class="card" href="Typescript_for_testers_part1_with_examples.md"><b>Part 1 · Plain Markdown</b><span>Clean reading / printing / PDF</span></a>
+  </div>
+
+  <h2 class="p2">Part 2 — Playwright-oriented TS</h2>
+  <p class="part-meta">tsconfig · Playwright+TS · POM/helpers · JS→TS migrate</p>
+  <div class="cards">
+    <a class="card" href="Typescript_for_testers_part2_study_app.html"><b>Part 2 · Interactive Study App</b><span>Annotate POM · migrate lab · error decoder mock</span></a>
+    <a class="card" href="Typescript_for_testers_part2_interactive.md"><b>Part 2 · Interactive Markdown</b><span>Quizzes, Spot-the-Bug — VS Code preview</span></a>
+    <a class="card" href="Typescript_for_testers_part2_with_examples.md"><b>Part 2 · Plain Markdown</b><span>Clean reading / printing / PDF</span></a>
+  </div>
+
+  <p class="sub" style="margin:28px 0 8px;text-align:left">
+    <strong>Automation Tester Path</strong> —
+    <a href="../automation-tester-path/README.md">path map</a> ·
+    prev: HTML/CSS or <a href="../javascript-essentials/index.html">JE</a> ·
+    next: <a href="../playwright-essentials/index.html">Playwright Essentials</a> ·
+    Phase B: TypeScript Develop + Test
+  </p>
+  <footer>Phase A thin kit · 2 parts × 10 sections · not a TS-only job track alone</footer>
+</div>
+</body>
+</html>

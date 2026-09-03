@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Advanced — Part 1: Motion</title>
+<style>
+:root { --accent:#1d4f91; --bg:#f4f7fb; --text:#182333; --card:#fff; --muted:#5b6b80; --border:#d9e2ec; }
+html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#93c5fd; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 12px; align-items:center; }
+.toolbar button { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; cursor:pointer; }
+#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; margin-bottom:16px; }
+.bar { height:8px; background:#334155; border-radius:999px; margin-top:6px; overflow:hidden; }
+.fill { height:100%; background:#38a169; width:0%; transition:width 0.3s; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.quiz-box, .playground, .panel { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+pre, code { font-family:ui-monospace,Consolas,monospace; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.mark { margin:12px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; }
+.mark button.done { background:#276749; }
+
+/* Interactive Demo Elements */
+.demo-btn {
+  display:inline-block; padding:10px 20px; background:#1d4f91; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease, box-shadow 0.25s ease;
+}
+.demo-btn:hover {
+  background:#153e75; transform:translateY(-3px); box-shadow:0 6px 16px rgba(29,79,145,0.3);
+}
+
+.skeleton-box {
+  width:100%; height:80px; border-radius:8px; background:linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+  background-size:200% 100%; animation:loading-shimmer 1.5s infinite linear;
+}
+html.force-dark .skeleton-box {
+  background:linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size:200% 100%;
+}
+@keyframes loading-shimmer {
+  0% { background-position:200% 0; }
+  100% { background-position:-200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-btn, .skeleton-box { animation:none !important; transition:none !important; }
+}
+
+/* ADHD Accessibility Additions */
+html.force-dark { color-scheme: dark; --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --border:#28374d; }
+body.font-sm { font-size: 14px !important; }
+body.font-lg { font-size: 18px !important; }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { position: fixed; left: 8px; top: 8px; z-index: 9999; background: #fff; color: #1d4f91; padding: 8px 14px; border-radius: 6px; font-weight: 700; }
+.toolbar-adhd { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; align-items: center; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px; }
+.toolbar-adhd button { padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: 600; }
+body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer { display: none !important; }
+.est-time { font-size: 0.82rem; background: #e2e8f0; color: #2d3748; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+</style>
+</head>
+<body id="mainContent">
+
+<a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="toolbar-adhd">
+  <span>📐 Text Size:</span>
+  <button onclick="document.body.classList.remove('font-sm','font-lg')">Default</button>
+  <button onclick="document.body.classList.add('font-sm')">A-</button>
+  <button onclick="document.body.classList.add('font-lg')">A+</button>
+  <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+</div>
+
+
+<div class="partnav">
+  <strong>CSS Advanced:</strong>
+  <span>Part 1 (Motion)</span> ·
+  <a href="Css_advanced_part2_study_app.html">Part 2 (Transforms)</a> ·
+  <a href="Css_advanced_part3_study_app.html">Part 3 (Tokens)</a> ·
+  <a href="index.html">Hub</a>
+</div>
+
+<div class="toolbar">
+  <button id="themeToggle">🌓 Toggle Dark Mode</button>
+</div>
+
+<div id="progressBar">
+  <div id="progressLabel">Part 1 Progress: 0/4 completed</div>
+  <div class="bar"><div class="fill" id="progressFill"></div></div>
+</div>
+
+<h1>CSS Advanced — Part 1: Motion</h1>
+<p>Master CSS transitions, keyframes, timing curves, accessibility media queries, and high-performance compositing.</p>
+
+<section id="sec-1">
+  <h2>1. Transitions vs. Animations</h2>
+  <p>Transitions smooth state changes (`:hover`, `:focus`). Keyframe animations create multi-stage loops without state triggers.</p>
+  <div class="playground">
+    <h3>Interactive Demo 1: Button Hover Transition</h3>
+    <button class="demo-btn">Hover / Focus Me</button>
+    <pre><code>.demo-btn {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease;
+}
+.demo-btn:hover {
+  transform: translateY(-3px);
+  background-color: #153e75;
+}</code></pre>
+  </div>
+  <div class="mark"><button onclick="toggleSec(1)">Mark Section 1 Complete</button></div>
+</section>
+
+<section id="sec-2">
+  <h2>2. Loading Skeleton Animation</h2>
+  <p>Use `@keyframes` for loading states to provide instant visual feedback to users during network requests.</p>
+  <div class="playground">
+    <h3>Interactive Demo 2: Skeleton Shimmer</h3>
+    <div class="skeleton-box"></div>
+    <pre><code>@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}</code></pre>
+  </div>
+  <div class="mark"><button onclick="toggleSec(2)">Mark Section 2 Complete</button></div>
+</section>
+
+<section id="sec-3">
+  <h2>3. Accessibility & Reduced Motion</h2>
+  <p>Respect user motion sensitivity using `@media (prefers-reduced-motion: reduce)`.</p>
+  <pre><code>@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}</code></pre>
+  <div class="mark"><button onclick="toggleSec(3)">Mark Section 3 Complete</button></div>
+</section>
+
+<section id="sec-4">
+  <h2>4. Knowledge Check Quiz</h2>
+  <div class="quiz-box">
+    <details>
+      <summary>Q1: Which properties run on the GPU compositor without triggering layout reflow?</summary>
+      <p><b>Answer:</b> <code>transform</code> and <code>opacity</code>. Avoid animating <code>width</code>, <code>top</code>, or <code>margin</code>.</p>
+    </details>
+    <details>
+      <summary>Q2: How do you emulate reduced motion in Playwright?</summary>
+      <p><b>Answer:</b> <code>await page.emulateMedia({ reducedMotion: 'reduce' });</code></p>
+    </details>
+  </div>
+  <div class="mark"><button onclick="toggleSec(4)">Mark Section 4 Complete</button></div>
+</section>
+
+<script>
+const TOTAL_SECS = 4;
+function updateProgress() {
+  let done = 0;
+  for(let i=1; i<=TOTAL_SECS; i++) {
+    if(localStorage.getItem('css-adv-p1-s'+i) === '1') done++;
+  }
+  document.getElementById('progressLabel').textContent = `Part 1 Progress: ${done}/${TOTAL_SECS} completed`;
+  document.getElementById('progressFill').style.width = `${(done/TOTAL_SECS)*100}%`;
+  
+  for(let i=1; i<=TOTAL_SECS; i++) {
+    const btn = document.querySelector(`#sec-${i} .mark button`);
+    if(btn) {
+      if(localStorage.getItem('css-adv-p1-s'+i) === '1') {
+        btn.textContent = `✓ Section ${i} Completed`;
+        btn.classList.add('done');
+      } else {
+        btn.textContent = `Mark Section ${i} Complete`;
+        btn.classList.remove('done');
+      }
+    }
+  }
+}
+
+function toggleSec(n) {
+  const current = localStorage.getItem('css-adv-p1-s'+n);
+  localStorage.setItem('css-adv-p1-s'+n, current === '1' ? '0' : '1');
+  updateProgress();
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  document.documentElement.classList.toggle('force-dark');
+});
+
+updateProgress();
+</script>
+</body>
+</html>

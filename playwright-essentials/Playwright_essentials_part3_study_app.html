@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playwright Essentials — Part 3: Architecture (POM, fixtures, auth)</title>
+<style>
+body{margin:0 auto;max-width:920px;padding:16px 18px 64px;font:16px/1.55 "Segoe UI",system-ui,sans-serif;background:#f7f9fc;color:#1a202c;}
+h1{color:#6b46c1;}
+h2{border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin-top:28px;}
+pre,code,textarea{font-family:ui-monospace,Consolas,monospace;}
+textarea{width:100%;border:1px solid #a0aec0;border-radius:8px;padding:10px;}
+.totop{position:fixed;right:16px;bottom:16px;}
+<!-- SHARED-SHELL-CSS:START -->
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+<!-- SHARED-SHELL-CSS:END -->
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>Playwright Essentials — Part 3: Architecture (POM, fixtures, auth)</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Playwright_essentials_part0_study_app.html">0 Strategy</a>
+  <a href="Playwright_essentials_part1_study_app.html">1 Foundations</a>
+  <a href="Playwright_essentials_part2_study_app.html">2 Locators</a>
+  <strong>3 Architecture</strong>
+  <a href="Playwright_essentials_part4_study_app.html">4 Advanced</a>
+  <a href="Playwright_essentials_part5_study_app.html">5 CI & Scale</a>
+</div>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme3()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;align-items:center;">
+  <span style="font-weight:600;">Size:</span>
+  <button type="button" onclick="fontZoom3(-1)" aria-label="Decrease text size">A−</button>
+  <button type="button" onclick="fontZoom3(0)" aria-label="Reset text size">A</button>
+  <button type="button" onclick="fontZoom3(1)" aria-label="Increase text size">A+</button>
+  <button type="button" onclick="collapseAll3(true)" aria-label="Expand all quiz answers">📖 Expand all</button>
+  <button type="button" onclick="collapseAll3(false)" aria-label="Collapse all quiz answers">📕 Collapse all</button>
+  <button type="button" id="focusBtn3" onclick="focusMode3(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint3" style="display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600;">Focus Mode ON — panels hidden. Toggle again to restore.</div>
+
+<p>ADHD-friendly E2E study app: why-it-matters, quizzes, predicts, Spot-the-Bug, live mock, labs on <code>demo-app/</code>.</p>
+
+<div id="progressBar" style="background:#2d3748;border-radius:8px;padding:10px 16px;margin:10px 0;color:#e2e8f0;font-weight:600;text-align:center;">📊 Progress: 0/11 sections (0%)</div>
+
+<div id="boostBar" style="background:#1a202c;border:2px solid #dd6b20;border-radius:12px;padding:12px 16px;margin:12px 0;color:#e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <div>⚡ <span id="streakCount3" style="color:#fbbf24;">0-day streak</span></div>
+  <div>⭐ <span id="pointCount3" style="color:#fbbf24;">0 XP</span></div>
+  <button type="button" onclick="boostSurprise3()" aria-label="Surprise me: jump to a random section">🎲 Surprise me</button>
+  <button type="button" onclick="startFocusTimer3()" aria-label="Start or stop a 25 minute focus sprint">🧠 Focus sprint</button>
+  <span id="focusTimer3" style="font-weight:700;color:#68d391;">⏱ 25:00</span>
+</div>
+<div id="toastZone" style="position:fixed;top:16px;right:16px;z-index:999;"></div>
+<canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;"></canvas>
+
+<div id="learningPathPanel" style="background:#2d3748;border:2px solid #805ad5;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#b794f4;margin-top:0;">🧭 Learning Path</h3>
+  <div id="learningPathContent3" style="color:#e2e8f0;">Mark sections complete for recommendations…</div>
+</div>
+
+<div id="spacedRepetitionPanel" style="background:#2d3748;border:2px solid #319795;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#4fd1c5;margin-top:0;">🃏 Spaced Repetition</h3>
+  <div id="srCard3" style="background:#1a202c;border-radius:8px;padding:16px;text-align:center;">
+    <p id="srQuestion3" style="color:#e2e8f0;">Click Start Review</p>
+    <p id="srAnswer3" style="color:#68d391;display:none;"></p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button type="button" onclick="startSRReview3()">Start Review</button>
+      <button type="button" onclick="srToggleShuffle3()" id="srShuffleBtn3">🔀 Shuffle: Off</button>
+      <button type="button" onclick="showSRAnswer3()">Show answer</button>
+      <button type="button" onclick="srKnow3(true)">Got it</button>
+      <button type="button" onclick="srKnow3(false)">Again</button>
+    </div>
+    <div id="srStats3" style="color:#a0aec0;font-size:12px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<nav aria-label="Section list" id="scrollspy3" style="position:sticky;top:0;background:#edf2f7;padding:8px;border-radius:8px;z-index:5;display:flex;flex-wrap:wrap;gap:6px;font-size:13px;"></nav>
+
+<h2>Live mock — POM spotlight</h2>
+
+<div class="chall interactive-tool" id="pomMock">
+  <p>Click pieces of a Page Object flow:</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+    <button type="button" data-pom="page" style="padding:10px;background:#553c9a;color:#fff;border:none;border-radius:8px;">LoginPage</button>
+    <span>→</span>
+    <button type="button" data-pom="loc" style="padding:10px;background:#2b6cb0;color:#fff;border:none;border-radius:8px;">locators</button>
+    <span>→</span>
+    <button type="button" data-pom="act" style="padding:10px;background:#276749;color:#fff;border:none;border-radius:8px;">signIn()</button>
+  </div>
+  <p id="pomOut" role="status" style="text-align:center;font-weight:600;"></p>
+</div>
+
+
+<section id="sec1" data-section="1">
+  <h2>1. Why architecture matters</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> suites grow; structure keeps them readable</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 1">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_1" id="m3_1a"><label for="m3_1a">😅 Stuck</label>
+    <input type="radio" name="mood3_1" id="m3_1b"><label for="m3_1b">😐 OK</label>
+    <input type="radio" name="mood3_1" id="m3_1c"><label for="m3_1c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="1" onclick="toggleSection3(1)">Mark Complete</button></p>
+</section>
+
+<section id="sec2" data-section="2">
+  <h2>2. Page Object Model</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> page class owns locators + flows</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 2">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_2" id="m3_2a"><label for="m3_2a">😅 Stuck</label>
+    <input type="radio" name="mood3_2" id="m3_2b"><label for="m3_2b">😐 OK</label>
+    <input type="radio" name="mood3_2" id="m3_2c"><label for="m3_2c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="2" onclick="toggleSection3(2)">Mark Complete</button></p>
+</section>
+
+<section id="sec3" data-section="3">
+  <h2>3. Fixtures</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> inject custom pages / data</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 3">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_3" id="m3_3a"><label for="m3_3a">😅 Stuck</label>
+    <input type="radio" name="mood3_3" id="m3_3b"><label for="m3_3b">😐 OK</label>
+    <input type="radio" name="mood3_3" id="m3_3c"><label for="m3_3c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="3" onclick="toggleSection3(3)">Mark Complete</button></p>
+</section>
+
+<section id="sec4" data-section="4">
+  <h2>4. describe, hooks, projects</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> organize + multi-browser</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 4">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_4" id="m3_4a"><label for="m3_4a">😅 Stuck</label>
+    <input type="radio" name="mood3_4" id="m3_4b"><label for="m3_4b">😐 OK</label>
+    <input type="radio" name="mood3_4" id="m3_4c"><label for="m3_4c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="4" onclick="toggleSection3(4)">Mark Complete</button></p>
+</section>
+
+<section id="sec5" data-section="5">
+  <h2>5. env + baseURL</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> one config, many environments</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 5">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_5" id="m3_5a"><label for="m3_5a">😅 Stuck</label>
+    <input type="radio" name="mood3_5" id="m3_5b"><label for="m3_5b">😐 OK</label>
+    <input type="radio" name="mood3_5" id="m3_5c"><label for="m3_5c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="5" onclick="toggleSection3(5)">Mark Complete</button></p>
+</section>
+
+<section id="sec6" data-section="6">
+  <h2>6. APIRequestContext overview</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> API depth → future API & Data kit</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 6">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_6" id="m3_6a"><label for="m3_6a">😅 Stuck</label>
+    <input type="radio" name="mood3_6" id="m3_6b"><label for="m3_6b">😐 OK</label>
+    <input type="radio" name="mood3_6" id="m3_6c"><label for="m3_6c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="6" onclick="toggleSection3(6)">Mark Complete</button></p>
+</section>
+
+<section id="sec7" data-section="7">
+  <h2>7. Authentication + storageState</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> login once, reuse cookies</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 7">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_7" id="m3_7a"><label for="m3_7a">😅 Stuck</label>
+    <input type="radio" name="mood3_7" id="m3_7b"><label for="m3_7b">😐 OK</label>
+    <input type="radio" name="mood3_7" id="m3_7c"><label for="m3_7c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="7" onclick="toggleSection3(7)">Mark Complete</button></p>
+</section>
+
+<section id="sec8" data-section="8">
+  <h2>8. Parallelization basics</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> workers, isolation</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 8">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_8" id="m3_8a"><label for="m3_8a">😅 Stuck</label>
+    <input type="radio" name="mood3_8" id="m3_8b"><label for="m3_8b">😐 OK</label>
+    <input type="radio" name="mood3_8" id="m3_8c"><label for="m3_8c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="8" onclick="toggleSection3(8)">Mark Complete</button></p>
+</section>
+
+<section id="sec9" data-section="9">
+  <h2>9. Practice — refactor to POM</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> labs/part3</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 9">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_9" id="m3_9a"><label for="m3_9a">😅 Stuck</label>
+    <input type="radio" name="mood3_9" id="m3_9b"><label for="m3_9b">😐 OK</label>
+    <input type="radio" name="mood3_9" id="m3_9c"><label for="m3_9c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="9" onclick="toggleSection3(9)">Mark Complete</button></p>
+</section>
+
+<section id="sec10" data-section="10">
+  <h2>10. Challenges</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> design a tiny POM API</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 10">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_10" id="m3_10a"><label for="m3_10a">😅 Stuck</label>
+    <input type="radio" name="mood3_10" id="m3_10b"><label for="m3_10b">😐 OK</label>
+    <input type="radio" name="mood3_10" id="m3_10c"><label for="m3_10c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="10" onclick="toggleSection3(10)">Mark Complete</button></p>
+</section>
+
+<section id="sec11" data-section="11">
+  <h2>11. Answer key</h2>
+  <div class="why">🚩 <strong>Why it matters:</strong> solutions</div>
+  <p>Read the plain/interactive markdown for full notes, then mark this section complete.</p>
+  <div class="mood" role="group" aria-label="Mood check section 11">
+    <span>Mood:</span>
+    <input type="radio" name="mood3_11" id="m3_11a"><label for="m3_11a">😅 Stuck</label>
+    <input type="radio" name="mood3_11" id="m3_11b"><label for="m3_11b">😐 OK</label>
+    <input type="radio" name="mood3_11" id="m3_11c"><label for="m3_11c">😄 Clear</label>
+  </div>
+  <p><button type="button" class="mark-btn section-complete-btn" data-mark="11" onclick="toggleSection3(11)">Mark Complete</button></p>
+</section>
+
+<h2>Quizzes</h2>
+
+<div class="quiz-box">
+  <h3>Quiz 1</h3>
+  <p>storageState is for…</p>
+  <details><summary>Show answer</summary>
+    <p class="quiz-correct">✓ Reusing authenticated cookies/localStorage across tests</p>
+    <p class="quiz-wrong">✗ Not: Storing screenshots</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>Quiz 2</h3>
+  <p>API testing in this series is…</p>
+  <details><summary>Show answer</summary>
+    <p class="quiz-correct">✓ An overview; deep REST/SQL lives in API & Data Essentials</p>
+    <p class="quiz-wrong">✗ Not: The main focus of Part 3</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>Quiz 3</h3>
+  <p>A fixture helps you…</p>
+  <details><summary>Show answer</summary>
+    <p class="quiz-correct">✓ Share setup (e.g. logged-in page) without copy-paste</p>
+    <p class="quiz-wrong">✗ Not: Replace expect()</p>
+  </details>
+</div>
+
+<h2>Predict the outcome</h2>
+<div class="predict"><details><summary>Login in beforeEach of 50 tests → ?</summary><p>Slow; prefer storageState setup project.</p></details><details><summary>POM method returns void after navigation → ?</summary><p>OK; next page object can take over.</p></details></div>
+
+<h2>Spot-the-Bug</h2>
+<div class="spotbug"><details><summary>🐞 Giant God-page with every selector in the app</summary><p>Split by page/area; keep methods small.</p></details><details><summary>🐞 Deep SQL assertions inside UI tests here</summary><p>Point that work to the API & Data kit.</p></details></div>
+
+<details class="studyplan7"><summary>📅 7-day study plan</summary><ol><li><strong>Day 1:</strong> Why architecture matters</li><li><strong>Day 2:</strong> Page Object Model</li><li><strong>Day 3:</strong> Fixtures</li><li><strong>Day 4:</strong> describe, hooks, projects</li><li><strong>Day 5:</strong> env + baseURL</li><li><strong>Day 6:</strong> APIRequestContext overview</li><li><strong>Day 7:</strong> Authentication + storageState</li></ol></details>
+
+<h2>Auto-graded challenges</h2>
+
+<div class="chall challenge" id="chal3_1">
+  <h3>Challenge 1: pomMethodName</h3>
+  <p>Return camelCase flow name from words join with space</p>
+  <p><span style="background:#ebf8ff;border:1px solid #2b6cb0;border-radius:999px;padding:2px 10px;font-size:12px;color:#1a365d;">🟡 medium · ~10 min</span></p>
+  <details class="hint"><summary>💡 Hint</summary><p>Keep it a pure function. Match the test strings exactly.</p></details>
+  <label for="code3_1">Your code</label>
+  <textarea id="code3_1" class="code-editor" rows="8">function pomMethodName(words){
+  // TODO
+}
+</textarea>
+  <p><button type="button" onclick="runTest3(1)">Run tests</button></p>
+  <pre id="out3_1" role="status"></pre>
+</div>
+
+<div class="certificate" id="certificate3" hidden>
+  <h2>🏆 Certificate</h2>
+  <p class="big">Playwright Essentials — Part 3</p>
+  <p>You completed all 11 sections. Nice work.</p>
+</div>
+
+<p><a class="totop" href="#progressBar">Top</a></p>
+
+<script>
+<!-- SHARED-SHELL-JS:START -->
+/* Shared study-app shell JS — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-JS markers drifts. */
+(function (global) {
+  "use strict";
+
+  var FONT_CLASSES = ["font-sm", "font-md", "font-lg"];
+  var FONT_LEVELS = ["font-sm", "", "font-md", "font-lg"];
+
+  function normalizeThemeMode(value) {
+    if (value === "dark" || value === "force-dark") return "force-dark";
+    if (value === "light" || value === "force-light") return "force-light";
+    return null;
+  }
+
+  function setThemeMode(mode, btnId) {
+    var root = document.documentElement;
+    root.classList.remove("force-dark", "force-light");
+    root.classList.add(mode);
+    var btn = document.getElementById(btnId || "themeBtn");
+    if (btn) btn.textContent = mode === "force-dark" ? "☀️ Light mode" : "🌙 Dark mode";
+    return mode;
+  }
+
+  function isDark() {
+    var root = document.documentElement;
+    if (root.classList.contains("force-dark")) return true;
+    if (root.classList.contains("force-light")) return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function applyTheme(storageKey, btnId) {
+    var saved = normalizeThemeMode(localStorage.getItem(storageKey));
+    if (saved) return setThemeMode(saved, btnId);
+    return setThemeMode(isDark() ? "force-dark" : "force-light", btnId);
+  }
+
+  function toggleTheme(storageKey, btnId) {
+    var next = isDark() ? "force-light" : "force-dark";
+    setThemeMode(next, btnId);
+    localStorage.setItem(storageKey, next);
+    return next;
+  }
+
+  function clearFontClasses(html) {
+    FONT_CLASSES.forEach(function (c) {
+      html.classList.remove(c);
+    });
+  }
+
+  function fontZoom(dir, storageKey) {
+    var html = document.documentElement;
+    var cur = "";
+    FONT_CLASSES.forEach(function (c) {
+      if (html.classList.contains(c)) cur = c;
+    });
+    clearFontClasses(html);
+    if (dir !== 0) {
+      var idx = cur === "font-md" ? 2 : cur === "font-lg" ? 3 : cur === "font-sm" ? 0 : 1;
+      var nxt = Math.max(0, Math.min(3, idx + dir));
+      var addCls = FONT_LEVELS[nxt];
+      if (addCls) html.classList.add(addCls);
+      localStorage.setItem(storageKey, addCls || "normal");
+    } else {
+      localStorage.setItem(storageKey, "normal");
+    }
+  }
+
+  function applyFontZoom(storageKey) {
+    var saved = localStorage.getItem(storageKey);
+    if (saved && saved !== "normal" && FONT_CLASSES.indexOf(saved) >= 0) {
+      clearFontClasses(document.documentElement);
+      document.documentElement.classList.add(saved);
+    }
+  }
+
+  function focusMode(btn, hintId) {
+    var on = !document.body.classList.contains("focus-mode");
+    document.body.classList.toggle("focus-mode", on);
+    var hint = hintId ? document.getElementById(hintId) : null;
+    if (hint) hint.style.display = on ? "block" : "none";
+    if (btn) {
+      btn.textContent = on ? "🧘 Focus ON" : "🧘 Focus Mode";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.style.background = on ? "#319795" : "";
+    }
+    document.querySelectorAll("details").forEach(function (d) {
+      try {
+        d.open = false;
+      } catch (e) {}
+    });
+    if (on) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {}
+    }
+    return on;
+  }
+
+  function collapseDetails(expand, selector) {
+    var sel = selector || ".quiz-box details";
+    document.querySelectorAll(sel).forEach(function (d) {
+      if (expand) d.setAttribute("open", "open");
+      else d.removeAttribute("open");
+    });
+  }
+
+  function enhanceA11y() {
+    document
+      .querySelectorAll(
+        '.code-editor:not([aria-label]):not([aria-labelledby]), [contenteditable="true"]:not([aria-label]):not([aria-labelledby])'
+      )
+      .forEach(function (el, i) {
+        if (!el.getAttribute("role")) el.setAttribute("role", "textbox");
+        el.setAttribute("aria-multiline", "true");
+        el.setAttribute("aria-label", "Code editor " + (i + 1));
+      });
+    document.querySelectorAll("textarea:not([aria-label]):not([aria-labelledby])").forEach(function (el, i) {
+      if (!el.id && !el.getAttribute("name")) {
+        el.setAttribute("aria-label", "Code input " + (i + 1));
+      } else if (el.id && !document.querySelector('label[for="' + el.id + '"]')) {
+        el.setAttribute("aria-label", el.getAttribute("placeholder") || "Code input " + (i + 1));
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", enhanceA11y);
+    } else {
+      enhanceA11y();
+    }
+  }
+
+  global.StudyShell = {
+    setThemeMode: setThemeMode,
+    isDark: isDark,
+    applyTheme: applyTheme,
+    toggleTheme: toggleTheme,
+    fontZoom: fontZoom,
+    applyFontZoom: applyFontZoom,
+    focusMode: focusMode,
+    collapseDetails: collapseDetails,
+    enhanceA11y: enhanceA11y,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+<!-- SHARED-SHELL-JS:END -->
+</script>
+<script>
+(function(){
+"use strict";
+var PART=3;
+var TOTAL=11;
+var P_TESTS={
+  1: "assert(pomMethodName('sign in')==='signIn');assert(pomMethodName('add to cart')==='addToCart');"
+};
+var P_SOLUTIONS={
+  1: "function pomMethodName(words){\n  return String(words).trim().split(/\\s+/).map((w,i)=>i===0?w.toLowerCase():w[0].toUpperCase()+w.slice(1).toLowerCase()).join('');\n}"
+};
+var srCards=[{"q":"POM","a":"Encapsulate page locators and flows"},{"q":"Fixture","a":"Playwright test.extend shared setup"},{"q":"storageState","a":"Saved auth storage for reuse"},{"q":"project","a":"Named browser/config slice in playwright.config"}];
+var srIndex=0, srShuffle=false;
+
+function key(sec){ return "pw"+PART+"-sec-"+sec; }
+function boostKey(){ return "pw"+PART+"-boost"; }
+
+function toggleTheme3(){ StudyShell.toggleTheme("pw"+PART+"-theme","themeBtn"); }
+function fontZoom3(d){ StudyShell.fontZoom(d,"pw"+PART+"-font"); }
+function focusMode3(btn){ return StudyShell.focusMode(btn,"focusHint"+PART); }
+function collapseAll3(expand){ StudyShell.collapseDetails(expand); }
+
+function readBoost(){
+  try{ return JSON.parse(localStorage.getItem(boostKey())||"{\"xp\":0,\"streak\":0}"); }catch(e){ return {xp:0,streak:0}; }
+}
+function writeBoost(b){
+  localStorage.setItem(boostKey(), JSON.stringify(b));
+  var s=document.getElementById("streakCount"+PART); if(s) s.textContent=b.streak+"-day streak";
+  var p=document.getElementById("pointCount"+PART); if(p) p.textContent=b.xp+" XP";
+}
+function toast(msg){
+  var z=document.getElementById("toastZone"); if(!z) return;
+  var d=document.createElement("div"); d.textContent=msg; d.style.cssText="background:#2d3748;color:#fff;padding:8px 12px;border-radius:8px;margin-bottom:6px;";
+  z.appendChild(d); setTimeout(function(){ d.remove(); },1800);
+}
+function confetti(){
+  var c=document.getElementById("confettiCanvas"); if(!c||!c.getContext) return;
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  c.style.display="block"; var ctx=c.getContext("2d"); c.width=innerWidth; c.height=innerHeight;
+  var bits=[]; for(var i=0;i<40;i++) bits.push({x:Math.random()*c.width,y:Math.random()*c.height/2,vy:2+Math.random()*3,c:"#"+(Math.random()*0xffffff|0).toString(16)});
+  var n=0; (function frame(){ ctx.clearRect(0,0,c.width,c.height); bits.forEach(function(b){ b.y+=b.vy; ctx.fillStyle=b.c; ctx.fillRect(b.x,b.y,4,6); }); if(++n<40) requestAnimationFrame(frame); else c.style.display="none"; })();
+}
+
+function updateProgress3(){
+  var done=0; for(var i=1;i<=TOTAL;i++) if(localStorage.getItem(key(i))==="1") done++;
+  var pct=Math.round(done/TOTAL*100);
+  var bar=document.getElementById("progressBar");
+  if(bar) bar.textContent="📊 Progress: "+done+"/"+TOTAL+" sections ("+pct+"%)";
+  document.querySelectorAll("[data-mark]").forEach(function(btn){
+    var n=Number(btn.getAttribute("data-mark"));
+    var on=localStorage.getItem(key(n))==="1";
+    btn.classList.toggle("done", on); btn.textContent=on?"Completed ✓":"Mark Complete";
+  });
+  var cert=document.getElementById("certificate"+PART);
+  if(cert) cert.hidden = done!==TOTAL;
+  updateLearningPath3(done);
+}
+
+function toggleSection3(n){
+  var on=localStorage.getItem(key(n))==="1";
+  if(on) localStorage.removeItem(key(n)); else {
+    localStorage.setItem(key(n),"1");
+    var b=readBoost(); b.xp+=10; b.streak=Math.max(1,b.streak); writeBoost(b); toast("+10 XP"); confetti();
+  }
+  updateProgress3();
+}
+
+function updateLearningPath3(done){
+  var el=document.getElementById("learningPathContent"+PART); if(!el) return;
+  if(done===0) el.textContent="Start with section 1 — and skim the live mock.";
+  else if(done<TOTAL) el.textContent="Next: open the first incomplete section. Run labs/part"+PART+" when ready.";
+  else el.textContent="Part complete! Grab the certificate and move to the next part.";
+}
+
+function boostSurprise3(){
+  var n=1+Math.floor(Math.random()*TOTAL);
+  var t=document.getElementById("sec"+n); if(t) t.scrollIntoView({behavior:"smooth"});
+}
+var timerId=null, left=25*60;
+function startFocusTimer3(){
+  var label=document.getElementById("focusTimer"+PART);
+  if(timerId){ clearInterval(timerId); timerId=null; left=25*60; if(label) label.textContent="⏱ 25:00"; return; }
+  timerId=setInterval(function(){
+    left--; var m=String(Math.floor(left/60)).padStart(2,"0"); var s=String(left%60).padStart(2,"0");
+    if(label) label.textContent="⏱ "+m+":"+s;
+    if(left<=0){ clearInterval(timerId); timerId=null; toast("Sprint done"); left=25*60; }
+  },1000);
+}
+
+function startSRReview3(){
+  srIndex=0; renderSR();
+}
+function srToggleShuffle3(){
+  srShuffle=!srShuffle;
+  var b=document.getElementById("srShuffleBtn"+PART); if(b) b.textContent="🔀 Shuffle: "+(srShuffle?"On":"Off");
+  if(srShuffle) srCards=srCards.slice().sort(function(){ return Math.random()-0.5; });
+}
+function renderSR(){
+  var card=srCards[srIndex%srCards.length];
+  var q=document.getElementById("srQuestion"+PART); var a=document.getElementById("srAnswer"+PART);
+  if(q) q.textContent=card.q; if(a){ a.style.display="none"; a.textContent=card.a; }
+  var st=document.getElementById("srStats"+PART); if(st) st.textContent="Card "+((srIndex%srCards.length)+1)+"/"+srCards.length;
+}
+function showSRAnswer3(){ var a=document.getElementById("srAnswer"+PART); if(a) a.style.display="block"; }
+function srKnow3(ok){ if(ok){ var b=readBoost(); b.xp+=2; writeBoost(b); } srIndex++; renderSR(); }
+
+function runTest3(idx){
+  var code=document.getElementById("code"+PART+"_"+idx).value;
+  var tests=P_TESTS[idx];
+  var out=document.getElementById("out"+PART+"_"+idx);
+  try{
+    var harness=code+"\n;"+tests;
+    var fn=new Function("assert", harness);
+    fn(function(cond){ if(!cond) throw new Error("assertion failed"); });
+    out.textContent="✅ All passed";
+    var b=readBoost(); b.xp+=25; writeBoost(b); confetti(); toast("Challenge passed");
+  }catch(e){
+    out.textContent="❌ "+e.message;
+  }
+}
+
+// expose solutions for learners via console
+window["PW"+PART+"_SOLUTIONS"]=P_SOLUTIONS;
+
+StudyShell.applyTheme("pw"+PART+"-theme","themeBtn");
+StudyShell.applyFontZoom("pw"+PART+"-font");
+writeBoost(readBoost());
+updateProgress3();
+
+var spy=document.getElementById("scrollspy"+PART);
+if(spy){
+  for(var i=1;i<=TOTAL;i++){
+    var a=document.createElement("a"); a.href="#sec"+i; a.textContent=String(i); a.style.marginRight="6px"; spy.appendChild(a);
+  }
+}
+
+
+var pomMap={page:'Owns the URL + elements for one screen.',loc:'getByLabel / getByTestId live on the page object.',act:'A flow method: fill + click + wait for navigation.'};
+document.querySelectorAll('#pomMock [data-pom]').forEach(function(b){
+  b.onclick=function(){ document.getElementById('pomOut').textContent=pomMap[b.getAttribute('data-pom')]; };
+});
+})();
+</script>
+</body>
+</html>
+<!--P3H-END-->

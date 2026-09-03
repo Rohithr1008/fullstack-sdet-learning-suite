@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="checkout.html" aria-current="page">Checkout</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Checkout</h1>
+    <p>Posts to <code>/api/checkout</code> (static host returns 404 — labs mock this route).</p>
+    <form class="card" id="checkoutForm">
+      <label for="name">Full name</label>
+      <input id="name" name="name" required data-testid="checkout-name">
+      <label for="address">Shipping address</label>
+      <textarea id="address" name="address" rows="3" required data-testid="checkout-address"></textarea>
+      <label for="promo">Promo code (optional)</label>
+      <input id="promo" name="promo" data-testid="promo">
+      <p data-testid="checkout-total"><strong>Order total: $<span id="ototal">0</span></strong></p>
+      <div id="msg" role="status"></div>
+      <button type="submit" class="btn" data-testid="place-order">Place order</button>
+    </form>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      document.getElementById("ototal").textContent = String(ShopLite.cartTotal());
+      document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        var msg = document.getElementById("msg");
+        msg.textContent = "Placing order…";
+        var payload = {
+          name: document.getElementById("name").value,
+          address: document.getElementById("address").value,
+          promo: document.getElementById("promo").value,
+          total: ShopLite.cartTotal(),
+          items: ShopLite.readCart(),
+        };
+        try {
+          var res = await fetch("/api/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error("Checkout failed (" + res.status + ")");
+          var data = await res.json();
+          msg.className = "ok";
+          msg.textContent = "Order " + (data.orderId || "OK") + " placed!";
+          ShopLite.clearCart();
+        } catch (err) {
+          msg.className = "error";
+          msg.textContent = err.message + " — in labs, mock /api/checkout.";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

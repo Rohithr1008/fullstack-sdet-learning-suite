@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML &amp; CSS Essentials — Part 3</title>
+<style>
+:root { --accent:#1d4f91; --bg:#f4f7fb; --text:#182333; --card:#fff; --muted:#5b6b80; --border:#d9e2ec; }
+html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+body.font-sm { font-size:14px; } body.font-lg { font-size:18px; }
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; background:#fff; color:var(--accent); padding:8px 14px; border-radius:6px; font-weight:700; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#93c5fd; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+.theme-btn, button { cursor:pointer; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.why { background:#ebf4ff; border-left:4px solid #3182ce; padding:6px 12px; border-radius:6px; margin:6px 0 10px; font-size:0.92rem; }
+html.force-dark .why { background:#0f1a2a; }
+.quiz-box, .panel, .mock, .certificate, .playground { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details, .flash details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+.quiz-correct { color:#276749; font-weight:700; }
+html.force-dark .quiz-correct { color:#68d391; }
+.badge { display:inline-block; font-size:12px; padding:2px 9px; border-radius:999px; font-weight:700; margin-left:6px; }
+.b-green { background:#c6f6d5; color:#22543d; }
+.b-yellow { background:#fefcbf; color:#744210; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; align-items:center; }
+.toolbar button, .theme-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; }
+#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; }
+.mark { margin:8px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:600; }
+body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #srPanel, body.focus-mode .studyplan7 { display:none !important; }
+#focusHint { display:none; background:#eef2ff; border:2px solid #5a67d8; border-radius:8px; padding:8px 14px; margin:6px 0; color:#3730a3; font-weight:600; }
+html.force-dark #focusHint { background:#1a1a2e; color:#c7d2fe; }
+table { border-collapse:collapse; width:100%; margin:10px 0; }
+th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+pre, code { font-family:ui-monospace,Consolas,monospace; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.playground label { display:block; margin:6px 0 2px; font-weight:600; }
+.playground input, .playground select, .playground textarea { width:100%; max-width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); box-sizing:border-box; }
+.playground .out { margin-top:10px; padding:10px; border-radius:8px; background:var(--bg); font-family:ui-monospace,Consolas,monospace; font-size:14px; white-space:pre-wrap; }
+.playground .stage { margin-top:10px; padding:12px; border:1px dashed var(--border); border-radius:8px; min-height:48px; background:var(--bg); }
+.demo-box { padding:12px; border:2px solid var(--accent); margin:8px 0; background:#fff; color:#182333; }
+html.force-dark .demo-box { background:#1a2332; color:#dbe4ef; }
+.certificate { text-align:center; border-color:#d69e2e; background:linear-gradient(135deg,#ebf4ff,#fef9c3); }
+html.force-dark .certificate { background:linear-gradient(135deg,#0f1a2a,#422006); }
+.certificate.locked { opacity:0.75; }
+.mood { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; }
+.mood input { display:none; }
+.mood label { border:1px solid var(--border); border-radius:999px; padding:4px 12px; background:var(--card); cursor:pointer; font-size:14px; }
+.mood input:checked + label { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
+.studyplan7 { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:14px 0; }
+.checklist { list-style:none; padding-left:0; }
+.checklist li { margin:6px 0; }
+footer { text-align:center; margin-top:28px; color:var(--muted); font-size:13px; }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+@media print { .toolbar, .theme-btn, #boostBar, #srPanel { display:none !important; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+<h1>HTML &amp; CSS Essentials — Part 3</h1>
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Html_css_essentials_part1_study_app.html">1</a>
+  <a href="Html_css_essentials_part2_study_app.html">2</a>
+  <a href="Html_css_essentials_part3_study_app.html">3</a>
+  <strong>Part 3: Mini page + test checklist</strong>
+  
+</div>
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+<div class="toolbar">
+  <span style="font-weight:600;">📐 Size:</span>
+  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
+  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
+  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
+  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
+  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
+  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — extra panels hidden. Click Focus Mode again to restore.</div>
+<p>Build a small LabCard page, then a Playwright-oriented checklist — E2E depth lives in playwright-essentials.</p>
+<div id="progressBar" role="status">📊 Progress: 0/9 sections (0%)</div>
+<div id="boostBar" class="panel" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <strong>⚡ <span id="streakCount">0-day streak</span></strong>
+  <strong>⭐ <span id="pointCount">0 XP</span></strong>
+  <button type="button" onclick="surpriseJump()">🎲 Surprise me</button>
+</div>
+<details class="studyplan7"><summary>📅 Suggested study plan</summary>
+<ol><li>Day 1: brief + HTML</li><li>Day 2: CSS + a11y</li><li>Day 3: checklist + practice</li></ol>
+</details>
+<div id="learningPathPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🧭 Learning Path</h3>
+  <div id="learningPathContent">Complete a section to get a next-step tip.</div>
+</div>
+<div id="srPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🃏 Flashcard drill</h3>
+  <p id="srQ">Click Start to begin.</p>
+  <p id="srA" style="display:none;color:var(--accent);font-weight:600;"></p>
+  <div id="srBtns"><button type="button" onclick="srStart()">Start Review</button></div>
+</div>
+<h2 id="s1">1. Mini project brief: LabCard page</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> One small page ties DOM + layout + a11y into something you can actually test.</div>
+<p><strong>Build:</strong> a single-page “Lab status” card list for a fictional QA lab.</p>
+<ul>
+<li>Header with site title + primary nav (Home, Labs)</li>
+<li>Main: heading + 2–3 lab cards (name, status badge, Open button)</li>
+<li>Footer with copyright</li>
+<li>Works at ~375px and desktop; keyboard-focusable controls</li>
+</ul>
+<p>Keep CSS in a <code>&lt;style&gt;</code> block — offline-friendly, like these study apps.</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Why a mini page before Playwright deep-dive?</summary><p class="quiz-correct">You need realistic DOM/CSS to practice locators & visibility.</p></details><details><summary>Must it be a framework app?</summary><p class="quiz-correct">No — static HTML/CSS is enough.</p></details></div>
+<div class="mark"><button type="button" data-sec="1" onclick="toggleSection(1)">Mark Complete</button></div>
+
+<h2 id="s2">2. Information architecture &amp; semantics</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Landmarks and headings become your locator map.</div>
+<pre><code>&lt;header&gt;
+  &lt;p class="brand"&gt;QA Lab Desk&lt;/p&gt;
+  &lt;nav aria-label="Primary"&gt;…&lt;/nav&gt;
+&lt;/header&gt;
+&lt;main&gt;
+  &lt;h1&gt;Open labs&lt;/h1&gt;
+  &lt;article aria-labelledby="lab-1-title"&gt;…&lt;/article&gt;
+&lt;/main&gt;
+&lt;footer&gt;…&lt;/footer&gt;
+</code></pre>
+<p>Use <code>article</code> or list items for cards — give each a heading.</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Role for primary nav?</summary><p class="quiz-correct">navigation (named via aria-label if multiple).</p></details><details><summary>Where does <code>h1</code> live?</summary><p class="quiz-correct">Usually once, in main content.</p></details></div>
+<div class="mark"><button type="button" data-sec="2" onclick="toggleSection(2)">Mark Complete</button></div>
+
+<h2 id="s3">3. Build the HTML skeleton</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Stable structure first — cosmetics second.</div>
+<p>Checklist while you type:</p>
+<ul class="checklist">
+<li>☐ <code>lang="en"</code> + viewport meta</li>
+<li>☐ One <code>h1</code></li>
+<li>☐ Labels if any inputs (filter optional)</li>
+<li>☐ Real <code>&lt;button&gt;</code> / <code>&lt;a&gt;</code></li>
+<li>☐ <code>data-testid</code> on Open buttons (e.g. <code>lab-open-alpha</code>)</li>
+</ul>
+<div class="playground">
+<strong>🧪 Skeleton preview (built-in demo)</strong>
+<div class="stage" id="p3Demo"></div>
+<p><button type="button" onclick="p3Mount()">Mount demo LabCard page</button></p>
+<div class="out" id="p3MountOut">Click to inject a tiny semantic demo into the stage.</div>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Why add data-testid on Open?</summary><p class="quiz-correct">Stable explicit hook when card titles change copy.</p></details><details><summary>Skip viewport meta?</summary><p class="quiz-correct">Mobile layout/media queries won’t behave.</p></details></div>
+<div class="mark"><button type="button" data-sec="3" onclick="toggleSection(3)">Mark Complete</button></div>
+
+<h2 id="s4">4. Style with Flex/Grid</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Cards in a responsive grid is the Part 2 payoff.</div>
+<pre><code>.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+@media (max-width: 600px) {
+  .site-header { flex-direction: column; align-items: flex-start; }
+}
+</code></pre>
+<p>Status badge: padding + radius + strong text (don’t use color alone — include the word “Pass/Fail”).</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>auto-fit minmax helps…?</summary><p class="quiz-correct">Responsive columns without many breakpoints.</p></details><details><summary>Color-only status badge OK?</summary><p class="quiz-correct">No — include text/icon.</p></details></div>
+<div class="mark"><button type="button" data-sec="4" onclick="toggleSection(4)">Mark Complete</button></div>
+
+<h2 id="s5">5. A11y pass on your page</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> A 5-minute pass prevents most role/label flakes.</div>
+<ol>
+<li>Tab through — every control shows focus</li>
+<li>Headings in order</li>
+<li>Buttons have accessible names</li>
+<li>Contrast roughly OK on badges/text</li>
+<li>Landmarks present (header/main/footer/nav)</li>
+</ol>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>First keyboard check?</summary><p class="quiz-correct">Tab order + visible focus.</p></details><details><summary>Unnamed button symptom in Playwright?</summary><p class="quiz-correct">getByRole('button', { name: … }) fails or is awkward.</p></details></div>
+<div class="mark"><button type="button" data-sec="5" onclick="toggleSection(5)">Mark Complete</button></div>
+
+<h2 id="s6">6. How you’d test this in Playwright (checklist)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Bridge to the Playwright kit — without re-teaching E2E here.</div>
+<p>Full setup, fixtures, and patterns live in <strong><a href="../playwright-essentials/README.md">Playwright Essentials</a></strong>. Here is only a <em>what to assert</em> checklist for LabCard:</p>
+<ul class="checklist">
+<li>☐ <code>getByRole('heading', { name: 'Open labs' })</code> visible</li>
+<li>☐ <code>getByRole('navigation', { name: 'Primary' })</code> present</li>
+<li>☐ Open lab via <code>getByTestId('lab-open-alpha')</code> or role+name</li>
+<li>☐ Status text “Pass” / “Fail” visible (not color-only)</li>
+<li>☐ Mobile project: nav still usable at 375 width</li>
+<li>☐ Keyboard: focus Open button, activate with Enter</li>
+</ul>
+<pre><code>// sketch only — details in playwright-essentials
+test('lab cards render', async ({ page }) => {
+  await page.goto('/labdesk.html');
+  await expect(page.getByRole('heading', { name: 'Open labs' })).toBeVisible();
+  await page.getByTestId('lab-open-alpha').click();
+});
+</code></pre>
+<p>Do <strong>not</strong> expand this into a full E2E course here — continue in the Playwright kit.</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Where to learn fixtures/Page Object depth?</summary><p class="quiz-correct">../playwright-essentials</p></details><details><summary>Prefer getByRole or raw CSS here?</summary><p class="quiz-correct">getByRole / getByLabel / getByTestId per team strategy.</p></details></div>
+<div class="mark"><button type="button" data-sec="6" onclick="toggleSection(6)">Mark Complete</button></div>
+
+<h2 id="s7">7. Debug failures with DevTools</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> When the checklist item fails, Elements + Computed still save you.</div>
+<ol>
+<li>Is the node in the DOM?</li>
+<li>Is it visible (display/visibility/opacity/coverage)?</li>
+<li>Is the accessible name what you expect?</li>
+<li>Did a media query change the control?</li>
+</ol>
+<p>Map each failure to Part 1–2 lessons before changing the test blindly.</p>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Test not visible + node exists → check?</summary><p class="quiz-correct">Computed visibility / cover / size.</p></details><details><summary>Name mismatch often means?</summary><p class="quiz-correct">Wrong element, split text, or missing label.</p></details></div>
+<div class="mark"><button type="button" data-sec="7" onclick="toggleSection(7)">Mark Complete</button></div>
+
+<h2 id="s8">8. Optional polish &amp; handoff</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Ship a calm page someone else can open offline.</div>
+<ul>
+<li>Prefer system fonts; keep motion subtle; honor <code>prefers-reduced-motion</code></li>
+<li>Document testids in a one-line README comment</li>
+<li>Link your page from this kit’s hub when you save it beside the study apps</li>
+</ul>
+<div class="mood"><span>Mood after build:</span>
+<input type="radio" name="m3" id="m3a"><label for="m3a">😅</label>
+<input type="radio" name="m3" id="m3b"><label for="m3b">🙂</label>
+<input type="radio" name="m3" id="m3c"><label for="m3c">😎</label>
+</div>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Offline-friendly means?</summary><p class="quiz-correct">Open HTML locally — no build step required for the exercise.</p></details></div>
+<div class="mark"><button type="button" data-sec="8" onclick="toggleSection(8)">Mark Complete</button></div>
+
+<h2 id="s9">9. Practice, challenges &amp; answer key</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Close the loop with a short self-check.</div>
+<ol>
+<li>List 3 locators you’d use on LabCard.</li>
+<li>Write the grid CSS for responsive cards.</li>
+<li>Name 2 a11y checks before opening Playwright.</li>
+<li>Where do you go next on the Automation Tester Path?</li>
+</ol>
+<details><summary>Answer key</summary>
+<ol>
+<li>e.g. heading, nav, getByTestId open, getByRole button name</li>
+<li><code>repeat(auto-fit, minmax(220px, 1fr))</code> + gap</li>
+<li>Tab focus; labels/names; landmarks; contrast</li>
+<li><a href="../playwright-essentials/README.md">Playwright Essentials</a> (after JE foundations as your path maps)</li>
+</ol>
+</details>
+<div class="quiz-box"><strong>🧪 Self-test</strong><details><summary>Part 3’s main deliverable?</summary><p class="quiz-correct">A small semantic responsive page + Playwright-oriented checklist.</p></details></div>
+<div class="mark"><button type="button" data-sec="9" onclick="toggleSection(9)">Mark Complete</button></div>
+
+<h2 id="certificate">🏆 Certificate of Completion</h2>
+<div class="certificate locked" id="certPanel">
+  <p class="big" id="certStatus">Complete all <strong>9 sections</strong> to unlock your optional certificate.</p>
+  <div id="certBody" hidden>
+    <h3 style="margin:0 0 8px;border:none;">HTML & CSS Essentials — Part 3</h3>
+    <p>You built a tiny testable page and know what to assert next in Playwright.</p>
+    <p><em>Automation Tester Path · optional certificate</em></p>
+  </div>
+</div>
+<footer>HTML &amp; CSS Essentials · Part 3 · works offline · sibling to JE / Playwright kits</footer>
+<script>
+(function () {
+  const TOTAL = 9;
+  const KEY = (n) => 'p3-sec-' + n;
+  const BOOST = 'p3-boost';
+  const FONT = 'p3-font';
+  const THEME = 'p3-theme';
+  const cards = [{"q":"Where is deep Playwright taught?","a":"playwright-essentials sibling kit"},{"q":"Responsive cards CSS idea?","a":"grid auto-fit minmax"},{"q":"Why data-testid on Open?","a":"Stable hook when copy changes"},{"q":"First a11y pass step?","a":"Keyboard tab + visible focus"},{"q":"Color-only status OK?","a":"No — include text"}];
+  let srIndex = 0, srShow = false;
+  const PATHS = [{"min":0,"text":"Read the brief + semantics (§1–2)."},{"min":3,"text":"Build HTML/CSS (§3–4) then a11y pass (§5)."},{"min":6,"text":"Playwright checklist + debug habits (§6–7)."},{"min":9,"text":"Part 3 done — open Playwright Essentials."}];
+
+  function doneCount() {
+    let n = 0;
+    for (let i = 1; i <= TOTAL; i++) if (localStorage.getItem(KEY(i)) === '1') n++;
+    return n;
+  }
+  function updateProgress() {
+    const n = doneCount();
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progressBar').textContent = '📊 Progress: ' + n + '/' + TOTAL + ' sections (' + pct + '%)';
+    for (let i = 1; i <= TOTAL; i++) {
+      const btn = document.querySelector('button[data-sec="' + i + '"]');
+      if (btn) btn.textContent = localStorage.getItem(KEY(i)) === '1' ? '✅ Completed' : 'Mark Complete';
+    }
+    const path = document.getElementById('learningPathContent');
+    let tip = PATHS[0];
+    for (const p of PATHS) if (n >= p.min) tip = p.text;
+    path.textContent = tip;
+    const cert = document.getElementById('certPanel');
+    const status = document.getElementById('certStatus');
+    const body = document.getElementById('certBody');
+    if (n >= TOTAL) {
+      cert.classList.remove('locked');
+      status.hidden = true;
+      body.hidden = false;
+      cert.style.background = '';
+    } else {
+      cert.classList.add('locked');
+      status.hidden = false;
+      body.hidden = true;
+      cert.style.background = '';
+      status.innerHTML = 'Complete all <strong>' + TOTAL + ' sections</strong> to unlock your optional certificate. (' + n + '/' + TOTAL + ')';
+    }
+  }
+  window.toggleSection = function (n) {
+    const on = localStorage.getItem(KEY(n)) === '1';
+    localStorage.setItem(KEY(n), on ? '0' : '1');
+    if (!on) addXp(5);
+    updateProgress();
+  };
+  function loadBoost() { try { return JSON.parse(localStorage.getItem(BOOST) || '{}'); } catch { return {}; } }
+  function saveBoost(b) { localStorage.setItem(BOOST, JSON.stringify(b)); }
+  function addXp(x) {
+    const b = loadBoost();
+    b.xp = (b.xp || 0) + x;
+    const today = new Date().toDateString();
+    if (b.last !== today) {
+      b.streak = (b.last && (Date.now() - new Date(b.last).getTime() < 172800000)) ? (b.streak || 0) + 1 : 1;
+      b.last = today;
+    }
+    saveBoost(b); renderBoost();
+  }
+  window.addXp = addXp;
+  function renderBoost() {
+    const b = loadBoost();
+    document.getElementById('pointCount').textContent = (b.xp || 0) + ' XP';
+    document.getElementById('streakCount').textContent = (b.streak || 0) + '-day streak';
+  }
+  window.fontZoom = function (dir) {
+    document.body.classList.remove('font-sm', 'font-lg');
+    let cur = localStorage.getItem(FONT) || 'md';
+    if (dir === 0) cur = 'md';
+    else if (dir < 0) cur = cur === 'lg' ? 'md' : 'sm';
+    else cur = cur === 'sm' ? 'md' : 'lg';
+    localStorage.setItem(FONT, cur);
+    if (cur === 'sm') document.body.classList.add('font-sm');
+    if (cur === 'lg') document.body.classList.add('font-lg');
+  };
+  window.toggleTheme = function () {
+    const html = document.documentElement;
+    const dark = html.classList.toggle('force-dark');
+    html.classList.toggle('force-light', !dark);
+    localStorage.setItem(THEME, dark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
+  };
+  window.focusMode = function (btn) {
+    const on = document.body.classList.toggle('focus-mode');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.getElementById('focusHint').style.display = on ? 'block' : 'none';
+    if (on) collapseAll(false);
+  };
+  window.collapseAll = function (open) {
+    document.querySelectorAll('details').forEach((d) => { d.open = !!open; });
+  };
+  window.surpriseJump = function () {
+    const n = 1 + Math.floor(Math.random() * TOTAL);
+    const el = document.getElementById('s' + n);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  window.srStart = function () { srIndex = 0; srShow = false; renderSr(); };
+  function renderSr() {
+    const c = cards[srIndex % cards.length];
+    document.getElementById('srQ').textContent = c.q;
+    const a = document.getElementById('srA');
+    a.style.display = srShow ? 'block' : 'none';
+    a.textContent = c.a;
+    document.getElementById('srBtns').innerHTML = srShow
+      ? '<button type="button" onclick="srNext()">Next</button>'
+      : '<button type="button" onclick="srReveal()">Show answer</button>';
+  }
+  window.srReveal = function () { srShow = true; renderSr(); };
+  window.srNext = function () { srIndex++; srShow = false; renderSr(); addXp(1); };
+  
+  window.p3Mount = function () {
+    document.getElementById('p3Demo').innerHTML = (
+      '<header class="demo-box" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+      '<strong>QA Lab Desk</strong><nav aria-label="Primary"><a href="#">Home</a> · <a href="#">Labs</a></nav></header>' +
+      '<main style="margin-top:8px;"><h3 style="margin:0 0 8px;">Open labs</h3>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">' +
+      '<article class="demo-box"><div style="display:flex;justify-content:space-between;"><span id="lab-1-title">Alpha</span><span>Pass</span></div>' +
+      '<button type="button" data-testid="lab-open-alpha">Open</button></article>' +
+      '<article class="demo-box"><div style="display:flex;justify-content:space-between;"><span>Beta</span><span>Fail</span></div>' +
+      '<button type="button" data-testid="lab-open-beta">Open</button></article>' +
+      '</div></main>' +
+      '<footer class="demo-box" style="margin-top:8px;">© QA Lab Desk</footer>'
+    );
+    document.getElementById('p3MountOut').textContent = 'Demo mounted — inspect testids + landmarks. Try tabbing Open.';
+    addXp(2);
+  };
+
+  const theme = localStorage.getItem(THEME);
+  if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('force-dark');
+    document.getElementById('themeBtn').textContent = '☀️ Light mode';
+  } else {
+    document.documentElement.classList.add('force-light');
+  }
+  fontZoom(0);
+  const savedFont = localStorage.getItem(FONT);
+  if (savedFont === 'sm') document.body.classList.add('font-sm');
+  if (savedFont === 'lg') document.body.classList.add('font-lg');
+  renderBoost();
+  updateProgress();
+})();
+</script>
+<!--P3H-END-->
+</body>
+</html>

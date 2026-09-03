@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Inner frame</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <h1>Inside the frame</h1>
+    <button type="button" id="innerBtn" data-testid="inner-btn">Click me</button>
+    <p id="innerStatus" data-testid="inner-status" role="status"></p>
+  </main>
+  <script>
+    document.getElementById("innerBtn").onclick = function () {
+      document.getElementById("innerStatus").textContent = "Frame button clicked";
+    };
+  </script>
+</body>
+</html>

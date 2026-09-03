@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dialogs — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary"><a href="index.html">Home</a></nav>
+  </header>
+  <main id="main">
+    <h1>Browser dialogs</h1>
+    <div class="card">
+      <button type="button" class="btn" id="alertBtn" data-testid="alert-btn">Show alert</button>
+      <button type="button" class="btn" id="confirmBtn" data-testid="confirm-btn">Show confirm</button>
+      <button type="button" class="btn" id="promptBtn" data-testid="prompt-btn">Show prompt</button>
+      <p id="result" data-testid="dialog-result" role="status"></p>
+    </div>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("alertBtn").onclick = function () {
+      alert("Hello from ShopLite");
+      document.getElementById("result").textContent = "Alert dismissed";
+    };
+    document.getElementById("confirmBtn").onclick = function () {
+      var ok = confirm("Delete demo item?");
+      document.getElementById("result").textContent = ok ? "Confirmed" : "Cancelled";
+    };
+    document.getElementById("promptBtn").onclick = function () {
+      var name = prompt("Your nickname?", "tester");
+      document.getElementById("result").textContent = name ? "Hello " + name : "No name";
+    };
+  </script>
+</body>
+</html>

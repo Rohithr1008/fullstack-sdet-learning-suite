@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Essentials — Part 6</title>
+<style>
+<!-- SHARED-SHELL-CSS:START -->
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+<!-- SHARED-SHELL-CSS:END -->
+
+html { scroll-behavior: smooth; font-size: 16px; }
+body { background: #f7f9fc; color: #1a202c; margin: 0 auto; max-width: 980px; padding: 16px 20px 60px 20px; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; }
+h2[id], h3[id] { scroll-margin-top: 16px; }
+.theme-btn { float: right; margin: 4px 0 8px 10px; padding: 6px 14px; background: #4a5568; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+h1 { color:#2b6cb0; margin-bottom: 4px; }
+h2 { border-bottom: 3px solid #3182ce; padding-bottom: 6px; color:#2b6cb0; }
+.layer-legend { display:flex; gap:8px; flex-wrap:wrap; background:#edf2f7; border:1px solid #cbd5e0; border-radius:8px; padding:8px 12px; margin:10px 0; font-size:0.9rem; }
+.layer-legend .l { padding:3px 10px; border-radius:999px; color:#fff; font-weight:600; }
+.l-test { background:#0369a1; } .l-ci { background:#7c3aed; } .l-mon { background:#0f766e; } .l-sec { background:#be185d; } .l-scale { background:#b45309; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>JavaScript Essentials - Part 6</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Javascript_essentials_part1_study_app.html">1 Core</a>
+  <a href="Javascript_essentials_part2_study_app.html">2 Async/OOP</a>
+  <a href="Javascript_essentials_part3_study_app.html">3 MERN Bridge</a>
+  <a href="Javascript_essentials_part4_study_app.html">4 MERN Foundations</a>
+  <a href="Javascript_essentials_part5_study_app.html">5 Auth + Deploy</a>
+  <strong>6 Hardening: CI/CD + Tests</strong>
+</div>
+<style>
+.sandbox { background:#0f172a; border:1px solid #334155; border-radius:10px; padding:14px; color:#e2e8f0; margin:12px 0; }
+.sandbox textarea, .sandbox input, .sandbox select { width:100%; box-sizing:border-box; background:#0b1220; color:#a5f3fc; border:1px solid #334155; border-radius:6px; font-family:Consolas,monospace; padding:9px; }
+.sandbox .out { background:#020617; color:#86efac; border-radius:6px; padding:10px; margin-top:8px; min-height:42px; white-space:pre-wrap; font-family:Consolas,monospace; }
+.sandbox .err { color:#fca5a5; }
+.sandbox button { background:#2563eb; color:#fff; border:none; padding:7px 14px; border-radius:6px; cursor:pointer; margin:6px 6px 0 0; font-weight:600; }
+pre { background:#1a202c; color:#e2e8f0; padding:12px 14px; border-radius:8px; overflow-x:auto; }
+pre code { background:transparent; color:inherit; font-family:Consolas,monospace; }
+code { background:#e2e8f0; padding:1px 5px; border-radius:4px; font-family:Consolas,monospace; color:#2d3748; }
+.challenge { border:1px solid #4a5568; border-radius:10px; padding:12px 16px; margin:14px 0; background:#fafbfc; }
+.challenge textarea { width:100%; box-sizing:border-box; background:#0b1220; color:#a5f3fc; border:1px solid #334155; border-radius:6px; font-family:Consolas,monospace; padding:10px; }
+.challenge .result { margin-top:8px; padding:8px 10px; border-radius:6px; font-weight:600; white-space:pre-wrap; }
+.pass { background:#c6f6d5; color:#22543d; } .fail { background:#fed7d7; color:#742a2a; }
+.mark-btn { margin:8px 0 4px 0; padding:5px 12px; background:#38a169; color:#fff; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; }
+.mark-btn.done { background:#718096; }
+.toast { background:#1a202c; color:#e2e8f0; border-left:4px solid #dd6b20; padding:10px 14px; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,.3); font-weight:600; max-width:280px; animation:slidein .3s ease; }
+.toast.celebrate { border-left-color:#38a169; }
+.toast.badge { border-left-color:#805ad5; }
+@keyframes slidein { from{opacity:0;transform:translateX(20px);} to{opacity:1;transform:none;} }
+.ci-box, .cov-box, .sec-box { background:#0f172a; border:1px solid #7c3aed; border-radius:12px; padding:16px; color:#e2e8f0; margin:12px 0; }
+.cov-box { border-color:#0369a1; } .sec-box { border-color:#be185d; }
+.ci-box .log, .sec-box .log { background:#020617; color:#a5f3fc; border-radius:8px; padding:12px; font-family:Consolas,monospace; font-size:13px; min-height:100px; max-height:220px; overflow:auto; }
+.ci-step { display:inline-block; padding:6px 12px; border-radius:8px; margin:4px; background:#334155; font-weight:700; font-size:13px; }
+.ci-step.on { background:#047857; } .ci-step.fail { background:#b91c1c; }
+.cov-row { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+.cov-chip { padding:4px 10px; border-radius:6px; font-family:Consolas,monospace; font-size:12px; background:#334155; }
+.cov-chip.ok { background:#047857; } .cov-chip.bad { background:#b91c1c; }
+.totop { text-align:right; margin:6px 0; }
+body.focus-mode #progressBar, body.focus-mode #ciPanel, body.focus-mode #covPanel, body.focus-mode #secPanel, body.focus-mode #spacedRepetitionPanel, body.focus-mode #learningPathPanel, body.focus-mode #boostBar { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+.tip-glossary details { background:#fff; border:1px solid #cbd5e0; border-radius:8px; padding:6px 10px; margin:6px 0; }
+.tip-glossary summary { cursor:pointer; font-weight:600; }
+.badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; margin-right:4px; }
+.badge.easy { background:#c6f6d5; color:#22543d; } .badge.med { background:#fefcbf; color:#744210; } .badge.time { background:#e2e8f0; color:#2d3748; }
+.hint summary { cursor:pointer; font-weight:600; color:#2b6cb0; }
+@media (prefers-color-scheme: dark){
+  body{background:#0d1117;color:#e6edf3;}
+  h1,h2{color:#5b9bf0;} h2{border-bottom-color:#63b3ed;}
+  code{background:#1f2937;color:#e2e8f0;}
+  .challenge{background:#141c28;border-color:#2d3748;}
+  .layer-legend{background:#1a202c;border-color:#2d3748;}
+  .tip-glossary details{background:#0f1622;border-color:#2d3748;color:#e2e8f0;}
+  .badge.easy{background:#14532d;color:#bbf7d0;} .badge.med{background:#713f12;color:#fef08a;} .badge.time{background:#1f2937;color:#e2e8f0;}
+}
+html.force-dark .tip-glossary details{background:#0f1622;border-color:#2d3748;color:#e2e8f0;}
+html.force-light .tip-glossary details{background:#fff;border-color:#cbd5e0;color:#1a202c;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.01ms!important;transition-duration:.01ms!important;} }
+@media print { .theme-btn,#ciPanel,#covPanel,#secPanel,.mark-btn,.challenge,.totop,.layer-legend,button{display:none!important;} body{background:#fff!important;color:#000!important;} }
+</style>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Toggle light/dark theme" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;align-items:center;">
+  <span style="font-weight:600;margin-right:4px;">📐 Size:</span>
+  <button onclick="fontZoom6(-1)" title="Decrease text size" aria-label="Decrease text size">A−</button>
+  <button onclick="fontZoom6(0)" title="Reset text size" aria-label="Reset text size">A</button>
+  <button onclick="fontZoom6(1)" title="Increase text size" aria-label="Increase text size">A+</button>
+  <span style="width:14px;"></span>
+  <button onclick="collapseAll6(true)" title="Expand all quiz answers" aria-label="Expand all quiz answers">📖 Expand all</button>
+  <button onclick="collapseAll6(false)" title="Collapse all quiz answers" aria-label="Collapse all quiz answers">📕 Collapse all</button>
+  <span style="width:14px;"></span>
+  <button id="focusBtn6" onclick="focusMode6(this)" title="Focus Mode hides distractions for calm, deep reading" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint6" style="display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600;">🧘 <strong>Focus Mode ON</strong> — panels hidden, quizzes closed for calm reading. Click it again to restore.</div>
+
+<p>This part hardens your <strong>Part 5</strong> app: <em>automated tests</em>, <em>CI/CD</em>, monitoring, advanced security, and scale. Deep browser E2E lives in <strong>Playwright Essentials</strong>.</p>
+
+<div class="layer-legend" aria-label="Hardening layers">
+  <span class="l l-test">🧪 Tests</span>
+  <span class="l l-ci">⚙️ CI/CD</span>
+  <span class="l l-mon">📡 Monitor</span>
+  <span class="l l-sec">🔒 Security</span>
+  <span class="l l-scale">📈 Scale</span>
+</div>
+
+<div class="chall tipbox"><strong>👋 3-minute map:</strong> 1️⃣ write tests · 2️⃣ CI runs lint→test→build on push · 3️⃣ CD deploys when main is green · 4️⃣ logs, rate limits, RBAC. Press <strong>Push</strong> in the mock runner below.</div>
+
+<div class="tipbox tip-glossary" aria-label="Hardening jargon glossary">
+  <strong>🔤 Hardening jargon</strong> (tap to expand)
+  <details><summary><code>Unit test</code></summary>Checks one small function in isolation.</details>
+  <details><summary><code>Integration test</code></summary>Checks several pieces together (e.g. route + mock DB).</details>
+  <details><summary><code>CI</code></summary>Continuous Integration — auto lint/test/build on push.</details>
+  <details><summary><code>CD</code></summary>Continuous Delivery/Deploy — ship after green CI.</details>
+  <details><summary><code>GitHub Actions</code></summary>Workflows in <code>.github/workflows/*.yml</code>.</details>
+  <details><summary><code>Coverage</code></summary>% of code lines executed by tests — a signal, not a trophy.</details>
+  <details><summary><code>TDD</code></summary>Red → Green → Refactor.</details>
+  <details><summary><code>Refresh token</code></summary>Longer-lived token used only to mint a new short access token.</details>
+  <details><summary><code>Rate limit</code></summary>Cap requests (e.g. logins) → often HTTP 429.</details>
+  <details><summary><code>RBAC</code></summary>Role-Based Access Control — admin vs member permissions.</details>
+  <details><summary><code>401 / 403 / 429</code></summary>401 not logged in · 403 logged in but forbidden · 429 too many requests.</details>
+</div>
+
+<div id="progressBar" style="background:#2d3748;border:1px solid #4a5568;border-radius:8px;padding:10px 16px;margin:10px 0;color:#e2e8f0;font-weight:600;text-align:center;">📊 Progress: 0/16 sections (0%)</div>
+
+<div id="boostBar" style="background:#1a202c;border:2px solid #7c3aed;border-radius:12px;padding:12px 16px;margin:12px 0;color:#e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <div style="font-weight:700;">⚡ <span id="streakCount6" style="color:#fbbf24;">0-day streak</span></div>
+  <div style="font-weight:700;">⭐ <span id="pointCount6" style="color:#fbbf24;">0 XP</span></div>
+  <div><button onclick="boostSurprise6()" aria-label="Surprise me" style="padding:6px 14px;background:#7c3aed;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🎲 Surprise me</button></div>
+  <div><button onclick="startFocusTimer6()" aria-label="Focus sprint" style="padding:6px 14px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🧠 Focus sprint</button></div>
+  <div><span id="focusTimer6" style="font-weight:700;color:#68d391;">⏱ 25:00</span></div>
+</div>
+
+<div id="toastZone6" style="position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;"></div>
+<canvas id="confettiCanvas6" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;"></canvas>
+
+<div id="learningPathPanel" style="background:#2d3748;border:2px solid #805ad5;border-radius:12px;padding:16px 20px;margin:16px 0;"><h3 style="color:#b794f4;margin-top:0;">🧭 Learning Path</h3><div id="learningPathContent6" style="color:#e2e8f0;"><p>⏳ Complete sections to get personalized recommendations…</p></div></div>
+
+<div id="spacedRepetitionPanel" style="background:#2d3748;border:2px solid #319795;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#4fd1c5;margin-top:0;">🃏 Spaced Repetition Flashcards</h3>
+  <div id="srCard6" style="background:#1a202c;border:1px solid #4a5568;border-radius:8px;padding:16px;margin:10px 0;text-align:center;">
+    <p id="srQuestion6" style="color:#e2e8f0;font-size:16px;margin:0 0 12px 0;">Click "Start Review" to begin!</p>
+    <p id="srAnswer6" style="color:#68d391;font-size:14px;margin:0 0 12px 0;display:none;"></p>
+    <div id="srButtons6" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="startSRReview6()" style="padding:8px 16px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Start Review</button>
+      <button onclick="srToggleShuffle6()" id="srShuffleBtn6" style="padding:8px 16px;background:#4a5568;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔀 Shuffle: Off</button>
+    </div>
+    <div id="srStats6" style="color:#a0aec0;font-size:12px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<!-- ===== Live mock CI runner ===== -->
+<div id="ciPanel" class="ci-box" aria-label="Live mock CI/CD runner">
+  <h3 style="margin-top:0;color:#c4b5fd;">⚙️ Live Mock CI/CD Runner <small style="color:#a0aec0;">(no install — press Push)</small></h3>
+  <p style="color:#cbd5e0;font-size:14px;margin:4px 0 10px 0;">Simulate a push: <strong>lint → test → build → deploy</strong> lights up step by step. Toggle "fail lint" to see a red stop.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;align-items:center;">
+    <button onclick="ciDemo('push')" style="background:#7c3aed;">🚀 Push</button>
+    <button onclick="ciDemo('fail')" style="background:#b91c1c;">💥 Push (fail lint)</button>
+    <button onclick="ciDemo('reset')" style="background:#4a5568;">Reset</button>
+  </div>
+  <div id="ciSteps6" style="margin:8px 0;">
+    <span class="ci-step" id="ci-lint">1 · lint</span>
+    <span class="ci-step" id="ci-test">2 · test</span>
+    <span class="ci-step" id="ci-build">3 · build</span>
+    <span class="ci-step" id="ci-deploy">4 · deploy</span>
+  </div>
+  <div class="log" id="ciLog6">👋 Press <strong>🚀 Push</strong> to watch the pipeline.</div>
+</div>
+
+<!-- ===== Coverage simulator ===== -->
+<div id="covPanel" class="cov-box" aria-label="Coverage simulator">
+  <h3 style="margin-top:0;color:#7dd3fc;">📊 Coverage / test-result simulator</h3>
+  <p style="color:#cbd5e0;font-size:14px;">Run a fake suite — see green/red checks and what coverage % means.</p>
+  <button onclick="covDemo()" style="background:#0369a1;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;">▶ Run suite</button>
+  <div class="cov-row" id="covChips6"></div>
+  <div id="covPct6" style="font-family:Consolas,monospace;color:#86efac;margin-top:6px;">Coverage: —</div>
+</div>
+
+<!-- ===== Logger / rate-limit / RBAC ===== -->
+<div id="secPanel" class="sec-box" aria-label="Logger rate-limit RBAC panel">
+  <h3 style="margin-top:0;color:#f9a8d4;">🔒 Logger · Rate-limit · RBAC panel</h3>
+  <p style="color:#cbd5e0;font-size:14px;">Fire requests — watch logs, 429 after too many logins, and 403 for wrong role.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+    <button onclick="secDemo('login')" style="background:#047857;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;">🔑 Login</button>
+    <button onclick="secDemo('admin')" style="background:#be185d;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;">👑 Admin delete</button>
+    <button onclick="secDemo('member')" style="background:#b45309;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;">👤 Member delete</button>
+    <button onclick="secDemo('reset')" style="background:#4a5568;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;">Reset</button>
+  </div>
+  <div class="log" id="secLog6">👋 Try Login a few times (rate limit), then Admin vs Member delete.</div>
+</div>
+
+<nav id="table-of-contents"><h2>📑 Table of Contents</h2>
+<p>🔗 <a href="#1-why">1. Why hardened matters</a> · <a href="#2-unit">2. Unit & integration</a> · <a href="#3-backend">3. Backend tests</a> · <a href="#4-rtl">4. Frontend tests</a> · <a href="#5-tdd">5. Coverage & TDD</a> · <a href="#6-cicd">6. CI/CD & GitHub Actions</a> · <a href="#7-ci">7. CI pipeline</a> · <a href="#8-cd">8. CD pipeline</a> · <a href="#9-secrets">9. Env & secrets in CI</a> · <a href="#10-monitor">10. Monitoring & logging</a> · <a href="#11-perf">11. Performance</a> · <a href="#12-sec1">12. Security</a> · <a href="#13-sec2">13. Security</a> · <a href="#14-scale">14. Scaling patterns</a> · <a href="#15-pitfalls">15. Hardening pitfalls</a> · <a href="#16-challenges">16. Practice & challenges</a></p>
+</nav>
+<div class="studyplan7"><details><summary>📅 Suggested 7-day study plan (click to open)</summary><p>Small, spaced bites beat a marathon.</p><ul>
+<li><strong>Day 1:</strong> §§1–2 (Why harden + Vitest/Jest) — run coverage sim.</li>
+<li><strong>Day 2:</strong> §§3–4 (Express tests + RTL) — note Playwright Essentials for E2E.</li>
+<li><strong>Day 3:</strong> §§5–6 (TDD + CI/CD) — press Push in the mock runner.</li>
+<li><strong>Day 4:</strong> §§7–9 (CI + CD + secrets).</li>
+<li><strong>Day 5:</strong> §§10–11 (Monitoring + performance).</li>
+<li><strong>Day 6:</strong> §§12–14 (Security + scale) — try RBAC panel.</li>
+<li><strong>Day 7:</strong> §§15–16 (Pitfalls + challenges) — claim certificate.</li>
+</ul></details></div>
+<div class="mood"><span>Before you start, how do you feel?</span>
+<input type="radio" id="mood-start-1" name="mood-start6"><label for="mood-start-1">🌱 brand new</label>
+<input type="radio" id="mood-start-2" name="mood-start6"><label for="mood-start-2">🙂 okay</label>
+<input type="radio" id="mood-start-3" name="mood-start6"><label for="mood-start-3">💪 ready</label>
+</div>
+
+
+<hr>
+<h2 id="1-why">1. Why "production-hardened" matters</h2><button class="mark-btn" onclick="toggleSection(1)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> deployed ≠ safe forever. Hardening = tests + CI/CD + monitoring + security/scale.</div>
+<div class="tip">Part 5 = <strong>ship it</strong>. Part 6 = <strong>keep it healthy every day</strong>.</div>
+<pre><code>Tests → catch bugs early
+CI/CD → auto-check + auto-ship
+Monitoring → know when prod is sick
+Security + scale → survive real traffic</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>What does production-hardened add?</summary>
+<p><span class="quiz-wrong">❌ Only prettier CSS</span></p>
+<p><span class="quiz-correct">✅ Tests, CI/CD, monitoring, security, scale</span></p></details></div>
+<hr>
+
+<h2 id="2-unit">2. Unit &amp; integration testing — Vitest/Jest</h2><button class="mark-btn" onclick="toggleSection(2)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> <code>describe</code> / <code>it</code> / <code>expect</code> are the grammar of JS tests.</div>
+<pre><code>import { describe, it, expect } from "vitest";
+function add(a, b) { return a + b; }
+describe("add", () => {
+  it("adds", () => expect(add(2, 3)).toBe(5));
+});</code></pre>
+<div class="tip">Unit = one function. Integration = several pieces together.</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>If expect(x).toBe(5) and x is 4?</summary>
+<p><span class="quiz-wrong">❌ Silently continues</span></p>
+<p><span class="quiz-correct">✅ The test fails</span></p></details></div>
+<div class="predict"><details><summary>Predict: expect(2+2).toBe(5)</summary><p>❌ Fail — 4 !== 5</p></details>
+<details><summary>Predict: describe groups…</summary><p>Related tests under one label</p></details></div>
+<hr>
+
+<h2 id="3-backend">3. Testing the backend — Express &amp; Mongoose</h2><button class="mark-btn" onclick="toggleSection(3)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> mock the DB; assert status + body on your routes.</div>
+<pre><code>it("GET /api/notes → 200", async () => {
+  const res = await request(app).get("/api/notes");
+  expect(res.status).toBe(200);
+});
+// Mock Mongoose in CI — no real Atlas needed</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Why mock Mongoose in CI?</summary>
+<p><span class="quiz-wrong">❌ Mongo is illegal in tests</span></p>
+<p><span class="quiz-correct">✅ Speed, offline, no shared DB pollution</span></p></details></div>
+<hr>
+
+<h2 id="4-rtl">4. Testing the frontend — React Testing Library</h2><button class="mark-btn" onclick="toggleSection(4)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> test what users see — roles and labels.</div>
+<pre><code>render(&lt;Login /&gt;);
+await userEvent.click(screen.getByRole("button", { name: /log in/i }));</code></pre>
+<div class="warn">🔗 Deep browser E2E → <strong>Playwright Essentials</strong> (not re-taught here).</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Prefer getByRole or .btn-primary?</summary>
+<p><span class="quiz-wrong">❌ Always CSS class</span></p>
+<p><span class="quiz-correct">✅ getByRole / getByLabelText when possible</span></p></details></div>
+<hr>
+
+<h2 id="5-tdd">5. Coverage &amp; TDD mindset</h2><button class="mark-btn" onclick="toggleSection(5)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> Red → Green → Refactor. Coverage % is a signal, not a trophy.</div>
+<pre><code>Red  → write a failing test
+Green → make it pass
+Refactor → clean up safely</code></pre>
+<div class="tip">Try the <strong>Coverage simulator</strong> panel above — green/red checks + %.</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Does 100% coverage guarantee no bugs?</summary>
+<p><span class="quiz-wrong">❌ Yes</span></p>
+<p><span class="quiz-correct">✅ No — weak asserts still miss bugs</span></p></details></div>
+<hr>
+
+<h2 id="6-cicd">6. CI/CD — GitHub Actions basics</h2><button class="mark-btn" onclick="toggleSection(6)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> CI = auto-check on push; CD = auto-deploy when green.</div>
+<pre><code># .github/workflows/ci.yml
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test</code></pre>
+<div class="tip">Press <strong>🚀 Push</strong> in the mock CI runner to watch the pipeline light up.</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Where do Actions workflows live?</summary>
+<p><span class="quiz-wrong">❌ /tmp/actions</span></p>
+<p><span class="quiz-correct">✅ .github/workflows/*.yml</span></p></details></div>
+<hr>
+
+<h2 id="7-ci">7. CI pipeline — lint + test + build</h2><button class="mark-btn" onclick="toggleSection(7)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> fail fast — lint → test → build.</div>
+<pre><code>1. eslint / lint
+2. npm test
+3. npm run build</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Sensible CI order?</summary>
+<p><span class="quiz-wrong">❌ deploy → lint → test</span></p>
+<p><span class="quiz-correct">✅ lint → test → build</span></p></details></div>
+<hr>
+
+<h2 id="8-cd">8. CD pipeline — auto-deploy on merge</h2><button class="mark-btn" onclick="toggleSection(8)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> merge to main + green CI → Render (API) + Vercel (UI).</div>
+<pre><code>PR branch  → CI only
+main merge → CI + CD (deploy)</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>When does auto-deploy usually run?</summary>
+<p><span class="quiz-wrong">❌ On every draft typo</span></p>
+<p><span class="quiz-correct">✅ After merge to main (green CI)</span></p></details></div>
+<hr>
+
+<h2 id="9-secrets">9. Environment &amp; secrets in CI</h2><button class="mark-btn" onclick="toggleSection(9)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> <code>${{ secrets.NAME }}</code> — never echo secrets in logs.</div>
+<pre><code>env:
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+# NEVER: run: echo $JWT_SECRET</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Should CI print secrets?</summary>
+<p><span class="quiz-wrong">❌ Yes for debugging</span></p>
+<p><span class="quiz-correct">✅ Never — rotate if leaked</span></p></details></div>
+<hr>
+
+<h2 id="10-monitor">10. Monitoring &amp; logging</h2><button class="mark-btn" onclick="toggleSection(10)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> structured logs + error tracking + uptime on <code>/health</code>.</div>
+<pre><code>console.log(JSON.stringify({ level:"info", msg:"login_ok", userId }));</code></pre>
+<div class="tip">Use the <strong>Logger / rate-limit / RBAC</strong> panel to watch requests get logged.</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Why structured logs?</summary>
+<p><span class="quiz-wrong">❌ They look cooler</span></p>
+<p><span class="quiz-correct">✅ Easy to search and filter later</span></p></details></div>
+<hr>
+
+<h2 id="11-perf">11. Performance</h2><button class="mark-btn" onclick="toggleSection(11)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> lazy load, CDN/cache, indexes, pagination.</div>
+<pre><code>Note.find({ userId }).skip(page*20).limit(20);
+// + indexes on fields you filter/sort</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Why paginate API lists?</summary>
+<p><span class="quiz-wrong">❌ To confuse users</span></p>
+<p><span class="quiz-correct">✅ Avoid huge payloads and slow queries</span></p></details></div>
+<hr>
+
+<h2 id="12-sec1">12. Advanced security (1) — refresh &amp; rate limits</h2><button class="mark-btn" onclick="toggleSection(12)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> short access tokens + refresh + httpOnly; 429 when hammered.</div>
+<pre><code>if (attemptsFrom(ip) > 10)
+  return res.status(429).json({ error: "Too many requests" });</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Rate-limited HTTP status?</summary>
+<p><span class="quiz-wrong">❌ 201</span></p>
+<p><span class="quiz-correct">✅ 429</span></p></details></div>
+<hr>
+
+<h2 id="13-sec2">13. Advanced security (2) — RBAC, CORS, HTTPS</h2><button class="mark-btn" onclick="toggleSection(13)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> 403 = logged in but forbidden; tight CORS; HTTPS.</div>
+<pre><code>function requireRole(role) {
+  return (req, res, next) => {
+    if (req.user?.role !== role) return res.status(403).json({ error: "Forbidden" });
+    next();
+  };
+}</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Member hits admin-only delete?</summary>
+<p><span class="quiz-wrong">❌ 200 OK</span></p>
+<p><span class="quiz-correct">✅ 403 Forbidden</span></p></details></div>
+<hr>
+
+<h2 id="14-scale">14. Scaling patterns</h2><button class="mark-btn" onclick="toggleSection(14)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> stateless servers, indexes, CDN, env-per-environment.</div>
+<pre><code>Stateless app  → any instance can serve any request
+Indexes + pages → DB stays fast
+CDN            → static assets near users
+dev/stage/prod → separate secrets &amp; URLs</code></pre>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Why stateless servers?</summary>
+<p><span class="quiz-wrong">❌ Store sessions only in RAM</span></p>
+<p><span class="quiz-correct">✅ Easy to add instances behind a load balancer</span></p></details></div>
+<hr>
+
+<h2 id="15-pitfalls">15. Common hardening pitfalls</h2><button class="mark-btn" onclick="toggleSection(15)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> these undo Parts 5–6 overnight.</div>
+<pre><code>1. Skip CI "just once" → broken main
+2. Print secrets in logs → rotate now
+3. Fake-green tests → false confidence
+4. Deploy on red CI → ship breakage
+5. No /login rate limit → stuffing
+6. Only E2E, no unit → slow/flaky net</code></pre>
+<div class="warn">Pyramid: many unit → fewer integration → thin E2E (Playwright Essentials).</div>
+<div class="quiz-box"><h3>🎯 Quiz</h3><details><summary>Merge with failing CI?</summary>
+<p><span class="quiz-wrong">❌ Yes if you're in a hurry</span></p>
+<p><span class="quiz-correct">✅ No — fix or revert</span></p></details></div>
+<hr>
+
+<h2 id="16-challenges">16. Practice &amp; auto-graded challenges</h2><button class="mark-btn" onclick="toggleSection(16)">✅ Mark Complete</button>
+<div class="why">🚩 <strong>Why it matters:</strong> pure functions — the harness grades them instantly.</div>
+<p><strong>✏️ Practice:</strong> E1 CD deploys · E2 lint→test→build · E3 assert fails on mismatch · E4 403 · E5 GitHub Secrets · E6 429</p>
+
+<div class="challenge" data-challenge="1">
+  <h3>🏅 C1 — <code>testAssert(actual, expected)</code> <span class="badge easy">easy</span> <span class="badge time">5 min</span></h3>
+  <p>Return <code>true</code> if strict-equal, else <code>false</code>.</p>
+  <details class="hint"><summary>💡 Hint</summary><p>Use <code>===</code>.</p></details>
+  <textarea id="chal1" rows="4">function testAssert(actual, expected){
+  // your code
+}</textarea>
+  <button onclick="runTest(1)">▶ Run tests</button>
+  <div id="res1" class="result"></div>
+</div>
+
+<div class="challenge" data-challenge="2">
+  <h3>🏅 C2 — <code>ciStepsOrder(steps)</code> <span class="badge easy">easy</span> <span class="badge time">8 min</span></h3>
+  <p>Sort by <code>.order</code> ascending (lint→test→build→deploy).</p>
+  <details class="hint"><summary>💡 Hint</summary><p><code>steps.slice().sort((a,b)=>a.order-b.order)</code></p></details>
+  <textarea id="chal2" rows="4">function ciStepsOrder(steps){
+  // your code
+}</textarea>
+  <button onclick="runTest(2)">▶ Run tests</button>
+  <div id="res2" class="result"></div>
+</div>
+
+<div class="challenge" data-challenge="3">
+  <h3>🏅 C3 — <code>statusFromLint(ok)</code> <span class="badge easy">easy</span> <span class="badge time">5 min</span></h3>
+  <p>Return <code>"pass"</code> if ok, else <code>"fail"</code>.</p>
+  <details class="hint"><summary>💡 Hint</summary><p>Ternary: <code>ok ? "pass" : "fail"</code></p></details>
+  <textarea id="chal3" rows="4">function statusFromLint(ok){
+  // your code
+}</textarea>
+  <button onclick="runTest(3)">▶ Run tests</button>
+  <div id="res3" class="result"></div>
+</div>
+
+<div class="challenge" data-challenge="4">
+  <h3>🏅 C4 — <code>tokenRefresh(accessExpired, hasRefresh)</code> <span class="badge med">medium</span> <span class="badge time">10 min</span></h3>
+  <p>If access still valid → <code>"ok"</code>. If expired + refresh → <code>"new_access"</code>. Else → <code>"login"</code>.</p>
+  <details class="hint"><summary>💡 Hint</summary><p>Check <code>!accessExpired</code> first.</p></details>
+  <textarea id="chal4" rows="6">function tokenRefresh(accessExpired, hasRefresh){
+  // your code
+}</textarea>
+  <button onclick="runTest(4)">▶ Run tests</button>
+  <div id="res4" class="result"></div>
+</div>
+
+<div class="challenge" data-challenge="5">
+  <h3>🏅 C5 — <code>rbacAllowed(role, action)</code> <span class="badge med">medium</span> <span class="badge time">10 min</span></h3>
+  <p><code>admin</code> → any action; <code>member</code> → only <code>"read"</code>; else false.</p>
+  <details class="hint"><summary>💡 Hint</summary><p>Two ifs, then return false.</p></details>
+  <textarea id="chal5" rows="6">function rbacAllowed(role, action){
+  // your code
+}</textarea>
+  <button onclick="runTest(5)">▶ Run tests</button>
+  <div id="res5" class="result"></div>
+</div>
+
+<h2 id="spot-bug6">🐞 Spot-the-Bug — final boss</h2>
+<div class="why"><strong>Why it matters:</strong> catch CI/security mistakes before they ship.</div>
+<div class="spotbug">
+<details><summary>Q1. CI is red but you merge to main anyway?</summary><p class="quiz-correct">Don't — fix or revert; red means known breakage.</p></details>
+<details><summary>Q2. <code>run: echo $JWT_SECRET</code> in the workflow?</summary><p class="quiz-correct">Never — secrets in logs are leaks; rotate.</p></details>
+<details><summary>Q3. Only Playwright E2E, zero unit tests?</summary><p class="quiz-correct">Too slow/flaky alone — keep a test pyramid (unit + integration + thin E2E).</p></details>
+<details><summary>Q4. <code>expect(true).toBe(true)</code> as your only assert?</summary><p class="quiz-correct">Useless — assert real behavior.</p></details>
+</div>
+<div class="mood"><span>How was Spot-the-Bug?</span>
+<input type="radio" id="mood-bug-1" name="mood-bug6"><label for="mood-bug-1">😅 tough</label>
+<input type="radio" id="mood-bug-2" name="mood-bug6"><label for="mood-bug-2">🙂 ok</label>
+<input type="radio" id="mood-bug-3" name="mood-bug6"><label for="mood-bug-3">💪 crushed it</label>
+</div>
+
+<h2 id="17-answers">17. Answer key</h2>
+<pre><code>function testAssert(actual, expected){ return actual === expected; }
+function ciStepsOrder(steps){ return steps.slice().sort((a,b)=>a.order-b.order); }
+function statusFromLint(ok){ return ok ? "pass" : "fail"; }
+function tokenRefresh(accessExpired, hasRefresh){
+  if (!accessExpired) return "ok";
+  return hasRefresh ? "new_access" : "login";
+}
+function rbacAllowed(role, action){
+  if (role === "admin") return true;
+  if (role === "member") return action === "read";
+  return false;
+}</code></pre>
+
+<div id="certPanel6" style="background:#fefcbf;border:2px solid #d69e2e;border-radius:12px;padding:16px 20px;margin:20px 0;">
+  <h3 style="margin-top:0;">🏆 Part 6 Certificate</h3>
+  <p id="certStatus6">Complete all 16 sections to unlock.</p>
+</div>
+
+<div class="mood"><span>After Part 6, how do you feel?</span>
+<input type="radio" id="mood-end-1" name="mood-end6"><label for="mood-end-1">🌱 still learning</label>
+<input type="radio" id="mood-end-2" name="mood-end6"><label for="mood-end-2">🙂 solid</label>
+<input type="radio" id="mood-end-3" name="mood-end6"><label for="mood-end-3">🚀 ready to harden</label>
+</div>
+
+<p class="totop"><a href="#table-of-contents">↑ Back to top</a></p>
+<p style="margin-top:24px;">🎉 <strong>Congratulations!</strong> You've hardened the path: tests → CI/CD → monitor → secure → scale. For deep browser E2E, continue with <strong>Playwright Essentials</strong>.</p>
+
+
+<script>
+<!-- SHARED-SHELL-JS:START -->
+/* Shared study-app shell JS — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-JS markers drifts. */
+(function (global) {
+  "use strict";
+
+  var FONT_CLASSES = ["font-sm", "font-md", "font-lg"];
+  var FONT_LEVELS = ["font-sm", "", "font-md", "font-lg"];
+
+  function normalizeThemeMode(value) {
+    if (value === "dark" || value === "force-dark") return "force-dark";
+    if (value === "light" || value === "force-light") return "force-light";
+    return null;
+  }
+
+  function setThemeMode(mode, btnId) {
+    var root = document.documentElement;
+    root.classList.remove("force-dark", "force-light");
+    root.classList.add(mode);
+    var btn = document.getElementById(btnId || "themeBtn");
+    if (btn) btn.textContent = mode === "force-dark" ? "☀️ Light mode" : "🌙 Dark mode";
+    return mode;
+  }
+
+  function isDark() {
+    var root = document.documentElement;
+    if (root.classList.contains("force-dark")) return true;
+    if (root.classList.contains("force-light")) return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function applyTheme(storageKey, btnId) {
+    var saved = normalizeThemeMode(localStorage.getItem(storageKey));
+    if (saved) return setThemeMode(saved, btnId);
+    return setThemeMode(isDark() ? "force-dark" : "force-light", btnId);
+  }
+
+  function toggleTheme(storageKey, btnId) {
+    var next = isDark() ? "force-light" : "force-dark";
+    setThemeMode(next, btnId);
+    localStorage.setItem(storageKey, next);
+    return next;
+  }
+
+  function clearFontClasses(html) {
+    FONT_CLASSES.forEach(function (c) {
+      html.classList.remove(c);
+    });
+  }
+
+  function fontZoom(dir, storageKey) {
+    var html = document.documentElement;
+    var cur = "";
+    FONT_CLASSES.forEach(function (c) {
+      if (html.classList.contains(c)) cur = c;
+    });
+    clearFontClasses(html);
+    if (dir !== 0) {
+      var idx = cur === "font-md" ? 2 : cur === "font-lg" ? 3 : cur === "font-sm" ? 0 : 1;
+      var nxt = Math.max(0, Math.min(3, idx + dir));
+      var addCls = FONT_LEVELS[nxt];
+      if (addCls) html.classList.add(addCls);
+      localStorage.setItem(storageKey, addCls || "normal");
+    } else {
+      localStorage.setItem(storageKey, "normal");
+    }
+  }
+
+  function applyFontZoom(storageKey) {
+    var saved = localStorage.getItem(storageKey);
+    if (saved && saved !== "normal" && FONT_CLASSES.indexOf(saved) >= 0) {
+      clearFontClasses(document.documentElement);
+      document.documentElement.classList.add(saved);
+    }
+  }
+
+  function focusMode(btn, hintId) {
+    var on = !document.body.classList.contains("focus-mode");
+    document.body.classList.toggle("focus-mode", on);
+    var hint = hintId ? document.getElementById(hintId) : null;
+    if (hint) hint.style.display = on ? "block" : "none";
+    if (btn) {
+      btn.textContent = on ? "🧘 Focus ON" : "🧘 Focus Mode";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.style.background = on ? "#319795" : "";
+    }
+    document.querySelectorAll("details").forEach(function (d) {
+      try {
+        d.open = false;
+      } catch (e) {}
+    });
+    if (on) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {}
+    }
+    return on;
+  }
+
+  function collapseDetails(expand, selector) {
+    var sel = selector || ".quiz-box details";
+    document.querySelectorAll(sel).forEach(function (d) {
+      if (expand) d.setAttribute("open", "open");
+      else d.removeAttribute("open");
+    });
+  }
+
+  function enhanceA11y() {
+    document
+      .querySelectorAll(
+        '.code-editor:not([aria-label]):not([aria-labelledby]), [contenteditable="true"]:not([aria-label]):not([aria-labelledby])'
+      )
+      .forEach(function (el, i) {
+        if (!el.getAttribute("role")) el.setAttribute("role", "textbox");
+        el.setAttribute("aria-multiline", "true");
+        el.setAttribute("aria-label", "Code editor " + (i + 1));
+      });
+    document.querySelectorAll("textarea:not([aria-label]):not([aria-labelledby])").forEach(function (el, i) {
+      if (!el.id && !el.getAttribute("name")) {
+        el.setAttribute("aria-label", "Code input " + (i + 1));
+      } else if (el.id && !document.querySelector('label[for="' + el.id + '"]')) {
+        el.setAttribute("aria-label", el.getAttribute("placeholder") || "Code input " + (i + 1));
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", enhanceA11y);
+    } else {
+      enhanceA11y();
+    }
+  }
+
+  global.StudyShell = {
+    setThemeMode: setThemeMode,
+    isDark: isDark,
+    applyTheme: applyTheme,
+    toggleTheme: toggleTheme,
+    fontZoom: fontZoom,
+    applyFontZoom: applyFontZoom,
+    focusMode: focusMode,
+    collapseDetails: collapseDetails,
+    enhanceA11y: enhanceA11y,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+<!-- SHARED-SHELL-JS:END -->
+
+function toggleTheme(){ StudyShell.toggleTheme("p6-theme"); }
+function applySysDark(){ StudyShell.applyTheme("p6-theme"); }
+applySysDark();
+
+function fontZoom6(dir){ StudyShell.fontZoom(dir, "p6-font"); }
+function applyFontZoom6(){ StudyShell.applyFontZoom("p6-font"); }
+
+var P6_TOTAL=16;
+function toggleSection(n){
+  var key="p6-sec-"+n, done=localStorage.getItem(key)==="1";
+  localStorage.setItem(key, done?"0":"1");
+  var b=document.querySelector('button[onclick="toggleSection('+n+')"]');
+  if(b){ b.textContent=done?"✅ Mark Complete":"✅ Completed"; b.classList.toggle("done",!done); }
+  if(!done && localStorage.getItem(key)==="1"){ addXP6(20); trackStreak6(); celebrate6(); toast6("✅ Section complete +20 XP","celebrate"); }
+  updateProgress();
+  updateCertificate6();
+}
+function updateProgress(){
+  var done=0; for(var i=1;i<=P6_TOTAL;i++) if(localStorage.getItem("p6-sec-"+i)==="1") done++;
+  var bar=document.getElementById("progressBar");
+  if(bar) bar.textContent="📊 Progress: "+done+"/"+P6_TOTAL+" sections ("+Math.round(done/P6_TOTAL*100)+"%)";
+  updateLearningPath6(done);
+}
+function markButtons(){ for(var i=1;i<=P6_TOTAL;i++){ var b=document.querySelector('button[onclick="toggleSection('+i+')"]'); if(b && localStorage.getItem("p6-sec-"+i)==="1"){ b.textContent="✅ Completed"; b.classList.add("done"); } } }
+function updateLearningPath6(done){
+  var el=document.getElementById("learningPathContent6"); if(!el) return;
+  var names={1:"Why hardened",2:"Unit/integration",3:"Backend tests",4:"RTL",5:"Coverage/TDD",6:"CI/CD basics",7:"CI pipeline",8:"CD pipeline",9:"Secrets",10:"Monitoring",11:"Performance",12:"Refresh/rate",13:"RBAC/CORS",14:"Scaling",15:"Pitfalls",16:"Challenges"};
+  var next=""; for(var i=1;i<=P6_TOTAL;i++) if(localStorage.getItem("p6-sec-"+i)!=="1"){ next=i; break; }
+  el.innerHTML=done===0?"<p>⏳ Start with <strong>Section 1 (Why hardened)</strong>.</p>":(next?"<p>⏳ Next: <strong>Section "+next+" ("+names[next]+")</strong></p>":"<p>🎉 All sections complete!</p>");
+}
+
+var boost6=JSON.parse(localStorage.getItem("p6-boost")||"{}");
+var boostX6=boost6.xp||0, boostStreak6=boost6.streak||0, boostDate6=boost6.streakDate||"";
+function saveBoost6(){ localStorage.setItem("p6-boost",JSON.stringify({xp:boostX6,streak:boostStreak6,streakDate:boostDate6}));
+  var s=document.getElementById("streakCount6"), p=document.getElementById("pointCount6");
+  if(s) s.textContent=boostStreak6+"-day streak"; if(p) p.textContent=boostX6+" XP"; }
+function trackStreak6(){ var today=new Date().toDateString(); boostStreak6=(boostDate6===today)?boostStreak6:(boostDate6===new Date(Date.now()-864e5).toDateString()?boostStreak6+1:1); boostDate6=today; saveBoost6(); }
+function addXP6(n){ boostX6+=n; saveBoost6(); }
+function toast6(msg,cls){ var z=document.getElementById("toastZone6"); if(!z) return; var t=document.createElement("div"); t.className="toast"+(cls?" "+cls:""); t.textContent=msg; t.setAttribute("role","status"); z.appendChild(t); setTimeout(function(){ t.style.opacity="0"; setTimeout(function(){ if(t.parentNode) z.removeChild(t); },300); },2600); }
+function celebrate6(){ var cv=document.getElementById("confettiCanvas6"); if(!cv) return; cv.style.display="block"; var ctx=cv.getContext("2d"); cv.width=window.innerWidth; cv.height=window.innerHeight; var parts=[]; for(var i=0;i<80;i++) parts.push({x:Math.random()*cv.width,y:-10,vy:2+Math.random()*3,c:"hsl("+(Math.random()*360)+",80%,60%)",r:3+Math.random()*4}); var n=0; var iv=setInterval(function(){ n++; ctx.clearRect(0,0,cv.width,cv.height); parts.forEach(function(p){ p.y+=p.vy; ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7); ctx.fill(); if(p.y<cv.height){ p.x+=Math.sin(n*0.1+p.r)*1.5; } }); if(n>120){ clearInterval(iv); cv.style.display="none"; } },16); }
+function boostSurprise6(){ var ids={1:"1-why",2:"2-unit",3:"3-backend",4:"4-rtl",5:"5-tdd",6:"6-cicd",7:"7-ci",8:"8-cd",9:"9-secrets",10:"10-monitor",11:"11-perf",12:"12-sec1",13:"13-sec2",14:"14-scale",15:"15-pitfalls",16:"16-challenges"}; var keys=Object.keys(ids); var pick=keys[Math.floor(Math.random()*keys.length)]; toast6("🎲 Surprise! Section "+pick,"badge"); var h=document.getElementById(ids[pick]); if(h) h.scrollIntoView({behavior:"smooth"}); }
+var focusLen6=25*60, focusLeft6=focusLen6, focusTimer6=null, focusRun6=false;
+function startFocusTimer6(){ var d=document.getElementById("focusTimer6");
+  if(focusRun6){ clearInterval(focusTimer6); focusRun6=false; focusLeft6=focusLen6; if(d)d.textContent="⏱ 25:00"; toast6("🧠 Sprint done — take a break! ☕","celebrate"); return; }
+  focusRun6=true; focusTimer6=setInterval(function(){ focusLeft6--; if(d)d.textContent="⏱ "+Math.floor(focusLeft6/60)+":"+String(focusLeft6%60).padStart(2,"0"); if(focusLeft6<=0){ clearInterval(focusTimer6); focusRun6=false; focusLeft6=focusLen6; if(d)d.textContent="⏱ 25:00"; celebrate6(); toast6("🎉 Focus sprint +10 XP","celebrate"); addXP6(10); trackStreak6(); } },1000); }
+saveBoost6();
+
+var srState6=JSON.parse(localStorage.getItem("p6-sr")||"{}");
+var srCards6=[
+  {q:"CI vs CD — which deploys?",a:"CD (Continuous Delivery/Deploy)",lvl:1},
+  {q:"Sensible CI order?",a:"lint → test → build",lvl:1},
+  {q:"Where do GitHub Actions workflows live?",a:".github/workflows/*.yml",lvl:1},
+  {q:"Unit vs integration?",a:"Unit = one function; integration = several pieces",lvl:1},
+  {q:"TDD three steps?",a:"Red → Green → Refactor",lvl:1},
+  {q:"Rate limit HTTP status?",a:"429",lvl:1},
+  {q:"401 vs 403?",a:"401 not authenticated; 403 authenticated but forbidden",lvl:1},
+  {q:"How do workflows read secrets?",a:"${{ secrets.NAME }} — never echo them",lvl:1},
+  {q:"Why mock Mongoose in CI?",a:"Speed, offline, no shared DB pollution",lvl:1},
+  {q:"RTL prefers which queries?",a:"getByRole / getByLabelText (user-facing)",lvl:1},
+  {q:"Why stateless servers?",a:"Any instance can handle any request — easy to scale out",lvl:1},
+  {q:"Where is deep browser E2E taught?",a:"Playwright Essentials (not JE Part 6)",lvl:1}
+];
+var srIdx6=0, srShuffle6=localStorage.getItem("p6-sr-shuffle")==="1";
+function srToggleShuffle6(){ srShuffle6=!srShuffle6; localStorage.setItem("p6-sr-shuffle",srShuffle6?"1":"0"); var b=document.getElementById("srShuffleBtn6"); if(b){ b.textContent="🔀 Shuffle: "+(srShuffle6?"On":"Off"); b.style.background=srShuffle6?"#e53e3e":"#4a5568"; } }
+function startSRReview6(){ var due=srCards6.filter(function(c){ var m=srState6[c.q]||{}; return !m.next || Date.now()>=m.next; }); if(srShuffle6 && due.length>1) for(var i=due.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=due[i]; due[i]=due[j]; due[j]=t; } srIdx6=due.length===0?-1:0; showSRCard6(); }
+function showSRCard6(){ var q=document.getElementById("srQuestion6"), a=document.getElementById("srAnswer6"), b=document.getElementById("srButtons6");
+  if(!q) return; if(srIdx6===-1){ q.textContent="🎉 All reviewed!"; a.style.display="none"; b.innerHTML='<button onclick="startSRReview6()" style="padding:8px 16px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;">Reset</button>'; renderSRStats6(); return; }
+  if(srIdx6>=srCards6.length){ srIdx6=-1; showSRCard6(); return; }
+  var c=srCards6[srIdx6]; q.textContent=c.q; a.textContent=c.a; a.style.display="none";
+  b.innerHTML='<button onclick="srAnswer6About(true)" style="padding:8px 16px;background:#38a169;color:#fff;border:none;border-radius:8px;cursor:pointer;">I knew it</button><button onclick="srAnswer6About(false)" style="padding:8px 16px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;">Still learning</button><button onclick="srFlip6()" style="padding:8px 16px;background:#4a5568;color:#fff;border:none;border-radius:8px;cursor:pointer;">Flip</button>';
+  renderSRStats6();
+}
+function srFlip6(){ var a=document.getElementById("srAnswer6"); if(a) a.style.display=a.style.display==="none"?"block":"none"; }
+function srAnswer6About(know){ var c=srCards6[srIdx6]; var m=srState6[c.q]||{lvl:0}; var next=know?Math.min(3,m.lvl+1):0; var hours=next===0?0.02:next===1?0.03:next===2?0.05:0.1; srState6[c.q]={lvl:next,next:Date.now()+hours*3600*1000}; localStorage.setItem("p6-sr",JSON.stringify(srState6)); srIdx6++; if(srIdx6>=srCards6.length){ srIdx6=-1; } showSRCard6(); }
+function renderSRStats6(){ var s=document.getElementById("srStats6"); if(!s) return; var n=0,l=0,ma=0; srCards6.forEach(function(c){ var lvl=(srState6[c.q]||{lvl:0}).lvl||0; if(lvl===0)n++; else if(lvl<3)l++; else ma++; }); s.textContent="🆕 "+n+" new · 📖 "+l+" learning · 🏆 "+ma+" mastered"; }
+
+function focusMode6(btn){ StudyShell.focusMode(btn, "focusHint6"); }
+function collapseAll6(open){ StudyShell.collapseDetails(open, "details"); }
+
+// ===== Mock CI =====
+var ciTimer=null;
+function ciLog(html){ var el=document.getElementById("ciLog6"); if(!el) return; el.insertAdjacentHTML("beforeend","<div>"+html+"</div>"); el.scrollTop=el.scrollHeight; }
+function ciResetSteps(){ ["ci-lint","ci-test","ci-build","ci-deploy"].forEach(function(id){ var el=document.getElementById(id); if(el){ el.classList.remove("on","fail"); } }); }
+function ciDemo(action){
+  if(ciTimer){ clearTimeout(ciTimer); ciTimer=null; }
+  if(action==="reset"){ ciResetSteps(); var el=document.getElementById("ciLog6"); if(el) el.innerHTML="👋 Press <strong>🚀 Push</strong> to watch the pipeline."; return; }
+  ciResetSteps();
+  var el=document.getElementById("ciLog6"); if(el) el.innerHTML="";
+  var failLint=action==="fail";
+  ciLog("<span style='color:#fbbf24'>🚀 Push received…</span>");
+  var steps=[
+    {id:"ci-lint", ok:"⚙️ lint… ✅", bad:"⚙️ lint… ❌ eslint errors"},
+    {id:"ci-test", ok:"🧪 test… ✅", bad:null},
+    {id:"ci-build", ok:"📦 build… ✅", bad:null},
+    {id:"ci-deploy", ok:"🚀 deploy… ✅ shipped to Render + Vercel", bad:null}
+  ];
+  var i=0;
+  function next(){
+    if(i>=steps.length){ addXP6(5); return; }
+    var s=steps[i++];
+    var node=document.getElementById(s.id);
+    if(failLint && s.id==="ci-lint"){
+      if(node) node.classList.add("fail");
+      ciLog("<span style='color:#f87171'>"+s.bad+"</span>");
+      ciLog("<span style='color:#f87171'>🛑 Pipeline stopped — fix lint before test/build/deploy.</span>");
+      return;
+    }
+    if(node) node.classList.add("on");
+    ciLog("<span style='color:#86efac'>"+s.ok+"</span>");
+    ciTimer=setTimeout(next, 500);
+  }
+  ciTimer=setTimeout(next, 300);
+}
+
+// ===== Coverage sim =====
+function covDemo(){
+  var files=[
+    {name:"add.js", ok:true},
+    {name:"auth.js", ok:true},
+    {name:"notes.route.js", ok:true},
+    {name:"Login.jsx", ok:false},
+    {name:"rbac.js", ok:true}
+  ];
+  var wrap=document.getElementById("covChips6");
+  if(wrap){
+    wrap.innerHTML="";
+    files.forEach(function(f){
+      var s=document.createElement("span");
+      s.className="cov-chip "+(f.ok?"ok":"bad");
+      s.textContent=(f.ok?"✅":"❌")+" "+f.name;
+      wrap.appendChild(s);
+    });
+  }
+  var passed=files.filter(function(f){return f.ok;}).length;
+  var pct=Math.round(passed/files.length*100);
+  var p=document.getElementById("covPct6");
+  if(p) p.textContent="Coverage (demo lines hit): "+pct+"% · "+passed+"/"+files.length+" files green — fix Login.jsx!";
+  addXP6(3); toast6("📊 Suite ran — "+pct+"% demo coverage","badge");
+}
+
+// ===== Sec panel =====
+var loginHits=0;
+function secLog(html){ var el=document.getElementById("secLog6"); if(!el) return; el.insertAdjacentHTML("beforeend","<div>"+html+"</div>"); el.scrollTop=el.scrollHeight; }
+function secDemo(action){
+  if(action==="reset"){ loginHits=0; var el=document.getElementById("secLog6"); if(el) el.innerHTML="👋 Try Login a few times (rate limit), then Admin vs Member delete."; return; }
+  if(action==="login"){
+    loginHits++;
+    secLog("<span style='color:#fbbf24'>🔑 POST /login (attempt "+loginHits+")</span>");
+    if(loginHits>3){ secLog("<span style='color:#f87171'>← 429 Too Many Requests — rate limited</span>"); }
+    else { secLog("<span style='color:#86efac'>← 200 ok · log {level:'info', msg:'login_ok'}</span>"); }
+    return;
+  }
+  if(action==="admin"){
+    secLog("<span style='color:#fbbf24'>👑 DELETE /api/users/1 as role=admin</span>");
+    secLog("<span style='color:#86efac'>← 200 deleted · RBAC allowed</span>");
+    return;
+  }
+  if(action==="member"){
+    secLog("<span style='color:#fbbf24'>👤 DELETE /api/users/1 as role=member</span>");
+    secLog("<span style='color:#f87171'>← 403 Forbidden · RBAC blocked</span>");
+  }
+}
+
+var P6_TESTS = {
+  1: 'check("equal", testAssert(5,5)===true);\ncheck("unequal", testAssert(5,4)===false);\ncheck("strict", testAssert("5",5)===false);',
+  2: 'var s=[{order:4,name:"deploy"},{order:1,name:"lint"},{order:3,name:"build"},{order:2,name:"test"}];\nvar r=ciStepsOrder(s);\ncheck("len", r.length===4);\ncheck("first", r[0].name==="lint");\ncheck("last", r[3].name==="deploy");',
+  3: 'check("pass", statusFromLint(true)==="pass");\ncheck("fail", statusFromLint(false)==="fail");',
+  4: 'check("ok", tokenRefresh(false,true)==="ok");\ncheck("refresh", tokenRefresh(true,true)==="new_access");\ncheck("login", tokenRefresh(true,false)==="login");',
+  5: 'check("admin write", rbacAllowed("admin","write")===true);\ncheck("member read", rbacAllowed("member","read")===true);\ncheck("member write", rbacAllowed("member","write")===false);\ncheck("guest", rbacAllowed("guest","read")===false);'
+};
+function runTest(n){
+  var code=document.getElementById("chal"+n).value, res=document.getElementById("res"+n);
+  res.className="result";
+  var harness="return (async () => {\n  var passed=[], failed=[];\n  function check(name, cond){ (cond?passed:failed).push(name); }\n"+code+"\n"+(P6_TESTS[n]||"")+"\n  return {passed:passed, failed:failed};\n})();";
+  var fn; try { fn=new Function(harness); } catch(e){ res.className="result fail"; res.textContent="Syntax Error: "+e.message; return; }
+  Promise.resolve(fn()).then(function(r){
+    res.className=r.failed.length?"result fail":"result pass";
+    var lines=r.passed.map(function(t){return "✅ "+t;}).concat(r.failed.map(function(t){return "❌ "+t;}));
+    if(r.passed.length && !r.failed.length){ lines.push("🎉 All tests passed!"); addXP6(30); toast6("🏅 Challenge complete! +30 XP","badge"); celebrate6(); }
+    res.textContent=lines.join("\n")||"(no tests ran)";
+  }).catch(function(e){ res.className="result fail"; res.textContent="Error: "+e.message; });
+}
+
+function updateCertificate6() {
+  var total = 16, done = 0;
+  for (var i = 1; i <= total; i++) if (localStorage.getItem("p6-sec-" + i) === "1") done++;
+  var panel = document.getElementById("certPanel6"), status = document.getElementById("certStatus6");
+  if (!panel) return;
+  if (done === total) { panel.style.background = "linear-gradient(135deg,#c6f6d5,#68d391)"; panel.style.borderColor = "#38a169"; if (status) status.innerHTML = "🎉 <strong>Certificate earned!</strong> All 16 sections completed. Well done!"; }
+  else { panel.style.background = ""; panel.style.borderColor = "#d69e2e"; if (status) status.textContent = "Complete " + (total - done) + " more section(s) to unlock. (" + done + "/" + total + ")"; }
+}
+function scrollspy6() {
+  var links = document.querySelectorAll("#table-of-contents a"); var find = "";
+  Array.prototype.forEach.call(links, function(a){ var el = document.getElementById(a.getAttribute("href").slice(1)); if (el && el.getBoundingClientRect && el.getBoundingClientRect().top <= 90) find = a.getAttribute("href").slice(1); });
+  Array.prototype.forEach.call(links, function(a){ var h = a.getAttribute("href").slice(1); a.style.fontWeight = (h === find) ? "700" : ""; a.style.color = (h === find) ? "#90cdf4" : ""; });
+}
+if (window.addEventListener) window.addEventListener("scroll", function(){ try{ scrollspy6(); }catch(e){} }, { passive:true });
+
+markButtons();
+updateProgress();
+renderSRStats6();
+applyFontZoom6();
+updateCertificate6();
+</script>
+</body>
+</html>
+<!--P6H-END-->

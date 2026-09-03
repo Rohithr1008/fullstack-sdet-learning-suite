@@ -1,0 +1,182 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --text: #182333;
+  --muted: #5b6b80;
+  --border: #d9e2ec;
+  --primary: #2b6cb0;
+  --primary-hover: #245a94;
+  --danger: #c53030;
+  --ok: #276749;
+  --focus: #1a365d;
+  --shadow: 0 8px 24px rgba(15, 30, 60, 0.08);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 10% -10%, #d6e6f7 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, #e8f0e9 0%, transparent 50%),
+    var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--surface);
+  padding: 8px 12px;
+  z-index: 10;
+}
+.skip:focus { left: 8px; top: 8px; }
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+}
+
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand strong { font-size: 1.15rem; letter-spacing: -0.02em; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+.user-bar { display: flex; align-items: center; gap: 12px; }
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+.panel, .board {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+h1 { margin: 0 0 8px; font-size: 1.5rem; letter-spacing: -0.02em; }
+.lede { margin: 0 0 20px; color: var(--muted); }
+.board-head { margin-bottom: 16px; }
+.status { margin: 4px 0 0; min-height: 1.4em; color: var(--ok); font-size: 0.95rem; }
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+input, select {
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+
+input:focus, select:focus, button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 45%, white);
+  outline-offset: 2px;
+}
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { background: #edf2f7; }
+.btn-danger {
+  background: #fff5f5;
+  color: var(--danger);
+  border-color: #feb2b2;
+}
+.btn-danger:hover { background: #fed7d7; }
+.btn-sm { padding: 6px 10px; font-size: 0.85rem; }
+
+.error { color: var(--danger); margin: 0 0 12px; }
+.empty { color: var(--muted); margin: 8px 0 0; }
+
+.add-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+.add-form .grow { flex: 1 1 220px; margin-bottom: 0; }
+
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.task {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.task-title { font-weight: 600; margin: 0 0 4px; }
+.task-meta { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.task-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--focus);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  max-width: min(360px, calc(100vw - 40px));
+  z-index: 20;
+}
+
+code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9em;
+  background: #edf2f7;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .task { grid-template-columns: 1fr; }
+  .task-actions { justify-content: flex-start; }
+}

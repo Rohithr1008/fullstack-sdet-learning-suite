@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Projects — Full Stack & SDET Curriculum Master Index</title>
+  <style>
+    :root {
+      --bg: #1a202c;
+      --card: #2d3748;
+      --text: #e2e8f0;
+      --accent: #63b3ed;
+      --success: #38a169;
+      --border: #4a5568;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; line-height: 1.5; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+    .nav-header { display: flex; gap: 16px; margin-bottom: 20px; font-weight: 600; }
+    .nav-header a { color: #63b3ed; text-decoration: none; }
+    .nav-header a:hover { text-decoration: underline; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-top: 24px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .card h3 { margin-top: 0; color: #fff; display: flex; justify-content: space-between; }
+    .tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: bold; }
+    .tag-frontend { background: #2b6cb0; color: #fff; }
+    .tag-sdet { background: #6b46c1; color: #fff; }
+    .tag-capstone { background: #c05621; color: #fff; }
+    .tag-roadmap { background: #276749; color: #fff; }
+    .links a { color: var(--accent); text-decoration: none; display: inline-block; margin-right: 12px; margin-top: 8px; font-weight: 600; }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Full Stack Developer & SDET Learning Suite Master Index</h1>
+    <div class="nav-header">
+      <a href="learning_roadmap.md">🗺️ Learning Roadmap Guide</a>
+      <a href="fixes_summary.md">📋 Curriculum Summary & Audit Log</a>
+      <a href="README.md">📖 Workspace README</a>
+    </div>
+
+    <p>Complete 20-week progressive curriculum map from HTML/CSS foundations to Full Stack React/Express and Playwright Automation across 16 core projects.</p>
+
+    <div class="grid">
+      <!-- 1 -->
+      <div class="card">
+        <h3>1. html-css-essentials <span class="tag tag-frontend">Frontend</span></h3>
+        <p>HTML5 semantics, accessibility (a11y), box model, flexbox, CSS grid, Playwright locator mappings.</p>
+        <div class="links">
+          <a href="html-css-essentials/Html_css_essentials_part1_study_app.html">Part 1</a>
+          <a href="html-css-essentials/Html_css_essentials_part2_study_app.html">Part 2</a>
+          <a href="html-css-essentials/Html_css_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 2 -->
+      <div class="card">
+        <h3>2. css-advanced <span class="tag tag-frontend">Frontend</span></h3>
+        <p>Animations, 3D transforms, container queries, subgrid, design tokens, and theme engines.</p>
+        <div class="links">
+          <a href="css-advanced/Css_advanced_part1_study_app.html">Part 1</a>
+          <a href="css-advanced/Css_advanced_part2_study_app.html">Part 2</a>
+          <a href="css-advanced/Css_advanced_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 3 -->
+      <div class="card">
+        <h3>3. javascript-essentials <span class="tag tag-frontend">Frontend</span></h3>
+        <p>Core JS, Memory Model (Stack/Heap), Scope Chain, Event Loop visualizer, Promises & Async/Await.</p>
+        <div class="links">
+          <a href="javascript-essentials/Javascript_essentials_part1_study_app.html">Part 1</a>
+          <a href="javascript-essentials/Javascript_essentials_part2_study_app.html">Part 2</a>
+          <a href="javascript-essentials/Javascript_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 4 -->
+      <div class="card">
+        <h3>4. git-essentials <span class="tag tag-frontend">Core</span></h3>
+        <p>Version control, repositories, staging, commits, branching strategies, and GitHub Pull Requests.</p>
+        <div class="links">
+          <a href="git-essentials/Git_essentials_part1_study_app.html">Part 1</a>
+          <a href="git-essentials/Git_essentials_part2_study_app.html">Part 2</a>
+          <a href="git-essentials/Git_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 5 -->
+      <div class="card">
+        <h3>5. database-essentials <span class="tag tag-sdet">Core</span></h3>
+        <p>Relational databases, SQL queries, schema design, CRUD operations, joins, and ORM basics.</p>
+        <div class="links">
+          <a href="database-essentials/Database_essentials_part1_study_app.html">Part 1</a>
+          <a href="database-essentials/Database_essentials_part2_study_app.html">Part 2</a>
+          <a href="database-essentials/Database_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 6 -->
+      <div class="card">
+        <h3>6. node-express-essentials <span class="tag tag-frontend">Backend</span></h3>
+        <p>Node.js event loop, Express routing, middleware chain, REST API architecture, and validation.</p>
+        <div class="links">
+          <a href="node-express-essentials/Node_express_essentials_part1_study_app.html">Part 1</a>
+          <a href="node-express-essentials/Node_express_essentials_part2_study_app.html">Part 2</a>
+          <a href="node-express-essentials/Node_express_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 7 -->
+      <div class="card">
+        <h3>7. typescript-for-testers <span class="tag tag-sdet">SDET</span></h3>
+        <p>TS primitives, interfaces, union types, tsconfig, Playwright fixtures, and JS→TS migration.</p>
+        <div class="links">
+          <a href="typescript-for-testers/Typescript_for_testers_part1_study_app.html">Part 1</a>
+          <a href="typescript-for-testers/Typescript_for_testers_part2_study_app.html">Part 2</a>
+        </div>
+      </div>
+      <!-- 8 -->
+      <div class="card">
+        <h3>8. react-essentials <span class="tag tag-frontend">Frontend</span></h3>
+        <p>JSX, components, state management, side effects, hooks, local scoping, and RTL testing.</p>
+        <div class="links">
+          <a href="react-essentials/React_essentials_part1_study_app.html">Part 1</a>
+          <a href="react-essentials/React_essentials_part2_study_app.html">Part 2</a>
+          <a href="react-essentials/React_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 9 -->
+      <div class="card">
+        <h3>9. playwright-essentials <span class="tag tag-sdet">SDET</span></h3>
+        <p>Playwright E2E testing, auto-waiting locators, POM design pattern, network mocks, and CI/CD.</p>
+        <div class="links">
+          <a href="playwright-essentials/Playwright_essentials_part1_study_app.html">Part 1</a>
+          <a href="playwright-essentials/Playwright_essentials_part2_study_app.html">Part 2</a>
+          <a href="playwright-essentials/Playwright_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 10 -->
+      <div class="card">
+        <h3>10. api-data-essentials <span class="tag tag-sdet">SDET</span></h3>
+        <p>HTTP REST APIs, JWT authentication, JSON Schema validation, k6 load testing, and contract tests.</p>
+        <div class="links">
+          <a href="api-data-essentials/Api_data_essentials_part1_study_app.html">Part 1</a>
+          <a href="api-data-essentials/Api_data_essentials_part2_study_app.html">Part 2</a>
+          <a href="api-data-essentials/Api_data_essentials_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 11 -->
+      <div class="card">
+        <h3>11. perf-basics <span class="tag tag-sdet">SDET</span></h3>
+        <p>Core Web Vitals (LCP, INP, CLS), Lighthouse audits, Chrome DevTools performance panel, and k6.</p>
+        <div class="links">
+          <a href="perf-basics/Perf_basics_part1_study_app.html">Part 1</a>
+          <a href="perf-basics/Perf_basics_part2_study_app.html">Part 2</a>
+          <a href="perf-basics/Perf_basics_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 12 -->
+      <div class="card">
+        <h3>12. figma-to-dev <span class="tag tag-frontend">Frontend</span></h3>
+        <p>Figma Dev Mode, Auto Layout to Flexbox mapping, design token hierarchy, Code Connect.</p>
+        <div class="links">
+          <a href="figma-to-dev/Figma_to_dev_study_app.html">Study App</a>
+        </div>
+      </div>
+      <!-- 13 -->
+      <div class="card">
+        <h3>13. typescript-develop-test <span class="tag tag-frontend">Fullstack</span></h3>
+        <p>Fullstack TypeScript dev loop, Express TS API, Playwright page helpers, HTML reports, CI.</p>
+        <div class="links">
+          <a href="typescript-develop-test/Typescript_develop_test_part1_study_app.html">Part 1</a>
+          <a href="typescript-develop-test/Typescript_develop_test_part2_study_app.html">Part 2</a>
+          <a href="typescript-develop-test/Typescript_develop_test_part3_study_app.html">Part 3</a>
+        </div>
+      </div>
+      <!-- 14 -->
+      <div class="card">
+        <h3>14. automation-portfolio <span class="tag tag-capstone">Capstone</span></h3>
+        <p>Full working Task Board application (Express + Vanilla JS) with comprehensive Playwright test suite.</p>
+        <div class="links">
+          <a href="automation-portfolio/Automation_portfolio_study_app.html">Study App</a>
+          <a href="automation-portfolio/index.html">Launch App</a>
+        </div>
+      </div>
+      <!-- 15 -->
+      <div class="card">
+        <h3>15. phase-bc-fullstack-app <span class="tag tag-capstone">Capstone</span></h3>
+        <p>Full-stack React + Express + Vite application with E2E and API test suites.</p>
+        <div class="links">
+          <a href="phase-bc-fullstack-app/Phase_bc_fullstack_app_study_app.html">Study App</a>
+          <a href="phase-bc-fullstack-app/index.html">Launch App</a>
+        </div>
+      </div>
+      <!-- 16 -->
+      <div class="card">
+        <h3>16. automation-tester-path <span class="tag tag-roadmap">Career</span></h3>
+        <p>Comprehensive career roadmap, testing pyramid, manual/automated testing strategies, SDET prep.</p>
+        <div class="links">
+          <a href="automation-tester-path/Automation_tester_path_study_app.html">Roadmap App</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

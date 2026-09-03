@@ -1,0 +1,3 @@
+ShopLite demo receipt
+Order: DEMO-001
+Thank you for testing with Playwright Essentials.

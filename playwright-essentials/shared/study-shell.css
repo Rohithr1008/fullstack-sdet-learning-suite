@@ -1,0 +1,236 @@
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html" aria-current="page">Login</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Sign in</h1>
+    <p>Demo password for any email: <code>playwright</code></p>
+    <form class="card" id="loginForm" novalidate>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required data-testid="email">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required data-testid="password">
+      <div id="formError" class="flash err" role="alert" hidden></div>
+      <div id="formOk" class="flash ok" role="status" hidden></div>
+      <p style="margin-top:14px">
+        <button type="submit" class="btn" data-testid="login-submit">Sign in</button>
+      </p>
+    </form>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = document.getElementById("email").value.trim();
+      var password = document.getElementById("password").value;
+      var err = document.getElementById("formError");
+      var ok = document.getElementById("formOk");
+      err.hidden = true;
+      ok.hidden = true;
+      var result = ShopLite.login(email, password);
+      if (!result.ok) {
+        err.textContent = result.error;
+        err.hidden = false;
+        return;
+      }
+      ok.textContent = "Welcome, " + result.user.name + "! Redirecting…";
+      ok.hidden = false;
+      setTimeout(function () { location.href = "account.html"; }, 600);
+    });
+  </script>
+</body>
+</html>

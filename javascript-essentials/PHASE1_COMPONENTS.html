@@ -1,0 +1,386 @@
+<!-- 
+  PHASE 1 ENHANCEMENTS — Reusable Components
+  Use these snippets to enhance both interactive.md and study_app.html
+-->
+
+<!-- ============================================
+     1. TRUTHY/FALSY INTERACTIVE CHECKER
+     ============================================ -->
+
+<div class="tool-truthy-falsy">
+  <h4>🔍 Truthy/Falsy Checker Tool</h4>
+  <p>Enter any value and see if it's truthy or falsy:</p>
+  
+  <div class="input-group">
+    <input 
+      type="text" 
+      id="truthyInput" 
+      placeholder='Try: null, 0, "", [], {}, "hello", 1, true' 
+      style="width: 100%; padding: 8px; font-family: monospace; border: 1px solid #ccc; border-radius: 4px;"
+    >
+  </div>
+  
+  <div style="margin-top: 10px;">
+    <button onclick="checkTruthiness()" style="padding: 8px 16px; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Check</button>
+  </div>
+  
+  <div id="truthyResult" style="margin-top: 14px; padding: 12px; border-radius: 8px; display: none; font-weight: 600;">
+  </div>
+</div>
+
+<script>
+function checkTruthiness() {
+  const input = document.getElementById('truthyInput').value;
+  const result = document.getElementById('truthyResult');
+  
+  if (input === '') {
+    result.style.display = 'none';
+    return;
+  }
+  
+  let value;
+  try {
+    // Try to eval (safe in learning environment)
+    value = eval(input);
+  } catch(e) {
+    // If it fails, treat as string
+    value = input;
+  }
+  
+  const isTruthy = Boolean(value);
+  const type = typeof value;
+  
+  result.style.display = 'block';
+  result.style.background = isTruthy ? '#c6f6d5' : '#fed7d7';
+  result.style.color = isTruthy ? '#22543d' : '#742a2a';
+  result.style.borderLeft = `4px solid ${isTruthy ? '#38a169' : '#e53e3e'}`;
+  
+  result.innerHTML = `
+    <strong>${isTruthy ? '✅ TRUTHY' : '❌ FALSY'}</strong><br>
+    <small>Value: <code>${JSON.stringify(value)}</code> | Type: <code>${type}</code></small>
+  `;
+}
+
+document.getElementById('truthyInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkTruthiness();
+});
+</script>
+
+<!-- ============================================
+     2. ENHANCED QUIZ WITH EXPLANATIONS
+     ============================================ -->
+
+<div class="quiz-box">
+  <h3>🧪 Enhanced Quiz Example — Variables</h3>
+  
+  <details>
+    <summary>Q1. What does <code>const</code> actually prevent?</summary>
+    
+    <div style="margin-top: 10px;">
+      <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+        <strong>✅ Reassigning the variable to a new value</strong>
+        <p><small><strong>Why:</strong> `const` locks the <em>binding</em> (variable reference), not the contents. You can't do `person = {}`, but you CAN do `person.name = "new"` because you're modifying the object's contents, not reassigning the variable.</small></p>
+      </div>
+      
+      <div style="background: #fff5f5; border-left: 4px solid #e53e3e; padding: 10px; margin: 8px 0; border-radius: 4px;">
+        <strong>❌ Changing an object's contents</strong>
+        <p><small><strong>Why this is wrong:</strong> This is actually allowed! `const` only locks the binding, not the object's properties. Objects and arrays are mutable, and `const` doesn't change that.</small></p>
+      </div>
+    </div>
+  </details>
+  
+  <details>
+    <summary>Q2. What happens if you forget <code>break</code> in a switch case?</summary>
+    
+    <div style="margin-top: 10px;">
+      <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+        <strong>✅ Execution "falls through" into the next case</strong>
+        <p><small><strong>Why:</strong> Without `break`, JavaScript doesn't stop after a matching case—it continues executing code in subsequent cases. This is often a bug. Example:</small></p>
+        <pre style="background: #fff; padding: 8px; border-radius: 4px; overflow-x: auto;"><code>switch(2) {
+  case 1: console.log("A");
+  case 2: console.log("B");  // matches
+  case 3: console.log("C");  // still runs!
+}
+// Output: B, C (not what we wanted)</code></pre>
+      </div>
+      
+      <div style="background: #fff5f5; border-left: 4px solid #e53e3e; padding: 10px; margin: 8px 0; border-radius: 4px;">
+        <strong>❌ JavaScript throws an error</strong>
+        <p><small><strong>Why this is wrong:</strong> No error is thrown. The fall-through happens silently, which is what makes this so dangerous.</small></p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<!-- ============================================
+     3. EXPANDED SPOT-THE-BUG (8 of 12 samples)
+     ============================================ -->
+
+<div class="quiz-box">
+  <h3>🐞 Spot the Bug! (Expanded Version)</h3>
+  <p>Find the mistake in each code snippet:</p>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🟢 Bug #1 (Easy):</strong> Variables — `const` and reassignment</summary>
+    <pre><code>const name = "Rohit";
+name = "Amit";  // ❌ BUG HERE
+console.log(name);</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Can't reassign a `const` variable. Error: `TypeError: Assignment to constant variable`
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🟢 Bug #2 (Easy):</strong> Conditions — missing `break` in switch</summary>
+    <pre><code>const day = "Monday";
+switch(day) {
+  case "Monday":
+    console.log("Start of week");
+    // ❌ Missing break here
+  case "Friday":
+    console.log("Almost weekend");
+    break;
+}
+// Output: "Start of week" AND "Almost weekend"</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Missing `break` causes fall-through to the next case.
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🟡 Bug #3 (Medium):</strong> Loops — infinite loop</summary>
+    <pre><code>let i = 0;
+while (i < 10) {
+  console.log(i);
+  // ❌ i never increments!
+}
+// Output: 0 0 0 0 0 ... (infinite)</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Missing `i++` creates an infinite loop. Browser will hang.
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🟡 Bug #4 (Medium):</strong> Arrays — `map` without return</summary>
+    <pre><code>const nums = [1, 2, 3];
+const doubled = nums.map(x => { x * 2 }); // ❌ No return!
+console.log(doubled);
+// Output: [undefined, undefined, undefined]</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Braces `{}` without `return` keyword = no value returned. Fix: Either remove braces (`x => x * 2`) or add `return` (`=> { return x * 2; }`).
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🟡 Bug #5 (Medium):</strong> Arrays — Mutating during iteration</summary>
+    <pre><code>const arr = [1, 2, 3, 4, 5];
+arr.forEach(x => {
+  if (x % 2 === 0) {
+    arr.splice(arr.indexOf(x), 1);  // ❌ Don't mutate during loop!
+  }
+});
+// Output: [1, 3, 5] — but unreliable!
+</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Modifying an array while looping over it causes items to be skipped. Use `filter()` instead.
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🔴 Bug #6 (Hard):</strong> Objects — Mutation via reference</summary>
+    <pre><code>const original = { name: "Rohit", tags: ["JS"] };
+const copy = { ...original };
+copy.tags.push("Python");  // ❌ BUG: Affects original!
+console.log(original.tags);
+// Output: ["JS", "Python"] — original changed!</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Spread `{...}` is a shallow copy. Nested objects/arrays are still shared. Use `structuredClone()` for deep copy.
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🔴 Bug #7 (Hard):</strong> Strings — Immutability trap</summary>
+    <pre><code>let str = "hello";
+str[0] = "H";  // ❌ Strings are immutable
+console.log(str);
+// Output: "hello" (unchanged)</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> Strings can't be changed via index assignment. Build a new string: `str = "H" + str.slice(1)`.
+    </div>
+  </details>
+  
+  <details style="margin: 12px 0;">
+    <summary><strong>🔴 Bug #8 (Hard):</strong> Operators — Type coercion surprise</summary>
+    <pre><code>const result = "5" + 3 - 2;  // ❌ What's the result?
+console.log(result);
+// Output: 50 (not 6!)</code></pre>
+    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 10px; margin: 8px 0; border-radius: 4px;">
+      <strong>✅ The bug:</strong> `"5" + 3` = `"53"` (string concat). Then `"53" - 2` = `51` (coerced to number, then subtracted). Always use `===` and be aware of type coercion with `+`.
+    </div>
+  </details>
+</div>
+
+<!-- ============================================
+     4. INTERACTIVE PREDICT-THE-OUTPUT (User Guess)
+     ============================================ -->
+
+<div class="predict-interactive">
+  <h4>🤔 Predict the Output — User Input Version</h4>
+  <p>Type your guess, then click Check to see if you're right!</p>
+  
+  <div style="margin: 14px 0; padding: 12px; background: #f7f9fc; border: 1px solid #cbd5e0; border-radius: 8px;">
+    <strong>Code:</strong>
+    <pre style="background: #fff; padding: 8px; overflow-x: auto;"><code>const arr = [1, 2, 3];
+console.log(arr.push(4));</code></pre>
+    
+    <div style="margin-top: 10px;">
+      <input 
+        type="text" 
+        id="guessOutput" 
+        placeholder='Your guess: (e.g., "4" or "[1,2,3,4]")'
+        style="width: 80%; padding: 8px; font-family: monospace; border: 1px solid #cbd5e0; border-radius: 4px;"
+      >
+    </div>
+    
+    <div style="margin-top: 8px;">
+      <button onclick="checkGuess()" style="padding: 8px 16px; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Check Guess</button>
+    </div>
+    
+    <div id="guessResult" style="margin-top: 12px; padding: 12px; border-radius: 8px; display: none; font-weight: 600;">
+    </div>
+  </div>
+</div>
+
+<script>
+function checkGuess() {
+  const guess = document.getElementById('guessOutput').value.trim();
+  const result = document.getElementById('guessResult');
+  
+  if (guess === '') {
+    result.style.display = 'none';
+    return;
+  }
+  
+  const correctAnswer = '4';
+  const isCorrect = guess === correctAnswer;
+  
+  result.style.display = 'block';
+  result.style.background = isCorrect ? '#c6f6d5' : '#fed7d7';
+  result.style.color = isCorrect ? '#22543d' : '#742a2a';
+  result.style.borderLeft = `4px solid ${isCorrect ? '#38a169' : '#e53e3e'}`;
+  
+  result.innerHTML = `
+    ${isCorrect ? '✅ Correct!' : '❌ Not quite.'}
+    <br>
+    <strong>Correct answer: <code>4</code></strong>
+    <p><small><strong>Why:</strong> <code>push()</code> returns the <em>new length</em> of the array, not the array itself. The array becomes <code>[1,2,3,4]</code>, but the return value is <code>4</code>.</small></p>
+  `;
+}
+
+document.getElementById('guessOutput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkGuess();
+});
+</script>
+
+<!-- ============================================
+     5. DIFFICULTY FILTER UI
+     ============================================ -->
+
+<div class="difficulty-filter" style="margin: 16px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+  <strong>Filter by difficulty:</strong>
+  <button onclick="filterDifficulty('all')" class="filter-btn active" style="padding: 6px 12px; border: 1px solid #cbd5e0; background: #fff; border-radius: 4px; cursor: pointer; font-weight: 600;">All</button>
+  <button onclick="filterDifficulty('easy')" class="filter-btn" style="padding: 6px 12px; border: 1px solid #c6f6d5; background: #f0fff4; border-radius: 4px; cursor: pointer; font-weight: 600; color: #22543d;">🟢 Easy</button>
+  <button onclick="filterDifficulty('medium')" class="filter-btn" style="padding: 6px 12px; border: 1px solid #fefcbf; background: #fffbeb; border-radius: 4px; cursor: pointer; font-weight: 600; color: #744210;">🟡 Medium</button>
+  <button onclick="filterDifficulty('hard')" class="filter-btn" style="padding: 6px 12px; border: 1px solid #fed7d7; background: #fff5f5; border-radius: 4px; cursor: pointer; font-weight: 600; color: #742a2a;">🔴 Hard</button>
+</div>
+
+<script>
+function filterDifficulty(level) {
+  console.log('Filtering by difficulty:', level);
+  // This would filter exercises by difficulty in real implementation
+}
+</script>
+
+<!-- ============================================
+     6. CHEAT SHEET PREVIEW
+     ============================================ -->
+
+<div class="cheat-sheet-preview" style="margin: 20px 0; background: #ebf8ff; border: 1px solid #4299e1; border-radius: 10px; padding: 16px;">
+  <h3 style="color: #2b6cb0; margin-top: 0;">📋 Quick Reference Cheat Sheet</h3>
+  
+  <details>
+    <summary style="cursor: pointer; font-weight: 700; color: #2b6cb0;">📥 Download & Print (Click to expand preview)</summary>
+    
+    <div style="margin-top: 12px; background: #fff; padding: 14px; border-radius: 8px;">
+      <h4>JavaScript Essentials — Part 1 Cheat Sheet</h4>
+      <p><em>One-page reference for all 12 sections</em></p>
+      
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <tr style="background: #ebf8ff;">
+          <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e0;"><strong>Section</strong></th>
+          <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e0;"><strong>Key Concepts</strong></th>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>1. Variables</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>const</code> by default | `let` for change | Block scope</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>2. Conditions</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>if/else</code> | `switch` needs `break`</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>3. Loops</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>for</code> | `while` | `for...of` | `break`/`continue`</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>4. Logical Ops</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>&&</code> | `||` | `!` | Truthy/falsy (6 falsy)</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>5. Data Types</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Primitives (7) | Objects/Arrays | `Number.isNaN()`</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>6. Mutable</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Primitives copied | Objects by reference | `Object.freeze()`</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>7. Operators</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>===</code> always | Ternary | Spread `...` | `??` vs `||`</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>8. Functions</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Arrow functions | Closures | Hoisting | Rest params</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>9. Arrays</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><code>map</code> | `filter` | `reduce` | `find` | `.at()` negative</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>10. Strings</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Immutable | `.slice()` | `.split()` | Template literals</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>11. Objects</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Destructuring | Spread | `Object.entries()` | `this`</td>
+        </tr>
+        <tr style="background: #f7f9fc;">
+          <td style="padding: 8px; border: 1px solid #cbd5e0;"><strong>12. Symbols</strong></td>
+          <td style="padding: 8px; border: 1px solid #cbd5e0;">Operators & precedence cheat sheet</td>
+        </tr>
+      </table>
+      
+      <div style="margin-top: 14px; text-align: center;">
+        <button onclick="printCheatSheet()" style="padding: 10px 20px; background: #2b6cb0; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">🖨️ Print This Page</button>
+        <p><small>Tip: Use browser "Print to PDF" for a shareable cheat sheet</small></p>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+function printCheatSheet() {
+  window.print();
+}
+</script>
+

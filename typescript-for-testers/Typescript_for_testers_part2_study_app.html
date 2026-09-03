@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeScript for Testers — Part 2</title>
+<style>
+:root { --accent:#0f766e; --bg:#f0f7f4; --text:#14241c; --card:#fff; --muted:#5b7168; --border:#c5ddd4; }
+html.force-dark, html.force-dark body { --bg:#0c1612; --text:#d8ebe2; --card:#12201a; --muted:#8a9e94; --border:#243830; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+body.font-sm { font-size:14px; } body.font-lg { font-size:18px; }
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; background:#fff; color:var(--accent); padding:8px 14px; border-radius:6px; font-weight:700; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#134e4a; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#5eead4; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.why { background:#e6fffa; border-left:4px solid #319795; padding:6px 12px; border-radius:6px; margin:6px 0 10px; font-size:0.92rem; }
+html.force-dark .why { background:#0f1f1c; }
+.quiz-box, .panel, .mock, .certificate { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+.quiz-correct { color:#276749; font-weight:700; }
+html.force-dark .quiz-correct { color:#68d391; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; align-items:center; }
+.toolbar button, .theme-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; cursor:pointer; }
+#progressBar { background:#134e4a; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; }
+.mark { margin:8px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:600; cursor:pointer; }
+body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #srPanel, body.focus-mode .studyplan7 { display:none !important; }
+#focusHint { display:none; background:#eef2ff; border:2px solid #5a67d8; border-radius:8px; padding:8px 14px; margin:6px 0; color:#3730a3; font-weight:600; }
+html.force-dark #focusHint { background:#1a1a2e; color:#c7d2fe; }
+table { border-collapse:collapse; width:100%; margin:10px 0; }
+th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.mock label { display:block; margin:6px 0 2px; font-weight:600; }
+.mock input, .mock select { width:100%; max-width:360px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
+.mock .out { margin-top:10px; padding:10px; border-radius:8px; background:var(--bg); font-family:ui-monospace,Consolas,monospace; font-size:14px; white-space:pre-wrap; }
+.certificate { text-align:center; border-color:#d69e2e; background:linear-gradient(135deg,#ecfdf5,#fef9c3); }
+html.force-dark .certificate { background:linear-gradient(135deg,#0f1f1c,#422006); }
+.certificate.locked { opacity:0.75; }
+.studyplan7 { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:14px 0; }
+.scope { background:#fff7ed; border:1px solid #fdba74; border-radius:10px; padding:10px 14px; margin:10px 0; font-size:0.95rem; color:#9a3412; }
+html.force-dark .scope { background:#2a1a0e; color:#fdba74; border-color:#9a3412; }
+footer { text-align:center; margin-top:28px; color:var(--muted); font-size:13px; }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>TypeScript for Testers — Part 2</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Typescript_for_testers_part1_study_app.html">← 1 Basics</a>
+  <strong>2 Playwright-TS</strong>
+</div>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+
+<div class="toolbar">
+  <span style="font-weight:600;">📐 Size:</span>
+  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
+  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
+  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
+  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
+  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
+  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — extra panels hidden.</div>
+
+<p>Playwright-oriented TypeScript: tsconfig, light POM/helpers, and a JS→TS migrate lab.</p>
+<div class="scope"><strong>Scope:</strong> thin Phase A kit — NOT enough alone for TS-only develop jobs (Phase B).</div>
+
+<div id="progressBar" role="status">📊 Progress: 0/10 sections (0%)</div>
+
+<div id="boostBar" class="panel" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <strong>⚡ <span id="streakCount">0-day streak</span></strong>
+  <strong>⭐ <span id="pointCount">0 XP</span></strong>
+  <button type="button" onclick="surpriseJump()">🎲 Surprise me</button>
+</div>
+
+<details class="studyplan7"><summary>📅 Suggested 5-day plan</summary>
+<ol>
+<li>Days 1–2: §§1–2 tsconfig + Playwright overview</li>
+<li>Day 3: §§3–4 POM + helpers</li>
+<li>Day 4: §5 migrate + §6 errors</li>
+<li>Day 5: pitfalls + practice → Playwright Essentials</li>
+</ol>
+</details>
+
+<div id="learningPathPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🧭 Learning Path</h3>
+  <div id="learningPathContent">Complete a section to get a next-step tip.</div>
+</div>
+
+<div id="srPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🃏 Flashcard drill</h3>
+  <p id="srQ">Click Start to begin.</p>
+  <p id="srA" style="display:none;color:#0f766e;font-weight:600;"></p>
+  <div id="srBtns"><button type="button" onclick="srStart()">Start Review</button></div>
+</div>
+
+<h2 id="s1">1. tsconfig for testers</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> <code>strict</code> decides how many bugs the IDE catches.</div>
+<pre><code>{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "commonjs",
+    "skipLibCheck": true
+  },
+  "include": ["tests/**/*.ts", "pages/**/*.ts"]
+}</code></pre>
+<table>
+<tr><th>Option</th><th>Takeaway</th></tr>
+<tr><td>strict</td><td>Best default for test repos</td></tr>
+<tr><td>include</td><td>What gets typechecked</td></tr>
+<tr><td>skipLibCheck</td><td>Faster CI; don't skip your code</td></tr>
+</table>
+<div class="quiz-box">
+<details><summary>Prefer strict: false to move faster?</summary><p class="quiz-correct">No — fix types instead.</p></details>
+<details><summary>What does include control?</summary><p class="quiz-correct">Which files TypeScript typechecks.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="1" onclick="toggleSection(1)">Mark Complete</button></div>
+
+<h2 id="s2">2. Playwright + TypeScript overview</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Page/Locator/expect types are free documentation.</div>
+<pre><code>import { test, expect, type Page } from '@playwright/test';
+
+test('login heading', async ({ page }) => {
+  await page.goto('/login');
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+});</code></pre>
+<p>Deep E2E skills → <strong>Playwright Essentials</strong>. This section is the TS surface only.</p>
+<div class="quiz-box">
+<details><summary>Where do Page types come from?</summary><p class="quiz-correct">@playwright/test</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="2" onclick="toggleSection(2)">Mark Complete</button></div>
+
+<h2 id="s3">3. Light POM annotations</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> typed fields document the page API.</div>
+<pre><code>export class LoginPage {
+  readonly page: Page;
+  readonly email: Locator;
+  constructor(page: Page) {
+    this.page = page;
+    this.email = page.getByLabel('Email');
+  }
+  async login(email: string, password: string): Promise&lt;void&gt; { /* ... */ }
+}</code></pre>
+<div class="quiz-box">
+<details><summary>Return type of async login?</summary><p class="quiz-correct">Promise&lt;void&gt;</p></details>
+<details><summary>Why readonly on locators?</summary><p class="quiz-correct">Don't reassign after construction.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="3" onclick="toggleSection(3)">Mark Complete</button></div>
+
+<h2 id="s4">4. Helper annotations</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> shared asserts amplify type mistakes.</div>
+<pre><code>export async function expectStatus(
+  res: APIResponse,
+  expected: number
+): Promise&lt;void&gt; { /* ... */ }</code></pre>
+<div class="quiz-box">
+<details><summary>Predict: expectStatus(res, '200')?</summary><p class="quiz-correct">Type error — string not number.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="4" onclick="toggleSection(4)">Mark Complete</button></div>
+
+<h2 id="s5">5. JS→TS migrate exercise</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> migrate helpers first — high reuse.</div>
+<p>Compare side-by-side:</p>
+<ul>
+<li><a href="labs/migrate-before.js"><code>labs/migrate-before.js</code></a></li>
+<li><a href="labs/migrate-after.ts"><code>labs/migrate-after.ts</code></a></li>
+</ul>
+<p>Checklist: interface shapes · union for result · optional fields · annotate params/returns · <code>unknown</code> for opaque body.</p>
+<div class="mock" aria-label="Migrate checklist">
+  <strong>🧪 Migrate checklist mock</strong>
+  <label><input type="checkbox" id="m1"> Named ApiResponse interface</label>
+  <label><input type="checkbox" id="m2"> TestResult union</label>
+  <label><input type="checkbox" id="m3"> rememberMe optional</label>
+  <label><input type="checkbox" id="m4"> Params + returns annotated</label>
+  <p><button type="button" onclick="checkMigrate()">Score checklist</button></p>
+  <div class="out" id="migOut">Tick items as you verify the after file.</div>
+</div>
+<div class="quiz-box">
+<details><summary>Convert every file day one?</summary><p class="quiz-correct">No — incremental is normal.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="5" onclick="toggleSection(5)">Mark Complete</button></div>
+
+<h2 id="s6">6. Reading TS errors</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> squiggles are clues.</div>
+<div class="mock" aria-label="Error decoder">
+  <strong>🧪 Error decoder</strong>
+  <label for="errPick">Message</label>
+  <select id="errPick">
+    <option value="assign">Argument of type 'X' is not assignable to 'Y'</option>
+    <option value="undef">Object is possibly 'undefined'</option>
+    <option value="prop">Property 'x' does not exist on type 'Y'</option>
+    <option value="union">Type 'string' is not assignable to union</option>
+  </select>
+  <p><button type="button" onclick="decodeErr()">Decode</button></p>
+  <div class="out" id="errOut">Pick a message.</div>
+</div>
+<div class="quiz-box">
+<details><summary>First move for possibly undefined?</summary><p class="quiz-correct">Optional chaining / default / guard — not as any.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="6" onclick="toggleSection(6)">Mark Complete</button></div>
+
+<h2 id="s7">7. Common pitfalls</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> fighting the compiler trains bad habits.</div>
+<ul>
+<li>Re-declaring Playwright types instead of importing</li>
+<li><code>as any</code> to ship</li>
+<li>Huge POM base-class frameworks</li>
+<li>Free <code>string</code> where a union fits</li>
+</ul>
+<div class="quiz-box">
+<details><summary>Spot-the-Bug: open(page: any) — fix?</summary><p class="quiz-correct">page: Page from @playwright/test</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="7" onclick="toggleSection(7)">Mark Complete</button></div>
+
+<h2 id="s8">8. Practice exercises</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> muscle memory on POM + unions.</div>
+<ol>
+<li>Type a tiny <code>LogoutPage</code>.</li>
+<li><code>type JobStatus = 'queued' | 'running' | 'done' | 'failed'</code></li>
+<li>Re-type <code>buildLoginPayload</code> from the lab.</li>
+<li>Skim a real tsconfig and name three options.</li>
+</ol>
+<div class="mark"><button type="button" data-sec="8" onclick="toggleSection(8)">Mark Complete</button></div>
+
+<h2 id="s9">9. Challenges</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> constrain real knobs (browser name, retries).</div>
+<ol>
+<li>Constrain <code>selectBrowser(name)</code> to chromium|firefox|webkit.</li>
+<li>Sketch <code>RetryOptions</code> + <code>withRetry</code> signature.</li>
+<li>Why does Phase B still exist after this kit?</li>
+</ol>
+<div class="mark"><button type="button" data-sec="9" onclick="toggleSection(9)">Mark Complete</button></div>
+
+<h2 id="s10">10. Answer key + where next</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> know the door out of this thin kit.</div>
+<ul>
+<li>Browser union: <code>'chromium' | 'firefox' | 'webkit'</code></li>
+<li>Phase B exists because this kit is <strong>test-oriented only</strong> — not a TS develop career track</li>
+<li>Next: <strong>Playwright Essentials</strong> on the Automation Tester Path</li>
+</ul>
+<div class="mark"><button type="button" data-sec="10" onclick="toggleSection(10)">Mark Complete</button></div>
+
+<div id="certPanel" class="certificate locked">
+  <div id="certStatus"></div>
+  <div id="certBody" hidden>
+    <h2 style="border:none;color:#134e4a;">🏆 Certificate</h2>
+    <p><strong>TypeScript for Testers — Part 2 (Playwright-oriented)</strong></p>
+    <p>Thin Phase A TS kit complete. Go write Playwright tests — deepen TS in Phase B if the job needs it.</p>
+  </div>
+</div>
+
+<footer>TypeScript for Testers · Part 2/2 · Phase A thin kit</footer>
+
+<script>
+(function () {
+  const TOTAL = 10;
+  const KEY = (n) => 'ts2-sec-' + n;
+  const THEME = 'ts2-theme';
+  const FONT = 'ts2-font';
+  const BOOST = 'ts2-boost';
+  const cards = [
+    { q: 'Where do Page types come from?', a: '@playwright/test' },
+    { q: 'First migrate target?', a: 'Shared helpers / fixtures — high reuse.' },
+    { q: 'strict: false to move faster?', a: 'No — hides bugs.' },
+    { q: 'possibly undefined — first fix?', a: '?. / ?? / guard — not as any.' },
+    { q: 'Why Phase B after this kit?', a: 'This is test-oriented only; develop+test depth is Phase B.' }
+  ];
+  let srIndex = 0, srShow = false;
+
+  function doneCount() {
+    let n = 0;
+    for (let i = 1; i <= TOTAL; i++) if (localStorage.getItem(KEY(i)) === '1') n++;
+    return n;
+  }
+
+  function updateProgress() {
+    const n = doneCount();
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progressBar').textContent = '📊 Progress: ' + n + '/' + TOTAL + ' sections (' + pct + '%)';
+    for (let i = 1; i <= TOTAL; i++) {
+      const btn = document.querySelector('button[data-sec="' + i + '"]');
+      if (btn) btn.textContent = localStorage.getItem(KEY(i)) === '1' ? '✅ Completed' : 'Mark Complete';
+    }
+    const path = document.getElementById('learningPathContent');
+    if (n === 0) path.textContent = 'Start with §1 — read a tsconfig like a tester.';
+    else if (n < 4) path.textContent = 'Next: Playwright overview → light POM annotations.';
+    else if (n < 7) path.textContent = 'Next: migrate lab + error decoder.';
+    else if (n < TOTAL) path.textContent = 'Next: pitfalls, practice, then Playwright Essentials.';
+    else path.textContent = 'Kit complete — open Playwright Essentials 🎭';
+
+    const cert = document.getElementById('certPanel');
+    const status = document.getElementById('certStatus');
+    const body = document.getElementById('certBody');
+    if (n >= TOTAL) {
+      cert.classList.remove('locked');
+      status.hidden = true;
+      body.hidden = false;
+    } else {
+      cert.classList.add('locked');
+      status.hidden = false;
+      body.hidden = true;
+      status.innerHTML = 'Complete all <strong>10 sections</strong> to unlock. (' + n + '/' + TOTAL + ')';
+    }
+  }
+
+  window.toggleSection = function (n) {
+    const on = localStorage.getItem(KEY(n)) === '1';
+    localStorage.setItem(KEY(n), on ? '0' : '1');
+    if (!on) addXp(5);
+    updateProgress();
+  };
+
+  function loadBoost() {
+    try { return JSON.parse(localStorage.getItem(BOOST) || '{}'); } catch { return {}; }
+  }
+  function saveBoost(b) { localStorage.setItem(BOOST, JSON.stringify(b)); }
+  function addXp(x) {
+    const b = loadBoost();
+    b.xp = (b.xp || 0) + x;
+    const today = new Date().toDateString();
+    if (b.last !== today) {
+      b.streak = (b.last && (Date.now() - new Date(b.last).getTime() < 172800000)) ? (b.streak || 0) + 1 : 1;
+      b.last = today;
+    }
+    saveBoost(b);
+    renderBoost();
+  }
+  function renderBoost() {
+    const b = loadBoost();
+    document.getElementById('pointCount').textContent = (b.xp || 0) + ' XP';
+    document.getElementById('streakCount').textContent = (b.streak || 0) + '-day streak';
+  }
+
+  window.fontZoom = function (dir) {
+    document.body.classList.remove('font-sm', 'font-lg');
+    let cur = localStorage.getItem(FONT) || 'md';
+    if (dir === 0) cur = 'md';
+    else if (dir < 0) cur = cur === 'lg' ? 'md' : 'sm';
+    else cur = cur === 'sm' ? 'md' : 'lg';
+    localStorage.setItem(FONT, cur);
+    if (cur === 'sm') document.body.classList.add('font-sm');
+    if (cur === 'lg') document.body.classList.add('font-lg');
+  };
+
+  window.toggleTheme = function () {
+    const html = document.documentElement;
+    const dark = html.classList.toggle('force-dark');
+    html.classList.toggle('force-light', !dark);
+    localStorage.setItem(THEME, dark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
+  };
+
+  window.focusMode = function (btn) {
+    const on = document.body.classList.toggle('focus-mode');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.getElementById('focusHint').style.display = on ? 'block' : 'none';
+    if (on) collapseAll(false);
+  };
+
+  window.collapseAll = function (open) {
+    document.querySelectorAll('details').forEach((d) => { d.open = !!open; });
+  };
+
+  window.surpriseJump = function () {
+    const n = 1 + Math.floor(Math.random() * TOTAL);
+    const el = document.getElementById('s' + n);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window.checkMigrate = function () {
+    const ids = ['m1', 'm2', 'm3', 'm4'];
+    const n = ids.filter((id) => document.getElementById(id).checked).length;
+    document.getElementById('migOut').textContent =
+      n + '/4 checklist items verified.\n' +
+      (n === 4 ? 'Nice — you matched the migrate-after.ts shape ✅' : 'Open labs/migrate-after.ts and tick what you see.');
+    if (n === 4) addXp(3);
+  };
+
+  window.decodeErr = function () {
+    const map = {
+      assign: 'Wrong argument shape — fix the call site or intentionally widen the type.',
+      undef: 'Use optional chaining, a default (??), or a type guard before use.',
+      prop: 'Typo or outdated interface — update the type or the property name.',
+      union: 'Pass an allowed literal (e.g. \'stage\') instead of a free string.'
+    };
+    const k = document.getElementById('errPick').value;
+    document.getElementById('errOut').textContent = map[k];
+    addXp(2);
+  };
+
+  window.srStart = function () { srIndex = 0; srShow = false; renderSr(); };
+  function renderSr() {
+    const c = cards[srIndex % cards.length];
+    document.getElementById('srQ').textContent = c.q;
+    const a = document.getElementById('srA');
+    a.style.display = srShow ? 'block' : 'none';
+    a.textContent = c.a;
+    document.getElementById('srBtns').innerHTML = srShow
+      ? '<button type="button" onclick="srNext()">Next</button>'
+      : '<button type="button" onclick="srReveal()">Show answer</button>';
+  }
+  window.srReveal = function () { srShow = true; renderSr(); };
+  window.srNext = function () { srIndex++; srShow = false; renderSr(); addXp(1); };
+
+  const theme = localStorage.getItem(THEME);
+  if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('force-dark');
+    document.getElementById('themeBtn').textContent = '☀️ Light mode';
+  } else {
+    document.documentElement.classList.add('force-light');
+  }
+  fontZoom(0);
+  const savedFont = localStorage.getItem(FONT);
+  if (savedFont === 'sm') document.body.classList.add('font-sm');
+  if (savedFont === 'lg') document.body.classList.add('font-lg');
+  renderBoost();
+  updateProgress();
+})();
+</script>
+<!--P2H-END-->
+</body>
+</html>

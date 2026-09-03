@@ -1,0 +1,21 @@
+# Node / Playwright
+/node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Temp verify artifacts
+_verify_*.js
+_*.cjs
+_*.ps1
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+
+# Lab auth artifacts
+labs/**/.auth/

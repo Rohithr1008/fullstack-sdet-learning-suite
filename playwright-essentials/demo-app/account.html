@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="account.html" aria-current="page">Account</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Account</h1>
+    <div id="guest" class="card" hidden>
+      <p>You are not signed in.</p>
+      <a class="btn" href="login.html">Go to login</a>
+    </div>
+    <div id="member" class="card" hidden>
+      <p data-testid="welcome">Signed in as <strong id="who"></strong></p>
+      <button type="button" class="btn ghost" id="logoutBtn" data-testid="logout">Sign out</button>
+    </div>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      var user = ShopLite.getUser();
+      var guest = document.getElementById("guest");
+      var member = document.getElementById("member");
+      if (!user) {
+        guest.hidden = false;
+        return;
+      }
+      member.hidden = false;
+      document.getElementById("who").textContent = user.email;
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        ShopLite.logout();
+        location.href = "login.html";
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "javascript-essentials",
+  "private": true,
+  "description": "Study-app tooling: verify, shared-shell inliner, Playwright a11y + keyboard/mobile E2E.",
+  "scripts": {
+    "verify": "node verify-study-apps.js",
+    "inline-shell": "node scripts/inline-shell.js",
+    "inline-shell:check": "node scripts/inline-shell.js --check",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/a11y.spec.js --project=chromium",
+    "test:keyboard": "playwright test tests/keyboard-mobile.spec.js"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.7",
+    "@playwright/test": "^1.51.0"
+  }
+}

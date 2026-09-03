@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JavaScript Essentials — Parts 1–6</title>
+<style>
+  :root{color-scheme:light dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;font:16px/1.6 "Segoe UI",system-ui,sans-serif;background:#f4f7fb;color:#182333}
+  @media (prefers-color-scheme:dark){body{background:#0d1420;color:#dbe4ef}}
+  .wrap{max-width:720px;padding:32px;text-align:center}
+  h1{color:#2b6cb0;margin:0 0 6px}
+  @media (prefers-color-scheme:dark){h1{color:#5b9bf0}}
+  p.sub{color:#5b6b80;margin:0 0 16px}
+  #seriesProgress{background:#2d3748;color:#e2e8f0;border-radius:10px;padding:12px 16px;margin:0 0 22px;font-weight:600;text-align:left}
+  #seriesProgress .bar{height:8px;background:#4a5568;border-radius:999px;margin-top:8px;overflow:hidden}
+  #seriesProgress .fill{height:100%;background:#38a169;width:0%;border-radius:999px}
+  .cards{display:grid;gap:14px}
+  a.card{display:block;padding:18px 22px;border-radius:12px;text-decoration:none;border:1px solid #d9e2ec;background:#fff;color:inherit;text-align:left;transition:transform .15s,box-shadow .15s}
+  a.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,30,60,.12)}
+  @media (prefers-color-scheme:dark){a.card{background:#151f30;border-color:#28374d}}
+  .card b{display:block;font-size:17px}
+  .card span{color:#5b6b80;font-size:14px}
+  .part-meta{font-size:13px;color:#5b6b80;margin:4px 0 0}
+  footer{margin-top:28px;font-size:13px;color:#5b6b80}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>JavaScript Essentials</h1>
+  <p class="sub">Parts 1–6 — study in three formats (works offline)</p>
+
+  <div id="seriesProgress" aria-live="polite">
+    <div id="seriesLabel">Series progress: loading…</div>
+    <div class="bar" aria-hidden="true"><div class="fill" id="seriesFill"></div></div>
+  </div>
+
+  <h2 style="color:#2b6cb0;margin:8px 0 6px;font-size:20px;">Part 1 — The Fundamentals</h2>
+  <p class="part-meta" data-part-progress="1">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part1_study_app.html"><b>Part 1 · Interactive Study App</b><span>Dark mode · saved progress · syntax highlighting — works offline in any browser</span></a>
+    <a class="card" href="Javascript_essentials_part1_interactive.md"><b>Part 1 · Interactive Markdown</b><span>Quizzes, flashcards &amp; hint cards — best in VS Code preview (Ctrl+Shift+V)</span></a>
+    <a class="card" href="Javascript_essentials_part1_with_examples.md"><b>Part 1 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <h2 style="color:#38a169;margin:22px 0 6px;font-size:20px;">Part 2 — Intermediate</h2>
+  <p class="part-meta" data-part-progress="2">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part2_study_app.html"><b>Part 2 · Interactive Study App</b><span>Promises, async/await, classes, modules — dark mode, progress, 5 auto-graded challenges</span></a>
+    <a class="card" href="Javascript_essentials_part2_interactive.md"><b>Part 2 · Interactive Markdown</b><span>Promise Simulator, code sandbox, quizzes &amp; flashcards — VS Code preview</span></a>
+    <a class="card" href="Javascript_essentials_part2_with_examples.md"><b>Part 2 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <h2 style="color:#6b46c1;margin:22px 0 6px;font-size:20px;">Part 3 — MERN Bridge</h2>
+  <p class="part-meta" data-part-progress="3">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part3_study_app.html"><b>Part 3 · Interactive Study App</b><span>Map/Set, generators, regex, DOM &amp; events, fetch, Node core — live demos, Focus Mode, 5 auto-graded challenges</span></a>
+    <a class="card" href="Javascript_essentials_part3_interactive.md"><b>Part 3 · Interactive Markdown</b><span>Map/Set playground, RegExp tester, live DOM &amp; fetch demos, quizzes — VS Code preview</span></a>
+    <a class="card" href="Javascript_essentials_part3_with_examples.md"><b>Part 3 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <h2 style="color:#b45309;margin:22px 0 6px;font-size:20px;">Part 4 — MERN Foundations</h2>
+  <p class="part-meta" data-part-progress="4">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part4_study_app.html"><b>Part 4 · Interactive Study App</b><span>Express + Mongoose + React + TypeScript — live mock MERN server, two mini-projects, 6 auto-graded challenges, Focus Mode</span></a>
+    <a class="card" href="Javascript_essentials_part4_interactive.md"><b>Part 4 · Interactive Markdown</b><span>Notes app + Product Store with Reviews demos, quizzes, flashcards — VS Code preview</span></a>
+    <a class="card" href="Javascript_essentials_part4_with_examples.md"><b>Part 4 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <h2 style="color:#be185d;margin:22px 0 6px;font-size:20px;">Part 5 — Production: Auth + Deployment</h2>
+  <p class="part-meta" data-part-progress="5">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part5_study_app.html"><b>Part 5 · Interactive Study App</b><span>Authentication (hashing + JWT + protected routes) &amp; deployment — live mock auth server, 5 auto-graded challenges, Focus Mode</span></a>
+    <a class="card" href="Javascript_essentials_part5_interactive.md"><b>Part 5 · Interactive Markdown</b><span>Auth flow demos, quizzes, flashcards — VS Code preview</span></a>
+    <a class="card" href="Javascript_essentials_part5_with_examples.md"><b>Part 5 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <h2 style="color:#0f766e;margin:22px 0 6px;font-size:20px;">Part 6 — Production Hardening: CI/CD, Testing &amp; Scale</h2>
+  <p class="part-meta" data-part-progress="6">Progress: —</p>
+  <div class="cards">
+    <a class="card" href="Javascript_essentials_part6_study_app.html"><b>Part 6 · Interactive Study App</b><span>Vitest/Jest, RTL, GitHub Actions CI/CD, monitoring, RBAC — mock CI runner + coverage + rate-limit panel, 5 challenges, Focus Mode</span></a>
+    <a class="card" href="Javascript_essentials_part6_interactive.md"><b>Part 6 · Interactive Markdown</b><span>CI story, quizzes, Spot-the-Bug — VS Code preview</span></a>
+    <a class="card" href="Javascript_essentials_part6_with_examples.md"><b>Part 6 · Plain Markdown</b><span>Clean reading / printing / PDF edition</span></a>
+  </div>
+
+  <p class="sub" style="margin:28px 0 8px;text-align:left">
+    <strong>Automation Tester Path</strong> —
+    <a href="../automation-tester-path/README.md">path map</a> ·
+    next: <a href="../playwright-essentials/index.html">Playwright Essentials</a> ·
+    then return for Part 6 ·
+    <a href="../api-data-essentials/index.html">API &amp; Data</a> ·
+    <a href="../perf-basics/index.html">Perf Basics</a>
+  </p>
+  <footer>Made for hands-on learning · Part 1: 16 · 2: 9 · 3: 10 · 4: 17 · 5: 16 · 6: 16 sections</footer>
+</div>
+<script>
+(function () {
+  var PARTS = [
+    { n: 1, total: 16 },
+    { n: 2, total: 9 },
+    { n: 3, total: 10 },
+    { n: 4, total: 17 },
+    { n: 5, total: 16 },
+    { n: 6, total: 16 }
+  ];
+  function countDone(part, total) {
+    var done = 0;
+    for (var i = 1; i <= total; i++) {
+      if (localStorage.getItem("p" + part + "-sec-" + i) === "1") done++;
+    }
+    return done;
+  }
+  var seriesDone = 0, seriesTotal = 0;
+  PARTS.forEach(function (p) {
+    var done = countDone(p.n, p.total);
+    seriesDone += done;
+    seriesTotal += p.total;
+    var el = document.querySelector('[data-part-progress="' + p.n + '"]');
+    if (el) {
+      var pct = Math.round((done / p.total) * 100);
+      el.textContent = "Progress: " + done + "/" + p.total + " sections (" + pct + "%)";
+    }
+  });
+  var pctAll = seriesTotal ? Math.round((seriesDone / seriesTotal) * 100) : 0;
+  var label = document.getElementById("seriesLabel");
+  var fill = document.getElementById("seriesFill");
+  if (label) label.textContent = "Series progress: " + seriesDone + "/" + seriesTotal + " sections (" + pctAll + "%)";
+  if (fill) fill.style.width = pctAll + "%";
+})();
+</script>
+</body>
+</html>

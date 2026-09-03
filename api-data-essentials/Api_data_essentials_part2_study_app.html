@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API &amp; Data Essentials — Part 2</title>
+<style>
+body{font-family:"Segoe UI",system-ui,sans-serif;max-width:920px;margin:0 auto;padding:16px 18px 60px;line-height:1.55;color:#1a202c;background:#f7f9fc}
+h1{color:#0e7490}
+h2{border-bottom:3px solid #0e7490;padding-bottom:6px;scroll-margin-top:12px}
+pre,code{font-family:Consolas,"Cascadia Code",monospace}
+pre{background:#1a202c;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto}
+.toc{background:#edf2f7;padding:10px 14px;border-radius:8px;margin:10px 0;font-size:0.92rem}
+.mock-api{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px 16px;margin:14px 0}
+.mock-api button{margin:4px 6px 4px 0;padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#0e7490;color:#fff;font-weight:600}
+.mock-api .out{background:#020617;color:#86efac;padding:10px;border-radius:6px;min-height:48px;white-space:pre-wrap;margin-top:8px;font-family:Consolas,monospace;font-size:13px}
+.challenge{background:#f5f3ff;border-left:4px solid #6b46c1;padding:12px;border-radius:8px;margin:12px 0}
+.challenge textarea{width:100%;min-height:90px;box-sizing:border-box;font-family:Consolas,monospace;padding:8px}
+
+<!-- SHARED-SHELL-CSS:START -->
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+
+<!-- SHARED-SHELL-CSS:END -->
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+<h1>API &amp; Data Essentials — Part 2</h1>
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Api_data_essentials_part1_study_app.html">1</a>
+  <strong>2 Auth</strong>
+  <a href="Api_data_essentials_part3_study_app.html">3</a>
+</div>
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme2()" aria-label="Toggle theme">🌙 Dark mode</button>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px;align-items:center;">
+  <span style="font-weight:600;">Size:</span>
+  <button onclick="fontZoom2(-1)" aria-label="Decrease text">A−</button>
+  <button onclick="fontZoom2(0)" aria-label="Reset text">A</button>
+  <button onclick="fontZoom2(1)" aria-label="Increase text">A+</button>
+  <button onclick="collapseAll2(true)">📖 Expand all</button>
+  <button onclick="collapseAll2(false)">📕 Collapse all</button>
+  <button id="focusBtn2" onclick="focusMode2(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint2" style="display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600;">🧘 Focus Mode ON — distractions hidden.</div>
+<p>Bearer/API key, negative matrix, schema smoke — with a live auth mock.</p>
+<div id="progressBar" style="background:#2d3748;border-radius:8px;padding:10px 16px;margin:10px 0;color:#e2e8f0;font-weight:600;text-align:center;">📊 Progress: 0/10 sections (0%)</div>
+<div id="boostBar" style="background:#1a202c;border:2px solid #dd6b20;border-radius:12px;padding:12px 16px;margin:12px 0;color:#e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <div>⚡ <span id="streakCount" style="color:#fbbf24;">0-day streak</span></div>
+  <div>⭐ <span id="pointCount" style="color:#fbbf24;">0 XP</span></div>
+  <button onclick="boostSurprise2()" aria-label="Surprise me">🎲 Surprise me</button>
+  <button onclick="startFocusTimer2()" aria-label="Focus sprint">🧠 Focus sprint</button>
+  <span id="focusTimer" style="font-weight:700;color:#68d391;">⏱ 25:00</span>
+</div>
+<div id="toastZone" style="position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;"></div>
+<canvas id="confettiCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;"></canvas>
+<div id="learningPathPanel" style="background:#2d3748;border:2px solid #805ad5;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#b794f4;margin-top:0;">🧭 Learning Path</h3>
+  <div id="learningPathContent" style="color:#e2e8f0;"><p>Mark sections complete for recommendations…</p></div>
+</div>
+<div id="spacedRepetitionPanel" style="background:#2d3748;border:2px solid #319795;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#4fd1c5;margin-top:0;">🃏 Spaced Repetition</h3>
+  <div id="srCard" style="background:#1a202c;border-radius:8px;padding:16px;text-align:center;">
+    <p id="srQuestion" style="color:#e2e8f0;">Click Start Review</p>
+    <p id="srAnswer" style="color:#68d391;display:none;"></p>
+    <div id="srButtons">
+      <button onclick="startSRReview2()">Start Review</button>
+      <button onclick="srToggleShuffle2()" id="srShuffleBtn">🔀 Shuffle: Off</button>
+    </div>
+    <div id="srStats" style="color:#a0aec0;font-size:12px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<div class="toc"><strong>TOC:</strong> <a href="#s1">1. Auth types</a> · <a href="#s2">2. Login → token flow</a> · <a href="#s3">3. Negative testing mindset</a> · <a href="#s4">4. Status matrix</a> · <a href="#s5">5. Contract & JSON Schema smoke</a> · <a href="#s6">6. Idempotency, retries, flaky auth</a> · <a href="#s7">7. Common pitfalls</a> · <a href="#s8">8. Practice exercises</a> · <a href="#s9">9. Challenges</a> · <a href="#s10">10. Answer key</a></div>
+
+<div class="mock-api">
+  <h3 style="margin-top:0;color:#c4b5fd;">🔐 Auth mock</h3>
+  <button type="button" onclick="authDemo2('login-ok')">Login OK</button>
+  <button type="button" onclick="authDemo2('login-bad')">Login bad</button>
+  <button type="button" onclick="authDemo2('post-noauth')">POST no auth</button>
+  <button type="button" onclick="authDemo2('post-auth')">POST with Bearer</button>
+  <button type="button" onclick="authDemo2('del-key')">DELETE with API key</button>
+  <button type="button" onclick="authDemo2('schema')">Schema smoke sample</button>
+  <div class="out" id="mockOut2" role="status">Ready.</div>
+</div>
+
+
+<section id="s1">
+<h2>1. Auth types</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Wrong auth type → endless 401s.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+<div class="quiz-box"><h3>🧪 Quick check</h3><details><summary>Bearer header form?</summary><p><span class="quiz-correct">✓ Authorization: Bearer &lt;token&gt;</span></p></details></div>
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(1)" id="btn-sec-1">Mark Complete</button>
+</section>
+
+<section id="s2">
+<h2>2. Login → token flow</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Tests need a repeatable token path.</blockquote>
+<pre><code>POST /auth/login { email, password } → { access_token }
+Authorization: Bearer &lt;token&gt;</code></pre>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(2)" id="btn-sec-2">Mark Complete</button>
+</section>
+
+<section id="s3">
+<h2>3. Negative testing mindset</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Happy paths miss security bugs.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+<div class="quiz-box"><h3>🧪 Quick check</h3><details><summary>Why negative tests?</summary><p><span class="quiz-correct">✓ Catch auth/validation/security gaps</span></p></details></div>
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(3)" id="btn-sec-3">Mark Complete</button>
+</section>
+
+<section id="s4">
+<h2>4. Status matrix</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> 401≠403≠422 for triage.</blockquote>
+<table border="1" cellpadding="6"><tr><th>Case</th><th>Status</th></tr>
+<tr><td>No auth on POST</td><td>401</td></tr><tr><td>Tester DELETE</td><td>403</td></tr>
+<tr><td>Bad body</td><td>422</td></tr><tr><td>Missing id</td><td>404</td></tr></table>
+<div class="quiz-box"><h3>🧪 Quick check</h3><details><summary>Authenticated but forbidden?</summary><p><span class="quiz-correct">✓ 403</span></p></details></div>
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(4)" id="btn-sec-4">Mark Complete</button>
+</section>
+
+<section id="s5">
+<h2>5. Contract & JSON Schema smoke</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Wrong types break clients even on 201.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(5)" id="btn-sec-5">Mark Complete</button>
+</section>
+
+<section id="s6">
+<h2>6. Idempotency, retries, flaky auth</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Blind retries create duplicates.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(6)" id="btn-sec-6">Mark Complete</button>
+</section>
+
+<section id="s7">
+<h2>7. Common pitfalls</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Auth pitfalls cause flakes and leaks.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(7)" id="btn-sec-7">Mark Complete</button>
+</section>
+
+<section id="s8">
+<h2>8. Practice exercises</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Practice the negative matrix.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(8)" id="btn-sec-8">Mark Complete</button>
+</section>
+
+<section id="s9">
+<h2>9. Challenges</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Build reusable auth helpers.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(9)" id="btn-sec-9">Mark Complete</button>
+</section>
+
+<section id="s10">
+<h2>10. Answer key</h2>
+<blockquote class="why">🚩 <strong>Why it matters:</strong> Confirm with the lab.</blockquote>
+<p>See the plain/interactive Markdown editions for full narrative and examples for this section.</p>
+
+<button class="section-complete-btn mark-btn" onclick="toggleSection2(10)" id="btn-sec-10">Mark Complete</button>
+</section>
+
+<section id="predicts">
+<h2>🤔 Predict deck</h2>
+<div class="predict"><details><summary>Bad password login?</summary><p>401</p></details><details><summary>Tester DELETE admin resource?</summary><p>403</p></details><details><summary>Empty title create?</summary><p>422</p></details></div>
+</section>
+
+<section id="spotbug">
+<h2>🐞 Spot-the-Bug</h2>
+<div class="spotbug"><details><summary>Bug 1: Expect 401 on role deny</summary><pre><code>expect(status).toBe(401) // API key delete</code></pre><p><strong>Fix:</strong> Use 403</p></details><details><summary>Bug 2: Token in query</summary><pre><code>GET /x?access_token=...</code></pre><p><strong>Fix:</strong> Use Authorization header</p></details></div>
+</section>
+
+<section id="challenges">
+<h2>Challenges (auto-graded)</h2>
+<div class="challenge" id="chal1">
+<strong>1. authHeader</strong> — authHeader(token) returns {Authorization:'Bearer '+token}.
+<textarea id="code1" aria-label="Challenge 1 code">function authHeader(token){
+  
+}</textarea>
+<button onclick="runTest2(1)">Run tests</button>
+<pre id="out1" class="out" style="background:#1a202c;color:#e2e8f0;padding:8px;border-radius:6px;"></pre>
+</div>
+<div class="challenge" id="chal2">
+<strong>2. isAuthError</strong> — True for 401 or 403.
+<textarea id="code2" aria-label="Challenge 2 code">function isAuthError(code){
+  
+}</textarea>
+<button onclick="runTest2(2)">Run tests</button>
+<pre id="out2" class="out" style="background:#1a202c;color:#e2e8f0;padding:8px;border-radius:6px;"></pre>
+</div>
+<div class="challenge" id="chal3">
+<strong>3. requiredKeys</strong> — requiredKeys(obj, keys) true if all keys present.
+<textarea id="code3" aria-label="Challenge 3 code">function requiredKeys(obj, keys){
+  
+}</textarea>
+<button onclick="runTest2(3)">Run tests</button>
+<pre id="out3" class="out" style="background:#1a202c;color:#e2e8f0;padding:8px;border-radius:6px;"></pre>
+</div>
+</section>
+
+<details class="studyplan7"><summary>📅 7-day study plan</summary><ol><li>Auth types</li><li>Login flow</li><li>Negatives</li><li>Status matrix + lab</li><li>Schema</li><li>Pitfalls</li><li>Challenges</li></ol></details>
+
+<div class="mood"><span>Mood check:</span>
+<input type="radio" name="mood2" id="mood2a"><label for="mood2a">😊 Clear</label>
+<input type="radio" name="mood2" id="mood2b"><label for="mood2b">😐 Fuzzy</label>
+<input type="radio" name="mood2" id="mood2c"><label for="mood2c">😵 Stuck</label>
+</div>
+
+<div id="certificate" class="certificate" style="display:none;">
+  <h2>🏆 Certificate</h2>
+  <p class="big">API &amp; Data Essentials — Part 2: Auth & Contracts</p>
+  <p>All 10 sections marked complete. Nice work.</p>
+</div>
+
+<script>
+<!-- SHARED-SHELL-JS:START -->
+/* Shared study-app shell JS — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-JS markers drifts. */
+(function (global) {
+  "use strict";
+
+  var FONT_CLASSES = ["font-sm", "font-md", "font-lg"];
+  var FONT_LEVELS = ["font-sm", "", "font-md", "font-lg"];
+
+  function normalizeThemeMode(value) {
+    if (value === "dark" || value === "force-dark") return "force-dark";
+    if (value === "light" || value === "force-light") return "force-light";
+    return null;
+  }
+
+  function setThemeMode(mode, btnId) {
+    var root = document.documentElement;
+    root.classList.remove("force-dark", "force-light");
+    root.classList.add(mode);
+    var btn = document.getElementById(btnId || "themeBtn");
+    if (btn) btn.textContent = mode === "force-dark" ? "☀️ Light mode" : "🌙 Dark mode";
+    return mode;
+  }
+
+  function isDark() {
+    var root = document.documentElement;
+    if (root.classList.contains("force-dark")) return true;
+    if (root.classList.contains("force-light")) return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function applyTheme(storageKey, btnId) {
+    var saved = normalizeThemeMode(localStorage.getItem(storageKey));
+    if (saved) return setThemeMode(saved, btnId);
+    return setThemeMode(isDark() ? "force-dark" : "force-light", btnId);
+  }
+
+  function toggleTheme(storageKey, btnId) {
+    var next = isDark() ? "force-light" : "force-dark";
+    setThemeMode(next, btnId);
+    localStorage.setItem(storageKey, next);
+    return next;
+  }
+
+  function clearFontClasses(html) {
+    FONT_CLASSES.forEach(function (c) {
+      html.classList.remove(c);
+    });
+  }
+
+  function fontZoom(dir, storageKey) {
+    var html = document.documentElement;
+    var cur = "";
+    FONT_CLASSES.forEach(function (c) {
+      if (html.classList.contains(c)) cur = c;
+    });
+    clearFontClasses(html);
+    if (dir !== 0) {
+      var idx = cur === "font-md" ? 2 : cur === "font-lg" ? 3 : cur === "font-sm" ? 0 : 1;
+      var nxt = Math.max(0, Math.min(3, idx + dir));
+      var addCls = FONT_LEVELS[nxt];
+      if (addCls) html.classList.add(addCls);
+      localStorage.setItem(storageKey, addCls || "normal");
+    } else {
+      localStorage.setItem(storageKey, "normal");
+    }
+  }
+
+  function applyFontZoom(storageKey) {
+    var saved = localStorage.getItem(storageKey);
+    if (saved && saved !== "normal" && FONT_CLASSES.indexOf(saved) >= 0) {
+      clearFontClasses(document.documentElement);
+      document.documentElement.classList.add(saved);
+    }
+  }
+
+  function focusMode(btn, hintId) {
+    var on = !document.body.classList.contains("focus-mode");
+    document.body.classList.toggle("focus-mode", on);
+    var hint = hintId ? document.getElementById(hintId) : null;
+    if (hint) hint.style.display = on ? "block" : "none";
+    if (btn) {
+      btn.textContent = on ? "🧘 Focus ON" : "🧘 Focus Mode";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.style.background = on ? "#319795" : "";
+    }
+    document.querySelectorAll("details").forEach(function (d) {
+      try {
+        d.open = false;
+      } catch (e) {}
+    });
+    if (on) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {}
+    }
+    return on;
+  }
+
+  function collapseDetails(expand, selector) {
+    var sel = selector || ".quiz-box details";
+    document.querySelectorAll(sel).forEach(function (d) {
+      if (expand) d.setAttribute("open", "open");
+      else d.removeAttribute("open");
+    });
+  }
+
+  function enhanceA11y() {
+    document
+      .querySelectorAll(
+        '.code-editor:not([aria-label]):not([aria-labelledby]), [contenteditable="true"]:not([aria-label]):not([aria-labelledby])'
+      )
+      .forEach(function (el, i) {
+        if (!el.getAttribute("role")) el.setAttribute("role", "textbox");
+        el.setAttribute("aria-multiline", "true");
+        el.setAttribute("aria-label", "Code editor " + (i + 1));
+      });
+    document.querySelectorAll("textarea:not([aria-label]):not([aria-labelledby])").forEach(function (el, i) {
+      if (!el.id && !el.getAttribute("name")) {
+        el.setAttribute("aria-label", "Code input " + (i + 1));
+      } else if (el.id && !document.querySelector('label[for="' + el.id + '"]')) {
+        el.setAttribute("aria-label", el.getAttribute("placeholder") || "Code input " + (i + 1));
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", enhanceA11y);
+    } else {
+      enhanceA11y();
+    }
+  }
+
+  global.StudyShell = {
+    setThemeMode: setThemeMode,
+    isDark: isDark,
+    applyTheme: applyTheme,
+    toggleTheme: toggleTheme,
+    fontZoom: fontZoom,
+    applyFontZoom: applyFontZoom,
+    focusMode: focusMode,
+    collapseDetails: collapseDetails,
+    enhanceA11y: enhanceA11y,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+
+<!-- SHARED-SHELL-JS:END -->
+</script>
+<script>
+(function(){
+  "use strict";
+  var PART = 2;
+  var TOTAL = 10;
+  var THEME_KEY = "api-p"+PART+"-theme";
+  var FONT_KEY = "api-p"+PART+"-font";
+  var BOOST_KEY = "p"+PART+"-boost";
+  var SR_KEY = "p"+PART+"-sr";
+  var SR_SHUF = "p"+PART+"-sr-shuffle";
+
+  window["toggleTheme"+PART] = function(){ StudyShell.toggleTheme(THEME_KEY); };
+  window["fontZoom"+PART] = function(d){ StudyShell.fontZoom(d, FONT_KEY); };
+  window["focusMode"+PART] = function(btn){ StudyShell.focusMode(btn, "focusHint"+PART); };
+  window["collapseAll"+PART] = function(exp){ StudyShell.collapseDetails(exp); };
+
+  function toast(msg){
+    var z = document.getElementById("toastZone");
+    var t = document.createElement("div");
+    t.setAttribute("role","status");
+    t.style.cssText="background:#276749;color:#fff;padding:8px 12px;border-radius:8px;font-weight:600;";
+    t.textContent = msg;
+    z.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 2200);
+  }
+
+  function loadBoost(){
+    try { return JSON.parse(localStorage.getItem(BOOST_KEY)||"{\"xp\":0,\"streak\":0,\"day\":\"\"}"); }
+    catch(e){ return {xp:0,streak:0,day:""}; }
+  }
+  function saveBoost(b){ localStorage.setItem(BOOST_KEY, JSON.stringify(b)); }
+  function refreshBoost(){
+    var b = loadBoost();
+    var today = new Date().toISOString().slice(0,10);
+    if (b.day && b.day !== today){ /* keep streak until earn */ }
+    document.getElementById("streakCount").textContent = (b.streak||0)+"-day streak";
+    document.getElementById("pointCount").textContent = (b.xp||0)+" XP";
+  }
+  function addXp(n){
+    var b = loadBoost();
+    var today = new Date().toISOString().slice(0,10);
+    if (b.day !== today){ b.streak = (b.day ? (b.streak||0)+1 : 1); b.day = today; }
+    b.xp = (b.xp||0)+n;
+    saveBoost(b); refreshBoost(); toast("+"+n+" XP");
+  }
+
+  window["toggleSection"+PART] = function(n){
+    var key = "p"+PART+"-sec-"+n;
+    var on = localStorage.getItem(key) === "1";
+    localStorage.setItem(key, on ? "0" : "1");
+    if (!on) addXp(5);
+    updateProgress();
+  };
+
+  function updateProgress(){
+    var done = 0;
+    for (var i=1;i<=TOTAL;i++){
+      var on = localStorage.getItem("p"+PART+"-sec-"+i)==="1";
+      if (on) done++;
+      var btn = document.getElementById("btn-sec-"+i);
+      if (btn){ btn.textContent = on ? "✓ Completed" : "Mark Complete"; btn.classList.toggle("done", on); }
+    }
+    var pct = Math.round(done/TOTAL*100);
+    document.getElementById("progressBar").textContent = "📊 Progress: "+done+"/"+TOTAL+" sections ("+pct+"%)";
+    var cert = document.getElementById("certificate");
+    if (cert) cert.style.display = done===TOTAL ? "block" : "none";
+    var lp = document.getElementById("learningPathContent");
+    if (lp){
+      if (done===0) lp.innerHTML="<p>Start with section 1 — mark complete as you go.</p>";
+      else if (done<TOTAL) lp.innerHTML="<p>Next: section "+(done+1)+". Keep the streak with a Focus sprint.</p>";
+      else lp.innerHTML="<p>🎉 Part complete — run <code>npm run lab:part"+PART+"</code> if you have not.</p>";
+    }
+  }
+
+  window["boostSurprise"+PART] = function(){
+    var n = 1+Math.floor(Math.random()*TOTAL);
+    location.hash = "s"+n;
+    addXp(1);
+  };
+
+  var timerId=null, left=25*60;
+  window["startFocusTimer"+PART] = function(){
+    if (timerId){ clearInterval(timerId); timerId=null; document.getElementById("focusTimer").textContent="⏱ 25:00"; return; }
+    left=25*60;
+    timerId=setInterval(function(){
+      left--;
+      var m=Math.floor(left/60), s=left%60;
+      document.getElementById("focusTimer").textContent="⏱ "+m+":"+String(s).padStart(2,"0");
+      if (left<=0){ clearInterval(timerId); timerId=null; addXp(20); toast("Sprint done!"); }
+    },1000);
+  };
+
+  var srCards = [{"q":"401 means?","a":"Not authenticated"},{"q":"403 means?","a":"Authenticated but forbidden"},{"q":"422 means?","a":"Validation failed"},{"q":"Where does Bearer token go?","a":"Authorization header"},{"q":"Schema smoke checks?","a":"Required keys + basic types"}];
+  var srIdx=0, srShuffle=localStorage.getItem(SR_SHUF)==="1";
+  function deck(){
+    var d=srCards.slice();
+    if (srShuffle) d.sort(function(){return Math.random()-0.5;});
+    return d;
+  }
+  var cur=deck();
+  window["startSRReview"+PART]=function(){
+    cur=deck(); srIdx=0; showSR();
+  };
+  function showSR(){
+    if (!cur.length) return;
+    var c=cur[srIdx%cur.length];
+    document.getElementById("srQuestion").textContent=c.q;
+    var ans=document.getElementById("srAnswer");
+    ans.style.display="none"; ans.textContent=c.a;
+    document.getElementById("srButtons").innerHTML=
+      '<button onclick="showSRAnswer'+PART+'()">Show answer</button>'+
+      '<button onclick="srKnow'+PART+'(true)">Got it</button>'+
+      '<button onclick="srKnow'+PART+'(false)">Again</button>'+
+      '<button onclick="srToggleShuffle'+PART+'()" id="srShuffleBtn">🔀 Shuffle: '+(srShuffle?"On":"Off")+'</button>';
+    document.getElementById("srStats").textContent="Card "+((srIdx%cur.length)+1)+"/"+cur.length;
+  }
+  window["showSRAnswer"+PART]=function(){ document.getElementById("srAnswer").style.display="block"; };
+  window["srKnow"+PART]=function(ok){ if(ok) addXp(2); srIdx++; showSR(); };
+  window["srToggleShuffle"+PART]=function(){
+    srShuffle=!srShuffle; localStorage.setItem(SR_SHUF, srShuffle?"1":"0");
+    var b=document.getElementById("srShuffleBtn"); if(b) b.textContent="🔀 Shuffle: "+(srShuffle?"On":"Off");
+  };
+
+  var TESTS = ["authHeader(\"abc\").Authorization===\"Bearer abc\"","isAuthError(401)&&isAuthError(403)&&!isAuthError(404)","requiredKeys({a:1,b:2},[\"a\",\"b\"])===true && requiredKeys({a:1},[\"a\",\"b\"])===false"];
+  window["runTest"+PART]=function(n){
+    var code=document.getElementById("code"+n).value;
+    var out=document.getElementById("out"+n);
+    try{
+      var fn=new Function(code + "\n; return (" + TESTS[n-1] + ");");
+      var result=fn();
+      if (result === true || result === "pass"){ out.textContent="✅ PASS"; addXp(15); confettiBurst(); }
+      else out.textContent="❌ "+String(result);
+    }catch(e){ out.textContent="❌ "+e.message; }
+  };
+
+  function confettiBurst(){
+    var c=document.getElementById("confettiCanvas");
+    if(!c) return;
+    c.style.display="block";
+    var ctx=c.getContext("2d");
+    c.width=innerWidth; c.height=innerHeight;
+    var bits=[];
+    for(var i=0;i<80;i++) bits.push({x:Math.random()*c.width,y:Math.random()*c.height*0.3,vy:2+Math.random()*4,vx:-2+Math.random()*4,col:"hsl("+Math.random()*360+",70%,55%)"});
+    var frames=40;
+    (function tick(){
+      ctx.clearRect(0,0,c.width,c.height);
+      bits.forEach(function(b){ b.x+=b.vx; b.y+=b.vy; ctx.fillStyle=b.col; ctx.fillRect(b.x,b.y,4,4); });
+      if(--frames>0) requestAnimationFrame(tick); else c.style.display="none";
+    })();
+  }
+
+  
+  var token2 = null;
+  window.authDemo2 = function(action){
+    var out=document.getElementById("mockOut2");
+    var status, body;
+    if(action==="login-ok"){ status=200; token2="demo-token-abc123"; body={access_token:token2,token_type:"Bearer"}; }
+    else if(action==="login-bad"){ status=401; body={error:"invalid_credentials"}; }
+    else if(action==="post-noauth"){ status=401; body={error:"unauthorized"}; }
+    else if(action==="post-auth"){ status=token2?201:401; body=token2?{id:50,title:"Auth Widget",price:2,stock:1}:{error:"unauthorized"}; }
+    else if(action==="del-key"){ status=403; body={error:"forbidden",message:"Admin only"}; }
+    else if(action==="schema"){
+      status=200;
+      var row={id:1,title:"Notebook",price:4.5,stock:20};
+      var schema={required:["id","title","price","stock"],properties:{id:{type:"integer"},title:{type:"string"},price:{type:"number"},stock:{type:"integer"}}};
+      var ok = schema.required.every(function(k){return k in row;});
+      body={row:row,schemaOk:ok};
+    }
+    out.textContent=status+" "+JSON.stringify(body,null,2);
+    addXp(1);
+  };
+  
+
+  StudyShell.applyTheme(THEME_KEY);
+  StudyShell.applyFontZoom(FONT_KEY);
+  refreshBoost();
+  updateProgress();
+})();
+</script>
+</body>
+</html>
+<!--P2H-END-->

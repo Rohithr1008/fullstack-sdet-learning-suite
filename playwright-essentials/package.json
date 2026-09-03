@@ -1,0 +1,18 @@
+{
+  "name": "playwright-essentials",
+  "private": true,
+  "description": "Playwright Essentials study kit: study apps, demo-app under test, labs, verify + CI.",
+  "scripts": {
+    "verify": "node verify-study-apps.js",
+    "inline-shell": "node scripts/inline-shell.js",
+    "inline-shell:check": "node scripts/inline-shell.js --check",
+    "demo": "npx --yes serve -l 4179 .",
+    "test": "playwright test",
+    "test:labs": "playwright test labs",
+    "test:a11y": "playwright test tests/a11y.spec.js --project=chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.7",
+    "@playwright/test": "^1.51.0"
+  }
+}

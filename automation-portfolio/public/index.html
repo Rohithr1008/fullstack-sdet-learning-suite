@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TaskBoard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="top">
+    <div class="brand">
+      <strong>TaskBoard</strong>
+      <span class="muted">portfolio demo</span>
+    </div>
+    <div id="userBar" class="user-bar" hidden>
+      <span id="userName" class="muted"></span>
+      <button type="button" id="logoutBtn" class="btn btn-ghost">Log out</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="loginView" class="panel" aria-labelledby="loginHeading">
+      <h1 id="loginHeading">Sign in</h1>
+      <p class="lede">Demo account: <code>demo</code> / <code>demo123</code></p>
+      <form id="loginForm" novalidate>
+        <label>
+          Username
+          <input id="username" name="username" autocomplete="username" required value="demo">
+        </label>
+        <label>
+          Password
+          <input id="password" name="password" type="password" autocomplete="current-password" required value="demo123">
+        </label>
+        <p id="loginError" class="error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-primary">Log in</button>
+      </form>
+    </section>
+
+    <section id="boardView" class="board" hidden aria-labelledby="boardHeading">
+      <div class="board-head">
+        <h1 id="boardHeading">Your tasks</h1>
+        <p id="statusText" class="status" aria-live="polite"></p>
+      </div>
+
+      <form id="addForm" class="add-form">
+        <label class="grow">
+          New task
+          <input id="newTitle" name="title" placeholder="e.g. Review CI report" required maxlength="120">
+        </label>
+        <button type="submit" class="btn btn-primary">Add task</button>
+      </form>
+
+      <p id="emptyState" class="empty" hidden>No tasks yet. Add one above.</p>
+      <ul id="taskList" class="task-list" aria-label="Task list"></ul>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

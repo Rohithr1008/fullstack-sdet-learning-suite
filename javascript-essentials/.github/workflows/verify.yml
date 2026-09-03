@@ -1,0 +1,33 @@
+name: Verify study apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Structural verify
+        run: node verify-study-apps.js
+
+      - name: Shared shell inlined
+        run: node scripts/inline-shell.js --check
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: A11y + keyboard/mobile E2E
+        run: npx playwright test

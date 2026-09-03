@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A11y sample — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary"><a href="index.html">Home</a></nav>
+  </header>
+  <main id="main">
+    <h1>Intentionally imperfect accessibility</h1>
+    <p>Used in Part 4 axe labs. Prefer fixing issues in your own apps.</p>
+    <!-- Missing label association on purpose -->
+    <div class="card">
+      <div>Email (not a label)</div>
+      <input type="email" data-testid="unlabeled-email">
+      <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="40" height="40">
+      <a href="#" onclick="return false;" style="color:#aaa">Low contrast link</a>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

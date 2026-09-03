@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeScript for Testers — Part 1</title>
+<style>
+:root { --accent:#3178C6; --bg:#f0f5fb; --text:#152033; --card:#fff; --muted:#5b6b80; --border:#d0dceb; }
+html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+body.font-sm { font-size:14px; } body.font-lg { font-size:18px; }
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; background:#fff; color:var(--accent); padding:8px 14px; border-radius:6px; font-weight:700; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.why { background:#ebf4ff; border-left:4px solid #3178C6; padding:6px 12px; border-radius:6px; margin:6px 0 10px; font-size:0.92rem; }
+html.force-dark .why { background:#0f1a2a; }
+.quiz-box, .panel, .mock, .certificate { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details, .flash details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+.quiz-correct { color:#276749; font-weight:700; }
+html.force-dark .quiz-correct { color:#68d391; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; align-items:center; }
+.toolbar button, .theme-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; cursor:pointer; }
+#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; }
+.mark { margin:8px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:600; cursor:pointer; }
+body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #srPanel, body.focus-mode .studyplan7 { display:none !important; }
+#focusHint { display:none; background:#eef2ff; border:2px solid #5a67d8; border-radius:8px; padding:8px 14px; margin:6px 0; color:#3730a3; font-weight:600; }
+html.force-dark #focusHint { background:#1a1a2e; color:#c7d2fe; }
+table { border-collapse:collapse; width:100%; margin:10px 0; }
+th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.mock label { display:block; margin:6px 0 2px; font-weight:600; }
+.mock input, .mock select { width:100%; max-width:320px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
+.mock .out { margin-top:10px; padding:10px; border-radius:8px; background:var(--bg); font-family:ui-monospace,Consolas,monospace; font-size:14px; white-space:pre-wrap; }
+.certificate { text-align:center; border-color:#d69e2e; background:linear-gradient(135deg,#eff6ff,#fef9c3); }
+html.force-dark .certificate { background:linear-gradient(135deg,#0f1a2a,#422006); }
+.certificate.locked { opacity:0.75; }
+.studyplan7 { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:14px 0; }
+.scope { background:#fff7ed; border:1px solid #fdba74; border-radius:10px; padding:10px 14px; margin:10px 0; font-size:0.95rem; color:#9a3412; }
+html.force-dark .scope { background:#2a1a0e; color:#fdba74; border-color:#9a3412; }
+footer { text-align:center; margin-top:28px; color:var(--muted); font-size:13px; }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>TypeScript for Testers — Part 1</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <strong>1 Basics</strong>
+  <a href="Typescript_for_testers_part2_study_app.html">2 Playwright-TS →</a>
+</div>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+
+<div class="toolbar">
+  <span style="font-weight:600;">📐 Size:</span>
+  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
+  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
+  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
+  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
+  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
+  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — extra panels hidden.</div>
+
+<p>Test-oriented TypeScript: why it helps automation, then types / interfaces / unions / optional.</p>
+<div class="scope"><strong>Scope:</strong> NOT enough for TS-only develop jobs — Phase B is TypeScript Develop + Test.</div>
+
+<div id="progressBar" role="status">📊 Progress: 0/10 sections (0%)</div>
+
+<div id="boostBar" class="panel" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <strong>⚡ <span id="streakCount">0-day streak</span></strong>
+  <strong>⭐ <span id="pointCount">0 XP</span></strong>
+  <button type="button" onclick="surpriseJump()">🎲 Surprise me</button>
+</div>
+
+<details class="studyplan7"><summary>📅 Suggested 5-day plan</summary>
+<ol>
+<li>Days 1–2: §§1–3 why + primitives + interfaces</li>
+<li>Day 3: §§4–5 unions + optional</li>
+<li>Day 4: §§6–7 aliases + pitfalls</li>
+<li>Day 5: practice + challenges → Part 2</li>
+</ol>
+</details>
+
+<div id="learningPathPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🧭 Learning Path</h3>
+  <div id="learningPathContent">Complete a section to get a next-step tip.</div>
+</div>
+
+<div id="srPanel" class="panel">
+  <h3 style="margin-top:0;color:var(--accent);">🃏 Flashcard drill</h3>
+  <p id="srQ">Click Start to begin.</p>
+  <p id="srA" style="display:none;color:#3178C6;font-weight:600;"></p>
+  <div id="srBtns"><button type="button" onclick="srStart()">Start Review</button></div>
+</div>
+
+<h2 id="s1">1. Why TypeScript in automation</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> wrong helper args fail in the IDE, not after a long CI run.</div>
+<p>TS adds static types on JS. Testers win on <strong>shared helpers, fixtures, and POM</strong> — safer refactors, earlier feedback.</p>
+<table>
+<tr><th>Without TS</th><th>With TS</th></tr>
+<tr><td>Wrong arg shape → CI fail later</td><td>Red squiggle at edit time</td></tr>
+<tr><td>Rename field, miss call sites</td><td>Every miss highlighted</td></tr>
+</table>
+<div class="quiz-box">
+<strong>🧪 Self-test</strong>
+<details><summary>Do green E2E tests prove helper types are correct?</summary><p class="quiz-correct">No.</p></details>
+<details><summary>One automation win from types?</summary><p class="quiz-correct">Safer refactors of helpers/POM; fail fast in the IDE.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="1" onclick="toggleSection(1)">Mark Complete</button></div>
+
+<h2 id="s2">2. Primitive types &amp; annotations</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> annotate helper params/returns first.</div>
+<pre><code>function isOk(status: number): boolean {
+  return status &gt;= 200 &amp;&amp; status &lt; 300;
+}</code></pre>
+<p>Use <code>unknown</code> (then narrow) instead of <code>any</code> for unparsed JSON.</p>
+<div class="quiz-box">
+<details><summary>Annotate add(a,b) for numbers?</summary><p class="quiz-correct">(a: number, b: number): number</p></details>
+<details><summary>any vs unknown for JSON?</summary><p class="quiz-correct">Prefer unknown.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="2" onclick="toggleSection(2)">Mark Complete</button></div>
+
+<h2 id="s3">3. Interfaces</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> name fixture/API shapes once.</div>
+<pre><code>interface UserFixture {
+  email: string;
+  password: string;
+  role: string;
+}</code></pre>
+<p>Interface <em>your</em> objects — don't re-type the whole DOM (Playwright already typed <code>Page</code>/<code>Locator</code>).</p>
+<div class="mock" aria-label="Interface builder mock">
+  <strong>🧪 Live mock — shape checker</strong>
+  <label for="fieldList">Fields (name:type per line)</label>
+  <textarea id="fieldList" rows="4" style="width:100%;max-width:420px;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);">email:string
+password:string
+rememberMe?:boolean</textarea>
+  <p><button type="button" onclick="buildIface()">Build interface</button></p>
+  <div class="out" id="ifaceOut">Enter fields and click Build.</div>
+</div>
+<div class="quiz-box">
+<details><summary>Re-type every DOM node?</summary><p class="quiz-correct">No.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="3" onclick="toggleSection(3)">Mark Complete</button></div>
+
+<h2 id="s4">4. Unions</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> lock small sets of allowed values.</div>
+<pre><code>type TestResult = 'pass' | 'fail' | 'skip';</code></pre>
+<div class="quiz-box">
+<details><summary>Better for env: string or 'dev'|'stage'|'prod'?</summary><p class="quiz-correct">The union.</p></details>
+<details><summary>badge('passed') with TestResult?</summary><p class="quiz-correct">Compile error — not in the union.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="4" onclick="toggleSection(4)">Mark Complete</button></div>
+
+<h2 id="s5">5. Optional properties</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> options objects are full of maybes.</div>
+<pre><code>interface ClickOptions {
+  timeout?: number;
+  force?: boolean;
+}</code></pre>
+<p><code>opts?.timeout ?? 5000</code> — optional chaining + nullish coalescing.</p>
+<div class="quiz-box">
+<details><summary>Must email?: string be provided?</summary><p class="quiz-correct">No — can omit.</p></details>
+<details><summary>?? vs || ?</summary><p class="quiz-correct">?? only null/undefined; || also treats 0 and '' as missing.</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="5" onclick="toggleSection(5)">Mark Complete</button></div>
+
+<h2 id="s6">6. Type aliases (light)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> pick one style; stay consistent.</div>
+<table>
+<tr><th>Prefer</th><th>For</th></tr>
+<tr><td><code>type</code></td><td>unions, primitive aliases</td></tr>
+<tr><td><code>interface</code></td><td>object shapes (POM options, fixtures)</td></tr>
+</table>
+<div class="quiz-box">
+<details><summary>Union of three strings — type or interface?</summary><p class="quiz-correct">type</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="6" onclick="toggleSection(6)">Mark Complete</button></div>
+
+<h2 id="s7">7. Common pitfalls</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> any-spam deletes TS value.</div>
+<ul>
+<li><code>any</code> everywhere</li>
+<li>Re-typing Playwright internals</li>
+<li><code>@ts-ignore</code> wallpaper</li>
+<li>Over-modeling tiny fixtures</li>
+<li>Thinking types replace behavior tests</li>
+</ul>
+<div class="quiz-box">
+<details><summary>Spot-the-Bug: setEnv(env: any) — fix?</summary><p class="quiz-correct">env: 'dev' | 'stage' | 'prod'</p></details>
+</div>
+<div class="mark"><button type="button" data-sec="7" onclick="toggleSection(7)">Mark Complete</button></div>
+
+<h2 id="s8">8. Practice exercises</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> annotate small helpers before a full POM.</div>
+<ol>
+<li>Annotate <code>fullName(first, last)</code>.</li>
+<li><code>CartItem</code> with optional <code>note?</code>.</li>
+<li><code>BrowserName</code> union.</li>
+<li>Warm-up: type <code>assertStatus</code> (full lab in Part 2).</li>
+</ol>
+<div class="mark"><button type="button" data-sec="8" onclick="toggleSection(8)">Mark Complete</button></div>
+
+<h2 id="s9">9. Challenges</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> prove you can shape real fixture data.</div>
+<div class="mock" aria-label="Challenge checker">
+  <strong>🧪 Auto-check — isOk</strong>
+  <p>Implement mentally: <code>function isOk(status: number): boolean</code></p>
+  <label for="chalStatus">status</label>
+  <input id="chalStatus" type="number" value="201" />
+  <p><button type="button" onclick="runIsOk()">Run</button></p>
+  <div class="out" id="chalOut">Enter a status.</div>
+</div>
+<div class="mark"><button type="button" data-sec="9" onclick="toggleSection(9)">Mark Complete</button></div>
+
+<h2 id="s10">10. Answer key</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> check without doomscrolling.</div>
+<ul>
+<li><code>fullName(first: string, last: string): string</code></li>
+<li><code>interface CartItem { sku: string; qty: number; note?: string }</code></li>
+<li><code>type BrowserName = 'chromium' | 'firefox' | 'webkit'</code></li>
+<li><code>unknown</code> forces narrowing; <code>any</code> disables checks</li>
+</ul>
+<p>Next → <a href="Typescript_for_testers_part2_study_app.html">Part 2 study app</a>.</p>
+<div class="mark"><button type="button" data-sec="10" onclick="toggleSection(10)">Mark Complete</button></div>
+
+<div id="certPanel" class="certificate locked">
+  <div id="certStatus"></div>
+  <div id="certBody" hidden>
+    <h2 style="border:none;color:#1e3a5f;">🏆 Certificate</h2>
+    <p><strong>TypeScript for Testers — Part 1 (Basics)</strong></p>
+    <p>You finished the thin basics track. Continue to Part 2 (Playwright-oriented).</p>
+  </div>
+</div>
+
+<footer>TypeScript for Testers · Part 1/2 · Phase A thin kit</footer>
+
+<script>
+(function () {
+  const TOTAL = 10;
+  const KEY = (n) => 'ts1-sec-' + n;
+  const THEME = 'ts1-theme';
+  const FONT = 'ts1-font';
+  const BOOST = 'ts1-boost';
+  const cards = [
+    { q: 'When is TS most valuable for testers?', a: 'Shared helpers, fixtures, POM — high reuse.' },
+    { q: 'any vs unknown?', a: 'Prefer unknown; then narrow before use.' },
+    { q: 'Union of three strings — type or interface?', a: 'type' },
+    { q: 'timeout?: number means?', a: 'Property may be omitted.' },
+    { q: 'Does TS replace E2E tests?', a: 'No — types catch shapes; tests catch behavior.' }
+  ];
+  let srIndex = 0, srShow = false;
+
+  function doneCount() {
+    let n = 0;
+    for (let i = 1; i <= TOTAL; i++) if (localStorage.getItem(KEY(i)) === '1') n++;
+    return n;
+  }
+
+  function updateProgress() {
+    const n = doneCount();
+    const pct = Math.round((n / TOTAL) * 100);
+    document.getElementById('progressBar').textContent = '📊 Progress: ' + n + '/' + TOTAL + ' sections (' + pct + '%)';
+    for (let i = 1; i <= TOTAL; i++) {
+      const btn = document.querySelector('button[data-sec="' + i + '"]');
+      if (btn) btn.textContent = localStorage.getItem(KEY(i)) === '1' ? '✅ Completed' : 'Mark Complete';
+    }
+    const path = document.getElementById('learningPathContent');
+    if (n === 0) path.textContent = 'Start with §1 — why TS in automation.';
+    else if (n < 4) path.textContent = 'Next: finish primitives + interfaces, then unions.';
+    else if (n < 7) path.textContent = 'Next: optional + aliases + pitfalls.';
+    else if (n < TOTAL) path.textContent = 'Next: practice + challenges, then Part 2.';
+    else path.textContent = 'Part 1 done — open Part 2 study app 🚀';
+
+    const cert = document.getElementById('certPanel');
+    const status = document.getElementById('certStatus');
+    const body = document.getElementById('certBody');
+    if (n >= TOTAL) {
+      cert.classList.remove('locked');
+      status.hidden = true;
+      body.hidden = false;
+    } else {
+      cert.classList.add('locked');
+      status.hidden = false;
+      body.hidden = true;
+      status.innerHTML = 'Complete all <strong>10 sections</strong> to unlock. (' + n + '/' + TOTAL + ')';
+    }
+  }
+
+  window.toggleSection = function (n) {
+    const on = localStorage.getItem(KEY(n)) === '1';
+    localStorage.setItem(KEY(n), on ? '0' : '1');
+    if (!on) addXp(5);
+    updateProgress();
+  };
+
+  function loadBoost() {
+    try { return JSON.parse(localStorage.getItem(BOOST) || '{}'); } catch { return {}; }
+  }
+  function saveBoost(b) { localStorage.setItem(BOOST, JSON.stringify(b)); }
+  function addXp(x) {
+    const b = loadBoost();
+    b.xp = (b.xp || 0) + x;
+    const today = new Date().toDateString();
+    if (b.last !== today) {
+      b.streak = (b.last && (Date.now() - new Date(b.last).getTime() < 172800000)) ? (b.streak || 0) + 1 : 1;
+      b.last = today;
+    }
+    saveBoost(b);
+    renderBoost();
+  }
+  function renderBoost() {
+    const b = loadBoost();
+    document.getElementById('pointCount').textContent = (b.xp || 0) + ' XP';
+    document.getElementById('streakCount').textContent = (b.streak || 0) + '-day streak';
+  }
+
+  window.fontZoom = function (dir) {
+    document.body.classList.remove('font-sm', 'font-lg');
+    let cur = localStorage.getItem(FONT) || 'md';
+    if (dir === 0) cur = 'md';
+    else if (dir < 0) cur = cur === 'lg' ? 'md' : 'sm';
+    else cur = cur === 'sm' ? 'md' : 'lg';
+    localStorage.setItem(FONT, cur);
+    if (cur === 'sm') document.body.classList.add('font-sm');
+    if (cur === 'lg') document.body.classList.add('font-lg');
+  };
+
+  window.toggleTheme = function () {
+    const html = document.documentElement;
+    const dark = html.classList.toggle('force-dark');
+    html.classList.toggle('force-light', !dark);
+    localStorage.setItem(THEME, dark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
+  };
+
+  window.focusMode = function (btn) {
+    const on = document.body.classList.toggle('focus-mode');
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    document.getElementById('focusHint').style.display = on ? 'block' : 'none';
+    if (on) collapseAll(false);
+  };
+
+  window.collapseAll = function (open) {
+    document.querySelectorAll('details').forEach((d) => { d.open = !!open; });
+  };
+
+  window.surpriseJump = function () {
+    const n = 1 + Math.floor(Math.random() * TOTAL);
+    const el = document.getElementById('s' + n);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  window.buildIface = function () {
+    const lines = document.getElementById('fieldList').value.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) {
+      document.getElementById('ifaceOut').textContent = 'Add at least one field.';
+      return;
+    }
+    let out = 'interface BuiltShape {\n';
+    lines.forEach((line) => {
+      const m = line.match(/^([A-Za-z_][\w]*)(\?)?\s*:\s*(.+)$/);
+      if (m) out += '  ' + m[1] + (m[2] || '') + ': ' + m[3] + ';\n';
+      else out += '  // skip (bad line): ' + line + '\n';
+    });
+    out += '}';
+    document.getElementById('ifaceOut').textContent = out;
+    addXp(2);
+  };
+
+  window.runIsOk = function () {
+    const status = Number(document.getElementById('chalStatus').value);
+    const ok = status >= 200 && status < 300;
+    document.getElementById('chalOut').textContent = 'isOk(' + status + ') → ' + ok + (ok ? ' ✅' : ' ❌');
+    addXp(2);
+  };
+
+  window.srStart = function () { srIndex = 0; srShow = false; renderSr(); };
+  function renderSr() {
+    const c = cards[srIndex % cards.length];
+    document.getElementById('srQ').textContent = c.q;
+    const a = document.getElementById('srA');
+    a.style.display = srShow ? 'block' : 'none';
+    a.textContent = c.a;
+    document.getElementById('srBtns').innerHTML = srShow
+      ? '<button type="button" onclick="srNext()">Next</button>'
+      : '<button type="button" onclick="srReveal()">Show answer</button>';
+  }
+  window.srReveal = function () { srShow = true; renderSr(); };
+  window.srNext = function () { srIndex++; srShow = false; renderSr(); addXp(1); };
+
+  const theme = localStorage.getItem(THEME);
+  if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('force-dark');
+    document.getElementById('themeBtn').textContent = '☀️ Light mode';
+  } else {
+    document.documentElement.classList.add('force-light');
+  }
+  fontZoom(0);
+  const savedFont = localStorage.getItem(FONT);
+  if (savedFont === 'sm') document.body.classList.add('font-sm');
+  if (savedFont === 'lg') document.body.classList.add('font-lg');
+  renderBoost();
+  updateProgress();
+})();
+</script>
+<!--P1H-END-->
+</body>
+</html>

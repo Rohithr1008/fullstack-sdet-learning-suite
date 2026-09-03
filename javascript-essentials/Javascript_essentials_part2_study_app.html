@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Essentials — Part 2</title>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>JavaScript Essentials - Part 2</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Javascript_essentials_part1_study_app.html">1 Core</a>
+  <strong>2 Async/OOP</strong>
+  <a href="Javascript_essentials_part3_study_app.html">3 MERN Bridge</a>
+  <a href="Javascript_essentials_part4_study_app.html">4 MERN Foundations</a>
+  <a href="Javascript_essentials_part5_study_app.html">5 Production →</a>
+</div>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Toggle light/dark theme" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;align-items:center;">
+  <span style="font-weight:600;margin-right:4px;">📐 Size:</span>
+  <button onclick="fontZoom(-1)" title="Decrease text size" aria-label="Decrease text size">A−</button>
+  <button onclick="fontZoom(0)" title="Reset text size" aria-label="Reset text size">A</button>
+  <button onclick="fontZoom(1)" title="Increase text size" aria-label="Increase text size">A+</button>
+  <span style="width:14px;"></span>
+  <button onclick="collapseAllQuizzes(true)" title="Expand all quiz answers" aria-label="Expand all quiz answers">📖 Expand all</button>
+  <button onclick="collapseAllQuizzes(false)" title="Collapse all quiz answers" aria-label="Collapse all quiz answers">📕 Collapse all</button>
+  <span style="width:14px;"></span>
+  <button id="focusBtn2" onclick="focusMode2(this)" title="Focus Mode hides distractions for calm, deep reading" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+
+<div id="focusHint2" style="display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600;">🧘 <strong>Focus Mode ON</strong> — extra panels are hidden and quizzes are closed so you can read one thing at a time. Click "🧘 Focus Mode" again to bring everything back.</div>
+
+<p>A quick reference covering the JavaScript <strong>intermediate</strong> concepts: promises, async/await, error handling, classes/OOP, and modules.</p>
+
+<div id="progressBar" style="background:#2d3748;border:1px solid #4a5568;border-radius:8px;padding:10px 16px;margin:10px 0;color:#e2e8f0;font-weight:600;text-align:center;">📊 Progress: 0/9 sections (0%)</div>
+
+<div id="boostBar" style="background:#1a202c;border:2px solid #dd6b20;border-radius:12px;padding:12px 16px;margin:12px 0;color:#e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <div style="font-weight:700;">⚡ <span id="streakCount" style="color:#fbbf24;">0-day streak</span></div>
+  <div style="font-weight:700;">⭐ <span id="pointCount" style="color:#fbbf24;">0 XP</span></div>
+  <div><button onclick="boostSurprise()" title="Jump to a random section to explore" aria-label="Surprise me: jump to a random section" style="padding:6px 14px;background:#dd6b20;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🎲 Surprise me</button></div>
+  <div><button onclick="startFocusTimer()" title="Start/stop a 25-minute focus sprint" aria-label="Start or stop a 25 minute focus sprint" style="padding:6px 14px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🧠 Focus sprint</button></div>
+  <div><span id="focusTimer" style="font-weight:700;color:#68d391;">⏱ 25:00</span></div>
+</div>
+
+<div id="toastZone" style="position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;"></div>
+
+<canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;"></canvas>
+
+<div id="learningPathPanel" style="background:#2d3748;border:2px solid #805ad5;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#b794f4;margin-top:0;">🧭 Learning Path Recommendations</h3>
+  <p style="color:#e2e8f0;">Based on your progress, here's what to do next:</p>
+  <div id="learningPathContent" style="color:#e2e8f0;">
+    <p>⏳ Open each section and click "Mark Complete" to get personalized recommendations...</p>
+  </div>
+</div>
+
+<div id="spacedRepetitionPanel" style="background:#2d3748;border:2px solid #319795;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#4fd1c5;margin-top:0;">🃏 Spaced Repetition Flashcards</h3>
+  <p style="color:#e2e8f0;">Review cards at optimal intervals for long-term retention.</p>
+  <div id="srCard" style="background:#1a202c;border:1px solid #4a5568;border-radius:8px;padding:16px;margin:10px 0;text-align:center;">
+    <p id="srQuestion" style="color:#e2e8f0;font-size:16px;margin:0 0 12px 0;">Click "Start Review" to begin!</p>
+    <p id="srAnswer" style="color:#68d391;font-size:14px;margin:0 0 12px 0;display:none;"></p>
+    <div id="srButtons" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="startSRReview()" style="padding:8px 16px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Start Review</button>
+      <button onclick="srToggleShuffle()" id="srShuffleBtn" style="padding:8px 16px;background:#4a5568;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔀 Shuffle: Off</button>
+    </div>
+    <div id="srStats" style="color:#a0aec0;font-size:12px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<style>
+<!-- SHARED-SHELL-CSS:START -->
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+<!-- SHARED-SHELL-CSS:END -->
+
+body { background: #f7f9fc; color: #1a202c; margin: 0 auto; max-width: 980px; padding: 16px 20px 60px 20px; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+/* Focus Mode: calm, distraction-free reading */
+body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+html { scroll-behavior: smooth; }
+h2[id], h3[id] { scroll-margin-top: 16px; }
+.theme-btn { float: right; margin: 4px 0 8px 10px; padding: 6px 14px; background: #4a5568; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+nav a { color: #2b6cb0; text-decoration: none; font-weight: 600; }
+nav a:hover { text-decoration: underline; }
+h2 { border-bottom: 3px solid #4299e1; padding-bottom: 6px; }
+.flashcard { background: #fffbeb; border: 2px solid #d69e2e; border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+.flashcard summary { cursor: pointer; font-weight: 700; color: #744210; }
+.flashcard .back { margin-top: 8px; }
+.badge { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px; margin-left: 6px; vertical-align: middle; font-weight: 700; }
+.b-green  { background: #c6f6d5; color: #22543d; }
+.b-yellow { background: #fefcbf; color: #744210; }
+.b-red    { background: #fed7d7; color: #742a2a; }
+.b-time   { background: #e2e8f0; color: #2d3748; font-weight: 600; }
+.hint { background: #fffbeb; border: 1px dashed #d69e2e; border-radius: 8px; padding: 8px 12px; margin: 10px 0; }
+.hint summary { cursor: pointer; font-weight: 700; color: #744210; }
+.mark-btn { margin: 8px 0 4px 0; padding: 5px 12px; background: #38a169; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.mark-btn.done { background: #718096; }
+.sandbox { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 14px; color: #e2e8f0; }
+.sandbox textarea { width: 100%; box-sizing: border-box; background: #0b1220; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; font-family: "Cascadia Code", Consolas, monospace; padding: 10px; }
+.sandbox .out { background: #020617; color: #86efac; border-radius: 6px; padding: 10px; margin-top: 8px; min-height: 40px; white-space: pre-wrap; font-family: "Cascadia Code", monospace; }
+.sandbox .err { color: #fca5a5; }
+.sandbox button { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; margin: 6px 6px 0 0; }
+.challenge { border: 1px solid #4a5568; border-radius: 10px; padding: 12px 16px; margin: 14px 0; background: #fafbfc; }
+.challenge textarea { width: 100%; box-sizing: border-box; background: #0b1220; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; font-family: "Cascadia Code", Consolas, monospace; padding: 10px; }
+.challenge .result { margin-top: 8px; padding: 8px 10px; border-radius: 6px; font-weight: 600; white-space: pre-wrap; }
+.pass { background: #c6f6d5; color: #22543d; }
+.fail { background: #fed7d7; color: #742a2a; }
+.totop { text-align: right; margin: 6px 0; }
+.totop a { font-size: 13px; color: #2b6cb0; text-decoration: none; }
+.footer { text-align: center; padding: 18px; margin-top: 30px; background: #2d3748; border-radius: 10px; color: #e2e8f0; }
+.toast { background: #1a202c; color: #e2e8f0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,.3); animation: pop .25s ease; font-weight: 600; max-width: 280px; }
+.toast.celebrate { border-left-color: #38a169; }
+.toast.badge { border-left-color: #805ad5; }
+@keyframes slidein { from { opacity:0; transform: translateX(20px);} to { opacity:1; transform:none;} }
+.toast { animation: slidein .3s ease; }
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  h2 { border-bottom-color: #63b3ed; }
+  .flashcard { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+  .challenge { background: #141c28; border-color: #2d3748; }
+  nav a { color: #90cdf4; }
+  pre { background: #0b1220; }
+}
+
+html { font-size: 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+/* ===== Part-1-style enhancements (parity) ===== */
+
+</style>
+
+<div class="interactive-note">💡 <strong>Interactive Study App — Part 2:</strong> clickable quizzes, live Promise Simulator, Code Sandbox, 5 auto-graded challenges, Spaced Repetition Flashcards, Learning Path, progress tracking (saved locally), and dark mode.</div>
+
+<nav>
+<h2 id="table-of-contents">📑 Table of Contents</h2>
+<p>
+🔗 <a href="#1-promises">1. Promises</a> ·
+<a href="#2-async--await">2. async / await</a> ·
+<a href="#3-error-handling">3. Error Handling</a> ·
+<a href="#4-classes--oop">4. Classes &amp; OOP</a> ·
+<a href="#5-modules">5. Modules</a> ·
+<a href="#6-common-pitfalls">6. Common Pitfalls</a> ·
+<a href="#7-practice-exercises">7. Practice Exercises</a> ·
+<a href="#8-challenges">8. Challenges</a> ·
+<a href="#predict">🤔 Predict</a> ·
+<a href="#cheat-sheet">📋 Cheat Sheet</a> ·
+<a href="#9-answer-key">9. Answer Key</a>
+</p>
+</nav>
+<div class="studyplan7"><details><summary>📅 Suggested 7-day study plan (click to open)</summary>
+<p>Study in small, spaced bites — a little every day beats a marathon. Mark sections done as you go and the progress bar + certificate track you.</p>
+<ul>
+<li><strong>Day 1:</strong> Section 1 (Promises) — read + quiz (5–10 min).</li>
+<li><strong>Day 2:</strong> Section 2 (async/await) + the Promise Simulator (do it twice).</li>
+<li><strong>Day 3:</strong> Section 3 (Error Handling) — try each catch pattern in the sandbox.</li>
+<li><strong>Day 4:</strong> Section 4 (Classes &amp; OOP) — redraw the example with paper.</li>
+<li><strong>Day 5:</strong> Section 5 (Modules) + flashcards review.</li>
+<li><strong>Day 6:</strong> Sections 6–7 (Pitfalls + practice) — do the Spot-the-Bug quiz cold.</li>
+<li><strong>Day 7:</strong> Section 8 (Challenges) — pass all 5, then claim your certificate below.</li>
+</ul>
+</details></div>
+
+<div class="mood"><span>Before you start, how do you feel?</span>
+<input type="radio" id="mood-start-1" name="mood-start"><label for="mood-start-1">🌱 brand new</label>
+<input type="radio" id="mood-start-2" name="mood-start"><label for="mood-start-2">🙂 okay</label>
+<input type="radio" id="mood-start-3" name="mood-start"><label for="mood-start-3">💪 ready</label>
+</div>
+
+<div class="tip"><strong>Golden rules:</strong> Prefer `async/await` over `.then()` mostly, but keep `Promise.all` for parallel work. Always `catch` async errors. Use `for...of` + `await` for sequential loops, `Promise.all` for parallel.</div>
+
+<hr>
+
+<h2 id="1-promises">1. Promises</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> every async I/O — fetching data, DB queries, timers — settles as a promise; mastering it unlocks the whole stack.</div>
+<button class="mark-btn" onclick="toggleSection(1)">✅ Mark Complete</button>
+
+<div class="tip">💡 A <strong>Promise</strong> is an object representing a value that will be available now, later, or never. It starts <strong>pending</strong>, then becomes <strong>fulfilled</strong> (with a value) or <strong>rejected</strong> (with a reason).</div>
+
+<h3>🧪 Live Promise Simulator</h3>
+<div class="sandbox" id="promise-box">
+  <div><strong>Promise State:</strong> <span id="ps-state">pending</span></div>
+  <button onclick="psRun(true)">✅ Resolve</button>
+  <button onclick="psRun(false)">❌ Reject</button>
+  <button onclick="psReset()">↺ Reset</button>
+  <div class="out" id="ps-out">Promise created — click a button.</div>
+</div>
+
+<h3>Simple: a promise lifecycle</h3>
+<pre><code>const fetchUser = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    const ok = true;
+    if (ok) resolve({ name: "Rohit", id: 7 });
+    else reject(new Error("User not found"));
+  }, 1000);
+});
+
+fetchUser
+  .then((user) => console.log("Loaded:", user.name)) // "Loaded: Rohit"
+  .catch((err) => console.error("Error:", err.message))
+  .finally(() => console.log("Done loading")); // always runs</code></pre>
+
+<p><strong>Chaining:</strong></p>
+<pre><code>new Promise((resolve) => resolve(4))
+  .then((x) => x * 2)          // 8
+  .then((x) => x + 1)          // 9
+  .then(console.log);          // logs 9</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Promises quiz</h3>
+<details><summary>Q1. What does a promise's state start as?</summary>
+<p><span class="quiz-wrong">❌ fulfilled</span> — it starts pending and only settles later</p>
+<p><span class="quiz-correct">✅ A) pending</span> — pending is the initial state before settle</p></details>
+<details><summary>Q2. Which method always runs whether the promise succeeded or failed?</summary>
+<p><span class="quiz-wrong">❌ .then</span> — .then only runs on fulfillment (unless you pass onRejected)</p>
+<p><span class="quiz-correct">✅ C) .finally</span> — .finally runs after settle either way</p></details>
+<details><summary>Q3. What does each `.then()` return?</summary>
+<p><span class="quiz-wrong">❌ the raw value</span> — `.then` always wraps the result in a new promise</p>
+<p><span class="quiz-correct">✅ A new promise</span> — that's why you can chain</p></details>
+<details><summary>Q4. Which combinator resolves with the first *successful* promise?</summary>
+<p><span class="quiz-wrong">❌ Promise.race</span> — race settles on the first settle (success OR failure)</p>
+<p><span class="quiz-correct">✅ C) Promise.any</span> — Promise.any waits for the first fulfillment</p></details>
+<details><summary>Q5. Which combinator settles only when every promise settles?</summary>
+<p><span class="quiz-wrong">❌ Promise.all</span> — all rejects as soon as one rejects</p>
+<p><span class="quiz-correct">✅ B) Promise.allSettled</span> — allSettled waits for every outcome</p></details>
+</div>
+
+<h3>Promise combinators</h3>
+<pre><code>// all — all must succeed; resolves with an array of values
+const [users, posts] = await Promise.all([fetchUsers(), fetchPosts()]);
+
+// allSettled — never rejects; reports every outcome
+const results = await Promise.allSettled([fetchUsers(), fetchMissing()]);
+
+// race — first to settle wins (great for timeouts)
+function withTimeout(promise, ms) {
+  const timer = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Timed out")), ms));
+  return Promise.race([promise, timer]);
+}
+
+// any — first to succeed wins (fails only if all reject)
+const firstOk = await Promise.any([cdnA(), cdnB(), cdnC()]);</code></pre>
+<p>🧠 Quick pick: <strong>all</strong> → all · <strong>every outcome</strong> → allSettled · <strong>fastest</strong> → race · <strong>first success</strong> → any</p>
+
+<hr>
+<h2 id="2-async--await">2. async / await</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> reads like plain synchronous code but stays non-blocking — the default style for all MERN I/O.</div>
+<button class="mark-btn" onclick="toggleSection(2)">✅ Mark Complete</button>
+
+<div class="tip">💡 <strong>`async function`</strong> always returns a promise. <strong>`await`</strong> pauses the function until the awaited promise settles, then unwraps its value.</div>
+
+<h3>🧪 Live Code Sandbox</h3>
+<div class="sandbox" id="p2s-sandbox">
+  <textarea id="p2s-code" rows="4">const greet = async () => "Hello from async!";
+console.log(await greet());
+console.log("done");</textarea>
+  <br>
+  <button onclick="p2sRun()">▶️ Run Code</button>
+  <button onclick="document.getElementById('p2s-code').value=''">🗑 Clear</button>
+  <div class="out" id="p2s-out">Output will appear here…</div>
+</div>
+
+<pre><code>function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+async function greet() {
+  await wait(500);
+  return "Hello after 500ms";
+}
+greet().then(console.log);      // "Hello after 500ms"</code></pre>
+
+<h3>try/catch with await</h3>
+<pre><code>async function loadProfile(id) {
+  try {
+    const user = await fetchUser(id);   // may reject
+    console.log("Profile:", user);
+    return user;
+  } catch (err) {
+    console.error("Failed to load:", err.message);
+    return null;
+  }
+}</code></pre>
+
+<h3>Sequential vs parallel</h3>
+<pre><code>// Sequential (slow):  timeA + timeB
+const a = await taskA();
+const b = await taskB();
+
+// Parallel (fast):    max(timeA, timeB)
+const [a2, b2] = await Promise.all([taskA(), taskB()]);</code></pre>
+
+<h3>`for await...of` — async iteration</h3>
+<pre><code>async function* generateNumbers() {
+  yield 1; yield 2; yield 3;
+}
+for await (const num of generateNumbers()) {
+  console.log(num); // 1, then 2, then 3
+}
+// Read a Node.js stream line-by-line:
+for await (const line of readline.createInterface(input)) {
+  console.log("Line:", line);
+}</code></pre>
+
+<h3>Real-world example: fetching with async/await</h3>
+<pre><code>async function getGitHubUser(username) {
+  const res = await fetch(`https://api.github.com/users/${username}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+getGitHubUser("rohithr1008")
+  .then((u) => console.log("Login:", u.login))
+  .catch((err) => console.error("Failed:", err.message));</code></pre>
+
+<h3>🔄 Live Event Loop Visualizer</h3>
+<p><strong>The key Promise insight:</strong> synchronous code runs first, then <strong>microtasks</strong> (promises, <code>QueueMicrotask</code>), then <strong>macrotasks</strong> (setTimeout). Step through this classic example:</p>
+<pre><code>console.log(1);
+setTimeout(() => console.log(4), 0);
+Promise.resolve().then(() => console.log(3));
+console.log(2);
+// Output: 1, 2, 3, 4  (microtask runs before macrotask!)</code></pre>
+<div class="sandbox" id="elv-box">
+  <div><strong>Step:</strong> <span id="elv-step">0/5</span> &nbsp; <strong>Now executing:</strong> <span id="elv-now">⏸ idle</span></div>
+  <div style="margin-top:8px;">
+    <span style="display:inline-block;width:110px;font-weight:700;">Microtask queue:</span>
+    <span id="elv-micro" style="color:#fbbf24;">[]</span>
+  </div>
+  <div style="margin-top:4px;">
+    <span style="display:inline-block;width:110px;font-weight:700;">Macrotask queue:</span>
+    <span id="elv-macro" style="color:#60a5fa;">[]</span>
+  </div>
+  <div style="margin-top:8px;">
+    <button onclick="elvStep(-1)">⬅ Prev</button>
+    <button onclick="elvStep(1)">Next ➡</button>
+    <button onclick="elvPlay()">▶ Play</button>
+    <button onclick="elvReset()">↺ Reset</button>
+  </div>
+  <div class="out" id="elv-out">Press Next to begin.</div>
+</div>
+
+<div class="quiz-box">
+<h3>🎯 async / await quiz</h3>
+<details><summary>Q1. What does an `async` function always return?</summary>
+<p><span class="quiz-wrong">❌ the bare value</span> — even `async () => 5` returns a Promise</p>
+<p><span class="quiz-correct">✅ B) a promise</span> — async always wraps the return in a promise</p></details>
+<details><summary>Q2. How do you run two independent async tasks at the same time?</summary>
+<p><span class="quiz-wrong">❌ await a(); await b();</span> — that runs them sequentially</p>
+<p><span class="quiz-correct">✅ B) Promise.all([...])</span> — Promise.all starts them together</p></details>
+</div>
+
+<hr>
+<h2 id="3-error-handling">3. Error Handling</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> a crash in one request shouldn't kill the server — `try/catch` and central error handlers keep your API alive.</div>
+<button class="mark-btn" onclick="toggleSection(3)">✅ Mark Complete</button>
+
+<div class="warn">⚠️ Errors are objects. `throw` raises one; `try / catch / finally` catches and recovers.</div>
+
+<table border="1" cellpadding="6" style="border-collapse:collapse;margin:10px 0;">
+<tr><th>Type</th><th>Meaning</th><th>Example</th></tr>
+<tr><td>Error</td><td>Generic</td><td>new Error("boom")</td></tr>
+<tr><td>TypeError</td><td>Wrong type used</td><td>null.name</td></tr>
+<tr><td>RangeError</td><td>Number out of range</td><td>new Array(-1)</td></tr>
+<tr><td>ReferenceError</td><td>Undeclared variable</td><td>nope()</td></tr>
+<tr><td>SyntaxError</td><td>Invalid syntax</td><td>consl.log()</td></tr>
+</table>
+
+<pre><code>try {
+  riskyOperation();
+} catch (err) {
+  console.error("Caught:", err.message);
+} finally {
+  cleanup();                  // always runs
+}</code></pre>
+
+<h3>Custom errors</h3>
+<pre><code>class ValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+function validateAge(age) {
+  if (age < 0) throw new ValidationError("Age cannot be negative");
+}
+try {
+  validateAge(-5);
+} catch (err) {
+  if (err instanceof ValidationError) console.error("Validation:", err.message);
+}</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Error Handling quiz</h3>
+<details><summary>Q1. What error type fires when you read a property of `null`?</summary>
+<p><span class="quiz-wrong">❌ ReferenceError</span> — ReferenceError is for undeclared names</p>
+<p><span class="quiz-correct">✅ B) TypeError</span> — null.x throws TypeError</p></details>
+<details><summary>Q2. What runs regardless of whether an error was thrown?</summary>
+<p><span class="quiz-wrong">❌ catch</span> — catch only runs when something was thrown</p>
+<p><span class="quiz-correct">✅ B) finally</span> — finally always runs</p></details>
+</div>
+
+<hr>
+<h2 id="4-classes--oop">4. Classes &amp; OOP</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Express controllers and Mongoose models are structured as classes/objects — this is the shape of server code.</div>
+<button class="mark-btn" onclick="toggleSection(4)">✅ Mark Complete</button>
+
+<div class="tip">💡 A <strong>class</strong> is a blueprint for creating objects. It bundles a `constructor` and methods.</div>
+
+<pre><code>class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  greet() {
+    return `Hi, I'm ${this.name}`;
+  }
+}
+const rohit = new User("Rohit", 25);
+console.log(rohit.greet()); // "Hi, I'm Rohit"</code></pre>
+
+<h3>Getters, setters &amp; static</h3>
+<pre><code>class Circle {
+  constructor(radius) { this._radius = radius; }
+  get area() { return Math.PI * this._radius ** 2; }
+  set radius(v) {
+    if (v < 0) throw new RangeError("Radius can't be negative");
+    this._radius = v;
+  }
+}
+class MathUtils {
+  static sum(...n) { return n.reduce((a, b) => a + b, 0); }
+}
+MathUtils.sum(1, 2, 3); // 6</code></pre>
+
+<h3>Private fields (`#`) &amp; inheritance</h3>
+<pre><code>class BankAccount {
+  #balance = 0;
+  deposit(amount) { this.#balance += amount; }
+  getBalance() { return this.#balance; }
+}
+class Admin extends User {
+  constructor(name, age, permissions) {
+    super(name, age);
+    this.permissions = permissions;
+  }
+  can(perm) { return this.permissions.includes(perm); }
+}</code></pre>
+
+<h3>Flashcards</h3>
+<div class="flashcard"><details><summary>What does `super()` do?</summary><p class="back">Calls the <strong>parent class constructor</strong>.</p></details></div>
+<div class="flashcard"><details><summary>What makes a field truly private?</summary><p class="back">The <strong>`#` prefix</strong> — `#balance`.</p></details></div>
+<div class="flashcard"><details><summary>How is a static method accessed?</summary><p class="back">On the <strong>class</strong>: MathUtils.sum(...).</p></details></div>
+
+<h3>Worked Example: a small class hierarchy</h3>
+<p><strong>Problem:</strong> build a `BankAccount` with private `#balance`, then a `SavingsAccount` subclass that can't go overdrawn and adds interest.</p>
+<p><strong>First attempt:</strong></p>
+<pre><code>class BankAccount {
+  // your code here — private #balance, deposit, getBalance
+}
+class SavingsAccount extends BankAccount {
+  // your code here — withdraw guard + addInterest
+}</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code>class BankAccount {
+  #balance = 0;
+  deposit(amount) { this.#balance += amount; }
+  getBalance() { return this.#balance; }
+}
+class SavingsAccount extends BankAccount {
+  constructor(rate) { super(); this.rate = rate; }
+  withdraw(amount) {
+    if (amount > this.getBalance()) throw new Error("Insufficient funds");
+    this.deposit(-amount);
+  }
+  addInterest() { this.deposit(this.getBalance() * this.rate); }
+}</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Classes quiz</h3>
+<details><summary>Q1. What word calls the parent class constructor?</summary>
+<p><span class="quiz-wrong">❌ this()</span> — there's no this() constructor call</p>
+<p><span class="quiz-correct">✅ A) super()</span> — super() invokes the parent constructor</p></details>
+<details><summary>Q2. How do you make an instance field truly private?</summary>
+<p><span class="quiz-wrong">❌ underscore _balance</span> — underscore is only a convention</p>
+<p><span class="quiz-correct">✅ B) hash #balance</span> — hash #balance is language-enforced private</p></details>
+</div>
+
+<hr>
+<h2 id="5-modules">5. Modules</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> real MERN projects split models, routes, and utilities into separate `export`/`import` files — modules make that possible.</div>
+<button class="mark-btn" onclick="toggleSection(5)">✅ Mark Complete</button>
+
+<div class="chall">📦 ES modules: `import` / `export`. Named exports use braces; default exports don't.</div>
+
+<pre><code>// math.js
+export const PI = 3.14159;
+export function square(n) { return n * n; }
+
+// main.js
+import { PI, square } from "./math.js";
+square(4); // 16
+
+// logger.js
+export default function log(msg) { console.log(msg); }
+import log from "./logger.js";</code></pre>
+
+<h3>Rename &amp; re-export &amp; dynamic import</h3>
+<pre><code>import { square as sq } from "./math.js";
+import * as math from "./math.js";
+// index.js barrel
+export { PI, square } from "./math.js";
+// dynamic
+async function loadTheme() {
+  const mod = await import("./theme.js");
+  mod.apply();
+}</code></pre>
+
+<h3>CommonJS vs ESM</h3>
+<table border="1" cellpadding="6" style="border-collapse:collapse;margin:10px 0;">
+<tr><th></th><th>CommonJS</th><th>ES modules</th></tr>
+<tr><td>Keyword</td><td>require()</td><td>import</td></tr>
+<tr><td>Loading</td><td>synchronous</td><td>async</td></tr>
+<tr><td>Strict mode</td><td>opt-in</td><td>always</td></tr>
+<tr><td>Top-level await</td><td>no</td><td>yes</td></tr>
+</table>
+
+<div class="quiz-box">
+<h3>🎯 Modules quiz</h3>
+<details><summary>Q1. Which syntax brings in a default export?</summary>
+<p><span class="quiz-wrong">❌ import { x } from</span> — braces are for named exports</p>
+<p><span class="quiz-correct">✅ A) import x from "./file.js" (no braces)</span> — default imports omit braces</p></details>
+<details><summary>Q2. Which loads a module asynchronously at runtime?</summary>
+<p><span class="quiz-wrong">❌ static import at top</span> — static import is resolved at load time</p>
+<p><span class="quiz-correct">✅ B) dynamic import()</span> — import() loads asynchronously at runtime</p></details>
+</div>
+
+<hr>
+<h2 id="6-common-pitfalls">6. Common Pitfalls</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> these are the real async bugs that silently cost hours — knowing them upfront skips the pain.</div>
+<button class="mark-btn" onclick="toggleSection(6)">✅ Mark Complete</button>
+
+<div class="warn">1. <strong>Forgetting to await or catch:</strong> an unhandled rejection can crash the process.</div>
+<div class="warn">2. <strong>Believing await pauses the whole program:</strong> it only pauses its own async function.</div>
+<div class="warn">3. <strong>Nested sequential instead of Promise.all:</strong> use `await Promise.all([a(), b()])` for parallel.</div>
+<div class="warn">4. <strong>Losing `this`:</strong> `setTimeout(this.save, 1000)` → use `() => this.save()`.</div>
+<div class="warn">5. <strong>Mutating a copied reference:</strong> `const b = a` shares the object — deep-copy with `structuredClone(a)`.</div>
+<div class="warn">6. <strong>Using `==` instead of `===`:</strong> always `===` unless you need coercion.</div>
+
+<hr>
+<h2 id="7-practice-exercises">7. Practice Exercises</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> short, low-stakes reps move knowledge from "seen it" to "can build with it."</div>
+<button class="mark-btn" onclick="toggleSection(7)">✅ Mark Complete</button>
+
+<p><strong>Filter by difficulty:</strong>
+<button class="mark-btn" onclick="filterEx('all')" id="fex-all">🟦 All</button>
+<button class="mark-btn" onclick="filterEx('b-green')" id="fex-green" style="background:#38a169;">🟢 Easy (2)</button>
+<button class="mark-btn" onclick="filterEx('b-yellow')" id="fex-yellow" style="background:#dd6b20;">🟡 Medium (6)</button>
+</p>
+
+<div id="ex-list">
+<p data-ex="b-green"><strong>Ex1</strong> <span class="badge b-green">Easy</span> Write `delay(ms)` returning a promise that resolves after `ms` ms.</p>
+<p data-ex="b-green"><strong>Ex2</strong> <span class="badge b-green">Easy</span> Chain `.then` from `Promise.resolve(" Hello ")` to trim → uppercase → log.</p>
+<p data-ex="b-yellow"><strong>Ex3</strong> <span class="badge b-yellow">Medium</span> async `addAfter(a,b)` that awaits `delay(100)` then returns `a + b`.</p>
+<p data-ex="b-yellow"><strong>Ex4</strong> <span class="badge b-yellow">Medium</span> Run `fetchA()` and `fetchB()` in parallel with `Promise.all`.</p>
+<p data-ex="b-yellow"><strong>Ex5</strong> <span class="badge b-yellow">Medium</span> Create a `ValidationError` class; throw on empty string; catch validation failures.</p>
+<p data-ex="b-yellow"><strong>Ex6</strong> <span class="badge b-yellow">Medium</span> Build `Rectangle` class with `area()` and `scale(factor)`.</p>
+<p data-ex="b-yellow"><strong>Ex7</strong> <span class="badge b-yellow">Medium</span> `Wallet` class with `#balance`, deposit, withdraw (throw if insufficient).</p>
+<p data-ex="b-green"><strong>Ex8</strong> <span class="badge b-green">Easy</span> Export `PI` and `double` as named exports; import them.</p>
+</div>
+
+<hr>
+<h2 id="8-challenges">8. Challenges (auto-graded)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> these graded tasks mirror what you'll actually code daily as a MERN developer.</div>
+<button class="mark-btn" onclick="toggleSection(8)">✅ Mark Complete</button>
+
+<p>Write each function, then click <strong>Run Tests</strong>. Instant pass/fail feedback; completion is saved.</p>
+
+<div class="challenge">
+  <strong>C1 — Promise queue</strong> <span class="badge b-red">Hard</span><br>
+  Write `inSequence(tasks)` to run an array of promise-returning functions one at a time, returning results in order.
+  <textarea id="chal1" rows="6">async function inSequence(tasks) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(1)">▶️ Run Tests</button>
+  <div class="result" id="res1"></div>
+</div>
+
+<div class="challenge">
+  <strong>C2 — Retry with backoff</strong> <span class="badge b-red">Hard</span><br>
+  Write `retry(fn, times)` that retries an async `fn` up to `times` attempts with growing delays.
+  <textarea id="chal2" rows="6">async function retry(fn, times) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(2)">▶️ Run Tests</button>
+  <div class="result" id="res2"></div>
+</div>
+
+<div class="challenge">
+  <strong>C3 — Account hierarchy</strong> <span class="badge b-red">Hard</span><br>
+  Write `Account(owner, balance)` with deposit/withdraw, and `SavingsAccount` extending it with `interestRate` + `addInterest()`.
+  <textarea id="chal3" rows="8">class Account {
+  // your code here
+}
+class SavingsAccount extends Account {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(3)">▶️ Run Tests</button>
+  <div class="result" id="res3"></div>
+</div>
+
+<div class="challenge">
+  <strong>C4 — allSettled report</strong> <span class="badge b-red">Hard</span><br>
+  Write `report(promises)` returning `{ succeeded: [...], failed: [...] }` using `Promise.allSettled`.
+  <textarea id="chal4" rows="6">async function report(promises) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(4)">▶️ Run Tests</button>
+  <div class="result" id="res4"></div>
+</div>
+
+<div class="challenge">
+  <strong>C5 — Dynamic import loader</strong> <span class="badge b-red">Hard</span><br>
+  Write `loadMod(name)` that `import()`s a module and calls its default-exported function, catching errors.
+  <textarea id="chal5" rows="6">async function loadMod(name) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(5)">▶️ Run Tests</button>
+  <div class="result" id="res5"></div>
+</div>
+
+<hr>
+<h2 id="predict">🤔 Predict the Output</h2>
+
+<div class="predict">
+<details><summary><code>await delay(10)</code> then <code>return 5</code> inside async — what's returned?</summary><p class="quiz-correct">A promise resolving to 5</p></details>
+<details><summary>What settles first in <code>Promise.race([fast, slow])</code>?</summary><p class="quiz-correct">The fastest (first to settle), here <code>fast</code></p></details>
+<details><summary>After a <code>throw</code> in <code>try</code>, what still runs?</summary><p class="quiz-correct"><code>finally</code> — always runs.</p></details>
+<details><summary><code>new Admin() instanceof User</code>?</summary><p class="quiz-correct"><code>true</code> — instanceof walks the prototype chain.</p></details>
+</div>
+
+<hr>
+<h2 id="cheat-sheet">📋 One-Page Cheat Sheet</h2>
+<button class="mark-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+
+<div class="quiz-box">
+<details><summary>1. Promise states</summary>
+<p><span class="quiz-wrong">❌ Thinking it can flip back to pending</span> — once settled, a promise never changes again</p>
+<p><span class="quiz-correct">✅ <strong>pending</strong> → <strong>fulfilled</strong> (value) | <strong>rejected</strong> (reason). Settled once, never again.</span> — pending → fulfilled | rejected, settled once</p></details>
+<details><summary>2. Combinators</summary>
+<p><span class="quiz-wrong">❌ Using race when you need every outcome</span> — race stops at the first settle</p>
+<p><span class="quiz-correct">✅ all: all succeed · allSettled: every outcome · race: first to settle · any: first to succeed</span> — all / allSettled / race / any each solve a different need</p></details>
+<details><summary>3. Error types</summary>
+<p><span class="quiz-wrong">❌ Treating every error as Error</span> — subtypes tell you what went wrong</p>
+<p><span class="quiz-correct">✅ TypeError (null.x) · RangeError (new Array(-1)) · ReferenceError (undeclared) · SyntaxError (parse)</span> — TypeError / RangeError / ReferenceError / SyntaxError</p></details>
+<details><summary>4. Classes</summary>
+<p><span class="quiz-wrong">❌ Forgetting super() in a subclass</span> — subclass constructors must call super first</p>
+<p><span class="quiz-correct">✅ class · constructor · extends/super · static · #private · get/set · instanceof</span> — class · extends/super · #private · instanceof</p></details>
+<details><summary>5. Modules</summary>
+<p><span class="quiz-wrong">❌ Using braces for a default export</span> — default exports omit braces</p>
+<p><span class="quiz-correct">✅ export/import named { x } · default no braces · re-export · dynamic import()</span> — named { x } · default no braces · dynamic import()</p></details>
+</div>
+
+<hr>
+<h2 id="9-answer-key">9. Answer Key</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> comparing your solution to the canonical one is where the real learning happens.</div>
+<button class="mark-btn" onclick="toggleSection(9)">✅ Mark Complete</button>
+
+<div class="quiz-box">
+<h3>✅ Quiz answers</h3>
+<details><summary>Reveal</summary>
+<p><span class="quiz-wrong">❌ Skipping the answer key</span> — checking answers locks in learning</p>
+<p><span class="quiz-correct">✅ Section 1: 1-A · 2-C · 3-A · 4-C (Promise.any) · 5-B (Promise.allSettled)<br>Section 2: 1-B · 2-B<br>Section 3: 1-B · 2-B<br>Section 4: 1-A · 2-B<br>Section 5: 1-A · 2-B</span> — compare your picks to the section key</p></details>
+</div>
+
+<div class="chall"><strong>C1 — Promise queue</strong><br>
+<pre><code>async function inSequence(tasks) {
+  const results = [];
+  for (const task of tasks) results.push(await task());
+  return results;
+}</code></pre>
+<strong>C2 — Retry with backoff</strong><br>
+<pre><code>async function retry(fn, times) {
+  for (let attempt = 1; attempt <= times; attempt++) {
+    try { return await fn(); }
+    catch (err) { if (attempt === times) throw err; await delay(attempt * 500); }
+  }
+}</code></pre>
+<strong>C3 — Account hierarchy</strong><br>
+<pre><code>class Account {
+  constructor(owner, balance) { this.owner = owner; this.balance = balance; }
+  deposit(a) { this.balance += a; }
+  withdraw(a) { if (a > this.balance) throw new Error("Insufficient"); this.balance -= a; }
+}
+class SavingsAccount extends Account {
+  constructor(owner, balance, rate) { super(owner, balance); this.rate = rate; }
+  addInterest() { this.balance += this.balance * this.rate; }
+}</code></pre>
+<strong>C4 — allSettled report</strong><br>
+<pre><code>async function report(promises) {
+  const results = await Promise.allSettled(promises);
+  return {
+    succeeded: results.filter(r => r.status === "fulfilled").map(r => r.value),
+    failed: results.filter(r => r.status === "rejected").map(r => r.reason)
+  };
+}</code></pre>
+<strong>C5 — Dynamic import loader</strong><br>
+<pre><code>async function loadMod(name) {
+  try { const mod = await import(name); mod.default(); }
+  catch (err) { console.error("Failed:", err.message); }
+}</code></pre>
+</div>
+
+<h2 id="spot-bug">🐞 Spot-the-Bug — final boss quiz</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> the #1 skill in async code is spotting <em>which promise never resolves</em>. Try each, then reveal.</div>
+<div class="spotbug">
+<details><summary>Q1. What's the bug?  <code>fetch(url).then(r =&gt; r.json());</code></summary><p class="quiz-correct">The result isn't returned/consumed — you must return it or attach another <code>.then()</code>. The chain ends with a dangling promise.</p></details>
+<details><summary>Q2. What's the bug?  <code>for (const x of arr) { await work(x); }</code> in a <em>non-async</em> function</summary><p class="quiz-correct"><code>await</code> is only valid inside an <code>async</code> function — this throws a SyntaxError. Wrap it in <code>async function(){...}</code>.</p></details>
+<details><summary>Q3. What's the bug?  <code>Promise.all(fetch(a), fetch(b))</code></summary><p class="quiz-correct"><code>Promise.all</code> takes an <strong>array</strong>: <code>Promise.all([fetch(a), fetch(b)])</code>.</p></details>
+<details><summary>Q4. What's the bug?  <code>new Promise((resolve) =&gt; { work(); });</code></summary><p class="quiz-correct">The promise never calls <code>resolve()</code>/<code>reject()</code> — it stays pending forever. It must resolve/reject once the work finishes.</p></details>
+<details><summary>Q5. What's the bug?  <code>catch(async () =&gt; { await x(); })</code> on a promise chain</summary><p class="quiz-correct">You usually want <code>.catch(err =&gt; ...)</code> with a handler that consumes the error. Using an async arrow that returns a promise means the catch itself can fail silently — fixed error handling should be explicit.</p></details>
+</div>
+<div class="mood"><span>How was Spot-the-Bug?</span>
+<input type="radio" id="mood-bug-1" name="mood-bug"><label for="mood-bug-1">😅 tough</label>
+<input type="radio" id="mood-bug-2" name="mood-bug"><label for="mood-bug-2">🙂 okay</label>
+<input type="radio" id="mood-bug-3" name="mood-bug"><label for="mood-bug-3">😎 nailed it</label>
+</div>
+<hr>
+
+<h2 id="predict-more">🤔 More predict-the-output cards</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> guessing the output trains the async mental model faster than reading.</div>
+<div class="predict">
+<details><summary><code>Promise.resolve(1).then(x =&gt; x + 1)</code> → ?</summary><p class="quiz-correct">2 (a fulfilled promise with 2)</p></details>
+<details><summary><code>await Promise.allSettled([Promise.resolve(1), Promise.reject(2)])</code> → ?</summary><p class="quiz-correct"><code>[{status:"fulfilled",value:1},{status:"rejected",reason:2}]</code> — allSettled never rejects</p></details>
+<details><summary><code>setTimeout(() => console.log('b'),0); console.log('a');</code> → ?</summary><p class="quiz-correct"><code>a</code> then <code>b</code> (timers are async)</p></details>
+<details><summary><code>Promise.reject('x').catch(() => 7)</code> → ?</summary><p class="quiz-correct">fulfilled with 7 (the catch's return value)</p></details>
+</div>
+<hr>
+
+<h2 id="certificate">🏆 Certificate of Completion</h2>
+<div class="certificate" id="certPanel2">
+<h2>🎓 Certificate of Completion</h2>
+<p>This certifies that <span class="big">You</span> have completed</p>
+<p class="big">JavaScript Essentials — Part 2 (Async/OOP/Modules)</p>
+<p id="certStatus2">Complete <strong>all 9 sections</strong> (✅ on each "Mark Complete" button) to unlock your certificate.</p>
+</div>
+<div class="footer">🎉 <strong>Congratulations!</strong> You've completed JavaScript Essentials — Part 2!</div>
+
+<div class="totop"><a href="#table-of-contents">⬆ Back to top</a></div>
+
+<script>
+// ===== Part 2 Study App — Script =====
+<!-- SHARED-SHELL-JS:START -->
+/* Shared study-app shell JS — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-JS markers drifts. */
+(function (global) {
+  "use strict";
+
+  var FONT_CLASSES = ["font-sm", "font-md", "font-lg"];
+  var FONT_LEVELS = ["font-sm", "", "font-md", "font-lg"];
+
+  function normalizeThemeMode(value) {
+    if (value === "dark" || value === "force-dark") return "force-dark";
+    if (value === "light" || value === "force-light") return "force-light";
+    return null;
+  }
+
+  function setThemeMode(mode, btnId) {
+    var root = document.documentElement;
+    root.classList.remove("force-dark", "force-light");
+    root.classList.add(mode);
+    var btn = document.getElementById(btnId || "themeBtn");
+    if (btn) btn.textContent = mode === "force-dark" ? "☀️ Light mode" : "🌙 Dark mode";
+    return mode;
+  }
+
+  function isDark() {
+    var root = document.documentElement;
+    if (root.classList.contains("force-dark")) return true;
+    if (root.classList.contains("force-light")) return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function applyTheme(storageKey, btnId) {
+    var saved = normalizeThemeMode(localStorage.getItem(storageKey));
+    if (saved) return setThemeMode(saved, btnId);
+    return setThemeMode(isDark() ? "force-dark" : "force-light", btnId);
+  }
+
+  function toggleTheme(storageKey, btnId) {
+    var next = isDark() ? "force-light" : "force-dark";
+    setThemeMode(next, btnId);
+    localStorage.setItem(storageKey, next);
+    return next;
+  }
+
+  function clearFontClasses(html) {
+    FONT_CLASSES.forEach(function (c) {
+      html.classList.remove(c);
+    });
+  }
+
+  function fontZoom(dir, storageKey) {
+    var html = document.documentElement;
+    var cur = "";
+    FONT_CLASSES.forEach(function (c) {
+      if (html.classList.contains(c)) cur = c;
+    });
+    clearFontClasses(html);
+    if (dir !== 0) {
+      var idx = cur === "font-md" ? 2 : cur === "font-lg" ? 3 : cur === "font-sm" ? 0 : 1;
+      var nxt = Math.max(0, Math.min(3, idx + dir));
+      var addCls = FONT_LEVELS[nxt];
+      if (addCls) html.classList.add(addCls);
+      localStorage.setItem(storageKey, addCls || "normal");
+    } else {
+      localStorage.setItem(storageKey, "normal");
+    }
+  }
+
+  function applyFontZoom(storageKey) {
+    var saved = localStorage.getItem(storageKey);
+    if (saved && saved !== "normal" && FONT_CLASSES.indexOf(saved) >= 0) {
+      clearFontClasses(document.documentElement);
+      document.documentElement.classList.add(saved);
+    }
+  }
+
+  function focusMode(btn, hintId) {
+    var on = !document.body.classList.contains("focus-mode");
+    document.body.classList.toggle("focus-mode", on);
+    var hint = hintId ? document.getElementById(hintId) : null;
+    if (hint) hint.style.display = on ? "block" : "none";
+    if (btn) {
+      btn.textContent = on ? "🧘 Focus ON" : "🧘 Focus Mode";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.style.background = on ? "#319795" : "";
+    }
+    document.querySelectorAll("details").forEach(function (d) {
+      try {
+        d.open = false;
+      } catch (e) {}
+    });
+    if (on) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {}
+    }
+    return on;
+  }
+
+  function collapseDetails(expand, selector) {
+    var sel = selector || ".quiz-box details";
+    document.querySelectorAll(sel).forEach(function (d) {
+      if (expand) d.setAttribute("open", "open");
+      else d.removeAttribute("open");
+    });
+  }
+
+  function enhanceA11y() {
+    document
+      .querySelectorAll(
+        '.code-editor:not([aria-label]):not([aria-labelledby]), [contenteditable="true"]:not([aria-label]):not([aria-labelledby])'
+      )
+      .forEach(function (el, i) {
+        if (!el.getAttribute("role")) el.setAttribute("role", "textbox");
+        el.setAttribute("aria-multiline", "true");
+        el.setAttribute("aria-label", "Code editor " + (i + 1));
+      });
+    document.querySelectorAll("textarea:not([aria-label]):not([aria-labelledby])").forEach(function (el, i) {
+      if (!el.id && !el.getAttribute("name")) {
+        el.setAttribute("aria-label", "Code input " + (i + 1));
+      } else if (el.id && !document.querySelector('label[for="' + el.id + '"]')) {
+        el.setAttribute("aria-label", el.getAttribute("placeholder") || "Code input " + (i + 1));
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", enhanceA11y);
+    } else {
+      enhanceA11y();
+    }
+  }
+
+  global.StudyShell = {
+    setThemeMode: setThemeMode,
+    isDark: isDark,
+    applyTheme: applyTheme,
+    toggleTheme: toggleTheme,
+    fontZoom: fontZoom,
+    applyFontZoom: applyFontZoom,
+    focusMode: focusMode,
+    collapseDetails: collapseDetails,
+    enhanceA11y: enhanceA11y,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+<!-- SHARED-SHELL-JS:END -->
+
+function toggleTheme() { StudyShell.toggleTheme("p2-theme"); }
+function applySysDark() { StudyShell.applyTheme("p2-theme"); }
+applySysDark();
+
+// ===== Progress =====
+function toggleSection(n) {
+  var key = "p2-sec-" + n;
+  var done = localStorage.getItem(key) === "1";
+  localStorage.setItem(key, done ? "0" : "1");
+  var btn = document.querySelector('button[onclick="toggleSection(' + n + ')"]');
+  if (btn) { btn.textContent = done ? "✅ Mark Complete" : "✅ Completed"; btn.classList.toggle("done", !done); }
+  updateProgress();
+}
+function updateProgress() {
+  var total = 9, done = 0;
+  for (var i = 1; i <= total; i++) if (localStorage.getItem("p2-sec-" + i) === "1") done++;
+  var bar = document.getElementById("progressBar");
+  if (bar) bar.textContent = "📊 Progress: " + done + "/" + total + " sections (" + Math.round((done / total) * 100) + "%)";
+  updateLearningPath(done);
+}
+function markButtons() {
+  for (var i = 1; i <= 9; i++) {
+    if (localStorage.getItem("p2-sec-" + i) === "1") {
+      var btn = document.querySelector('button[onclick="toggleSection(' + i + ')"]');
+      if (btn) { btn.textContent = "✅ Completed"; btn.classList.add("done"); }
+    }
+  }
+}
+
+// ===== Learning Path =====
+function updateLearningPath(done) {
+  var el = document.getElementById("learningPathContent");
+  if (!el) return;
+  if (done === 0) {
+    el.innerHTML = "<p>⏳ Start with <strong>Section 1 (Promises)</strong> — everything builds on it.</p>";
+    return;
+  }
+  var parts = [];
+  if (localStorage.getItem("p2-sec-1") === "1") parts.push("✅ Promises (done)");
+  if (localStorage.getItem("p2-sec-4") === "1") parts.push("✅ Classes (done)");
+  var next = "";
+  for (var i = 1; i <= 9; i++) {
+    if (localStorage.getItem("p2-sec-" + i) !== "1") { next = i; break; }
+  }
+  var names = {1:"Promises",2:"async / await",3:"Error Handling",4:"Classes & OOP",5:"Modules",6:"Pitfalls",7:"Exercises",8:"Challenges",9:"Answer Key"};
+  if (next) {
+    parts.push("⏳ Next: <strong>Section " + next + " (" + names[next] + ")</strong>");
+    if (next > 1) parts.push("🔁 Review Sections 1–" + (next - 1) + " if needed");
+  } else {
+    parts.push("🎉 All sections complete!");
+  }
+  el.innerHTML = parts.join("<br>");
+}
+
+// ===== Spaced Repetition Flashcards =====
+var srState = JSON.parse(localStorage.getItem("p2-sr") || "{}");
+var srCards = [
+  {q:"What does a promise settle to?", a:"fulfilled (value) or rejected (reason)", lvl:1},
+  {q:"What keyword calls the parent constructor?", a:"super()", lvl:1},
+  {q:"How do you run independent async tasks in parallel?", a:"Promise.all([...])", lvl:1},
+  {q:"What error does reading a property of null throw?", a:"TypeError", lvl:1},
+  {q:"What makes a class field truly private?", a:"The # prefix", lvl:1},
+  {q:"How do you import a default export?", a:"import x from './file.js' (no braces)", lvl:1},
+  {q:"What runs after both try and catch?", a:"finally", lvl:1},
+  {q:"Which import form loads a module on demand?", a:"dynamic import()", lvl:1}
+];
+var srIdx = 0;
+var srShuffle = localStorage.getItem("p2-sr-shuffle") === "1";
+function srToggleShuffle() {
+  srShuffle = !srShuffle;
+  localStorage.setItem("p2-sr-shuffle", srShuffle ? "1" : "0");
+  var btn = document.getElementById("srShuffleBtn");
+  if (btn) {
+    btn.textContent = "🔀 Shuffle: " + (srShuffle ? "On" : "Off");
+    btn.style.background = srShuffle ? "#e53e3e" : "#4a5568";
+  }
+}
+function startSRReview() {
+  var due = srCards.filter(function(c) {
+    var m = srState[c.q] || {};
+    if (!m.next) return true;
+    return Date.now() >= m.next;
+  });
+  if (srShuffle && due.length > 1) {
+    for (var i = due.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = due[i]; due[i] = due[j]; due[j] = t;
+    }
+  }
+  srIdx = due.length === 0 ? -1 : 0;
+  showSRCard();
+}
+function showSRCard() {
+  var qEl = document.getElementById("srQuestion");
+  var aEl = document.getElementById("srAnswer");
+  var btn = document.getElementById("srButtons");
+  if (!qEl) return;
+  if (srIdx === -1) {
+    qEl.textContent = "🎉 All cards reviewed! Come back later.";
+    aEl.style.display = "none";
+    btn.innerHTML = '<button onclick="startSRReview()" style="padding:8px 16px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;">Reset Review</button>';
+    renderSRStats(); return;
+  }
+  var card = srCards[srIdx];
+  qEl.textContent = "Q: " + card.q;
+  aEl.textContent = "A: " + card.a;
+  aEl.style.display = "none";
+  btn.innerHTML = '<button onclick="srFlip()" style="padding:8px 16px;background:#3182ce;color:#fff;border:none;border-radius:8px;cursor:pointer;">Show Answer</button>';
+  renderSRStats();
+}
+function srFlip() {
+  document.getElementById("srAnswer").style.display = "block";
+  document.getElementById("srButtons").innerHTML =
+    '<button onclick="srRate(true)" style="padding:8px 16px;background:#38a169;color:#fff;border:none;border-radius:8px;cursor:pointer;">👍 Got it</button>' +
+    '<button onclick="srRate(false)" style="padding:8px 16px;background:#e53e3e;color:#fff;border:none;border-radius:8px;cursor:pointer;">👎 Again</button>';
+}
+function srRate(good) {
+  var card = srCards[srIdx];
+  var m = srState[card.q] || {lvl:0, next:0};
+  if (good) { m.lvl = Math.min(4, (m.lvl || 0) + 1); }
+  else { m.lvl = Math.max(1, (m.lvl || 0) - 1); }
+  var days = [0, 1, 3, 7, 14];
+  m.next = Date.now() + days[m.lvl] * 86400000;
+  srState[card.q] = m;
+  localStorage.setItem("p2-sr", JSON.stringify(srState));
+  srIdx++;
+  if (srIdx >= srCards.length) srIdx = -1;
+  showSRCard();
+}
+function renderSRStats() {
+  var stats = document.getElementById("srStats");
+  if (!stats) return;
+  var newC = 0, learn = 0, mas = 0;
+  srCards.forEach(function(c) {
+    var l = (srState[c.q] || {}).lvl || 0;
+    if (l === 0) newC++; else if (l < 3) learn++; else mas++;
+  });
+  stats.textContent = "🆕 New: " + newC + " · 📖 Learning: " + learn + " · 🏆 Mastered: " + mas;
+}
+
+// ===== Promise Simulator =====
+function psRun(ok) {
+  document.getElementById("ps-state").textContent = "pending → " + (ok ? "fulfilled" : "rejected");
+  document.getElementById("ps-out").textContent = ok ? "✅ .then ran → value: 42" : "❌ .catch ran → reason: Error('boom')";
+}
+function psReset() {
+  document.getElementById("ps-state").textContent = "pending";
+  document.getElementById("ps-out").textContent = "Promise created — click a button.";
+}
+
+// ===== Code Sandbox =====
+function p2sRun() {
+  var code = document.getElementById("p2s-code").value;
+  var out = document.getElementById("p2s-out");
+  out.className = "out";
+  var logs = [], orig = console.log;
+  console.log = function () { logs.push(Array.prototype.slice.call(arguments).join(" ")); };
+  var run = new Function("console", "(async()=>{ " + code + " })()");
+  Promise.resolve(run(console)).then(function () {
+    console.log = orig;
+    out.textContent = logs.join("\n") || "(no output)";
+  }).catch(function (e) {
+    console.log = orig;
+    out.className = "out err";
+    out.textContent = "Error: " + e.message;
+  });
+}
+document.addEventListener("keydown", function (e) { if (e.ctrlKey && e.key === "Enter") p2sRun(); });
+
+// ===== Auto-Graded Challenges =====
+function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+var P2_TESTS = {
+  1: 'check("runs in order", JSON.stringify(await inSequence([async()=>1,async()=>2,async()=>3])) === JSON.stringify([1,2,3]));\n' +
+     'check("empty tasks => []", JSON.stringify(await inSequence([])) === "[]");\n' +
+     'check("returns values, not promises", (await inSequence([async()=>7]))[0] === 7);',
+  2: 'var calls = 0;\n' +
+     'async function flaky(){ calls++; if(calls<3) throw new Error("try"); return "ok"; }\n' +
+     'var v = await retry(flaky, 4);\n' +
+     'check("succeeds after retries", v === "ok");\n' +
+     'check("called 3 times", calls === 3);',
+  3: 'var s = new SavingsAccount("Rohit", 100, 0.1);\n' +
+     's.addInterest();\n' +
+     'check("interest applied", s.balance === 110);\n' +
+     's.withdraw(50);\n' +
+     'check("withdraw works", s.balance === 60);\n' +
+     'var threw = false; try { s.withdraw(1000); } catch(e){ threw = true; }\n' +
+     'check("cannot overdraw", threw);',
+  4: 'var r = await report([Promise.resolve(1), Promise.reject(new Error("e")), Promise.resolve(3)]);\n' +
+     'check("succeeded count", r.succeeded.length === 2);\n' +
+     'check("failed count", r.failed.length === 1);\n' +
+     'check("succeeded values", JSON.stringify(r.succeeded) === "[1,3]");',
+  5: 'var ok = true;\n' +
+     'try { await loadMod("definitely-missing-module-xyz"); } catch(e){ ok = false; }\n' +
+     'check("does not throw on bad path", ok);'
+};
+
+function runTest(n) {
+  var code = document.getElementById("chal" + n).value;
+  var res = document.getElementById("res" + n);
+  res.className = "result";
+  var harness = "return (async () => {\n" +
+    "  var passed=[], failed=[];\n" +
+    "  function check(name, cond){ (cond?passed:failed).push(name); }\n" +
+    code + "\n" +
+    (P2_TESTS[n] || "") + "\n" +
+    "  return {passed:passed, failed:failed};\n" +
+    "})();";
+  var fn;
+  try { fn = new Function("delay", harness); }
+  catch (e) { res.className = "result fail"; res.textContent = "Syntax Error: " + e.message; return; }
+  Promise.resolve(fn(delay)).then(function (r) {
+    res.className = r.failed.length ? "result fail" : "result pass";
+    var lines = r.passed.map(function (t) { return "✅ " + t; })
+      .concat(r.failed.map(function (t) { return "❌ " + t; }));
+    if (r.passed.length && !r.failed.length) {
+      lines.push("🎉 All tests passed!");
+      addXP(30);
+      toast("🏅 Challenge complete! +30 XP", "badge");
+      celebrate();
+    }
+    res.textContent = lines.join("\n") || "(no tests ran)";
+  }).catch(function (e) {
+    res.className = "result fail";
+    res.textContent = "Error: " + e.message;
+  });
+}
+
+// ===== Difficulty Filter =====
+function filterEx(diff) {
+  var items = document.querySelectorAll("#ex-list p[data-ex]");
+  items.forEach(function (p) {
+    p.style.display = (diff === "all" || p.getAttribute("data-ex") === diff) ? "" : "none";
+  });
+}
+
+// ===== Copy-Code Buttons =====
+function addCopyButtons() {
+  var blocks = document.querySelectorAll("pre code");
+  blocks.forEach(function (code, i) {
+    if (code.parentNode.querySelector("button.copy-btn")) return;
+    var btn = document.createElement("button");
+    btn.className = "mark-btn copy-btn";
+    btn.textContent = "📋 Copy";
+    btn.style.float = "right";
+    btn.style.margin = "0 0 4px 4px";
+    btn.onclick = function () {
+      navigator.clipboard.writeText(code.textContent).then(function () {
+        btn.textContent = "✅ Copied!";
+        setTimeout(function () { btn.textContent = "📋 Copy"; }, 1500);
+      });
+    };
+    code.parentNode.insertBefore(btn, code);
+  });
+}
+
+// ===== Quiz Persistence =====
+function persistQuizzes() {
+  var key = "p2-open-quizes";
+  var want = localStorage.getItem(key);
+  if (!want) return;
+  var openSet = {};
+  try { openSet = JSON.parse(want); } catch (e) {}
+  for (var id in openSet) {
+    var el = document.getElementById(id);
+    if (el && openSet[id]) el.setAttribute("open", "open");
+  }
+}
+function bindQuizPersistence() {
+  document.querySelectorAll(".quiz-box details").forEach(function (d) {
+    if (!d.id) d.id = "quizd-" + Math.random().toString(36).slice(2, 8);
+  });
+  document.querySelectorAll(".quiz-box details").forEach(function (d) {
+    d.addEventListener("toggle", function () {
+      var key = "p2-open-quizes";
+      var set = {};
+      try { set = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) {}
+      set[d.id] = d.open;
+      localStorage.setItem(key, JSON.stringify(set));
+    });
+  });
+}
+function applySrShuffleUI() {
+  var btn = document.getElementById("srShuffleBtn");
+  if (btn) {
+    btn.textContent = "🔀 Shuffle: " + (srShuffle ? "On" : "Off");
+    btn.style.background = srShuffle ? "#e53e3e" : "#4a5568";
+  }
+}
+
+// ===== Event Loop Visualizer =====
+var elvSteps = [
+  {now:"Line 1: console.log(1)", micro:"[]", macro:"[]", out:"Output so far: 1"},
+  {now:"Line 2: setTimeout(cb, 0)", micro:"[]", macro:"[setTimeout cb]", out:"Output so far: 1"},
+  {now:"Line 3: Promise.resolve().then(cb)", micro:"[then cb]", macro:"[setTimeout cb]", out:"Output so far: 1"},
+  {now:"Line 4: console.log(2)", micro:"[then cb]", macro:"[setTimeout cb]", out:"Output so far: 1, 2"},
+  {now:"Microtask queue drains (before macrotask!)", micro:"[]", macro:"[setTimeout cb]", out:"Output so far: 1, 2, 3"},
+  {now:"Macrotask queue drains", micro:"[]", macro:"[]", out:"Output so far: 1, 2, 3, 4"}
+];
+var elvIdx = 0;
+function elvRender() {
+  var s = elvSteps[elvIdx];
+  document.getElementById("elv-step").textContent = elvIdx + "/" + (elvSteps.length - 1);
+  document.getElementById("elv-now").textContent = s.now;
+  document.getElementById("elv-micro").textContent = s.micro;
+  document.getElementById("elv-macro").textContent = s.macro;
+  document.getElementById("elv-out").textContent = s.out;
+}
+function elvStep(dir) {
+  elvIdx = Math.max(0, Math.min(elvSteps.length - 1, elvIdx + dir));
+  elvRender();
+}
+function elvReset() {
+  elvIdx = 0;
+  elvRender();
+}
+var elvTimer = null;
+function elvPlay() {
+  if (elvTimer) { clearInterval(elvTimer); elvTimer = null; return; }
+  elvTimer = setInterval(function () {
+    if (elvIdx >= elvSteps.length - 1) { clearInterval(elvTimer); elvTimer = null; elvIdx = 0; return; }
+    elvIdx++;
+    elvRender();
+  }, 1200);
+}
+
+// ===== ADHD Engagement Engine =====
+var boostSaved = JSON.parse(localStorage.getItem("p2-boost") || "{\"xp\":0,\"streakDate\":\"\",\"streak\":0}");
+var boostX = boostSaved.xp || 0, boostStreak = boostSaved.streak || 0, boostDate = boostSaved.streakDate || "";
+var encouragements = [
+  "You've got this! 🎯", "One more and you're golden ✨", "Tiny steps count! 🐾",
+  "Future-you says thanks 🙌", "Progress > perfection 💪", "Look at you go! 🚀"
+];
+function trackStreak() {
+  var today = new Date().toISOString().slice(0, 10);
+  if (boostDate === today) return;
+  var y = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  boostStreak = (boostDate === y) ? boostStreak + 1 : 1;
+  boostDate = today;
+  saveBoost();
+  if (boostStreak >= 3) toast("🔥 " + boostStreak + "-day streak! Keep showing up.", "badge");
+}
+function saveBoost() {
+  localStorage.setItem("p2-boost", JSON.stringify({ xp: boostX, streak: boostStreak, streakDate: boostDate }));
+  var s = document.getElementById("streakCount"), p = document.getElementById("pointCount");
+  if (s) s.textContent = boostStreak + "-day streak";
+  if (p) p.textContent = boostX + " XP";
+}
+function addXP(amount) {
+  boostX += amount;
+  saveBoost();
+}
+function toast(msg, cls) {
+  var zone = document.getElementById("toastZone");
+  if (!zone) return;
+  var t = document.createElement("div");
+  t.className = "toast" + (cls ? " " + cls : "");
+  t.textContent = msg;
+  zone.appendChild(t);
+  setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 4000);
+}
+function celebrate() {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var c = document.getElementById("confettiCanvas");
+  if (!c) return;
+  c.style.display = "block";
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  var ctx = c.getContext("2d");
+  var colors = ["#fbbf24", "#38a169", "#4299e1", "#e53e3e", "#805ad5", "#dd6b20"];
+  var parts = [];
+  for (var i = 0; i < 120; i++) {
+    parts.push({ x: Math.random() * c.width, y: -20 - Math.random() * c.height, vx: (Math.random() - .5) * 4, vy: 2 + Math.random() * 4, r: 3 + Math.random() * 4, col: colors[Math.floor(Math.random() * colors.length)], rot: Math.random() * Math.PI });
+  }
+  var frames = 0;
+  (function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    parts.forEach(function (p) {
+      p.x += p.vx; p.y += p.vy; p.rot += .05;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.col; ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r);
+      ctx.restore();
+    });
+    frames++;
+    if (frames < 120) requestAnimationFrame(draw);
+    else { ctx.clearRect(0, 0, c.width, c.height); c.style.display = "none"; }
+  })();
+}
+function boostSurprise() {
+  var names = {1:"Section 1 (Promises)",2:"Section 2 (async/await)",3:"Section 3 (Error Handling)",4:"Section 4 (Classes)",5:"Section 5 (Modules)",9:"Answer Key"};
+  var done = {}, all = [];
+  for (var i = 1; i <= 9; i++) {
+    done[i] = localStorage.getItem("p2-sec-" + i) === "1";
+    all.push(i);
+  }
+  var undone = all.filter(function (n) { return !done[n]; });
+  var pick = undone.length ? undone[Math.floor(Math.random() * undone.length)] : all[Math.floor(Math.random() * all.length)];
+  var place = names[pick] || "Section " + pick;
+  toast("🎲 Surprise! Let's explore " + place, "badge");
+  var h = document.querySelector('h2[id="' + (pick === 1 ? "1-promises" : pick === 2 ? "2-async--await" : pick === 3 ? "3-error-handling" : pick === 4 ? "4-classes--oop" : pick === 5 ? "5-modules" : "9-answer-key") + '"]');
+  if (h) h.scrollIntoView({ behavior: "smooth" });
+}
+// Focus timer
+var focusLen = 25 * 60, focusLeft = focusLen, focusTimer = null, focusRunning = false;
+function startFocusTimer() {
+  if (focusRunning) { clearInterval(focusTimer); focusRunning = false; document.getElementById("focusTimer").textContent = "⏱ 25:00"; focusLeft = focusLen; toast("🧠 Sprint done — great job! Take a break. ☕", "celebrate"); return; }
+  focusRunning = true;
+  focusTimer = setInterval(function () {
+    focusLeft--;
+    document.getElementById("focusTimer").textContent = "⏱ " + Math.floor(focusLeft / 60) + ":" + String(focusLeft % 60).padStart(2, "0");
+    if (focusLeft <= 0) {
+      clearInterval(focusTimer); focusRunning = false; focusLeft = focusLen;
+      document.getElementById("focusTimer").textContent = "⏱ 25:00";
+      celebrate(); toast("🎉 Focus sprint complete! You earned 10 XP.", "celebrate"); addXP(10); trackStreak();
+    }
+  }, 1000);
+}
+
+// Wire rewards into section completion
+var _origToggle = toggleSection;
+function toggleSection(n) {
+  var key = "p2-sec-" + n;
+  var wasdone = localStorage.getItem(key) === "1";
+  _origToggle(n);
+  var nowdone = localStorage.getItem(key) === "1";
+  if (nowdone && !wasdone) {
+    addXP(20); trackStreak();
+    toast(encouragements[Math.floor(Math.random() * encouragements.length)], "celebrate");
+    celebrate();
+    var names = {1:"Promises",2:"async / await",3:"Error Handling",4:"Classes & OOP",5:"Modules",6:"Pitfalls",7:"Exercises",8:"Challenges",9:"Answer Key"};
+    toast("🏅 Section complete: " + names[n] + " (+20 XP)", "badge");
+  }
+}
+
+function fontZoom(dir) { StudyShell.fontZoom(dir, "p2-font"); }
+function applyFontZoom() { StudyShell.applyFontZoom("p2-font"); }
+function focusMode2(btn) { StudyShell.focusMode(btn, "focusHint2"); }
+function collapseAllQuizzes(expand) { StudyShell.collapseDetails(expand, ".quiz-box details"); }
+
+// ===== Certificate + scrollspy =====
+function updateCertificate2() {
+  var total = 9, done = 0;
+  for (var i = 1; i <= total; i++) if (localStorage.getItem("p2-sec-" + i) === "1") done++;
+  var panel = document.getElementById("certPanel2"), status = document.getElementById("certStatus2");
+  if (!panel) return;
+  if (done === total) {
+    panel.style.background = "linear-gradient(135deg,#c6f6d5,#68d391)";
+    panel.style.borderColor = "#38a169";
+    if (status) status.innerHTML = "🎉 <strong>Certificate earned!</strong> All 9 sections completed. Well done!";
+  } else {
+    panel.style.background = "";
+    panel.style.borderColor = "#d69e2e";
+    if (status) status.textContent = "Complete " + (total - done) + " more section(s) to unlock. (" + done + "/" + total + ")";
+  }
+}
+// Lightweight scrollspy: highlight the TOC link of the section currently in view
+function scrollspy2() {
+  var links = document.querySelectorAll("nav a[href^='#']");
+  var ids = Array.prototype.map.call(links, function(a){ return a.getAttribute("href").slice(1); });
+  var find = "";
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el && el.getBoundingClientRect && el.getBoundingClientRect().top <= 90) find = ids[i];
+  }
+  Array.prototype.forEach.call(links, function(a){
+    var href = a.getAttribute("href").slice(1);
+    a.style.fontWeight = (href === find) ? "700" : "";
+    a.style.color = (href === find) ? "#2b6cb0" : "";
+  });
+}
+if (window.addEventListener) window.addEventListener("scroll", function(){ try{ scrollspy2(); }catch(e){} }, { passive:true });
+
+// ===== Init =====
+markButtons();
+updateProgress();
+renderSRStats();
+applySrShuffleUI();
+addCopyButtons();
+bindQuizPersistence();
+persistQuizzes();
+updateCertificate2();
+saveBoost();
+applyFontZoom();
+</script>
+</body>
+</html>
+
+<!--P2H-END-->

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Products — ShopLite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html" aria-current="page">Products</a>
+      <a href="cart.html">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+  <main id="main">
+    <h1>Products</h1>
+    <p>Browse items. Add to cart uses client-side storage for labs.</p>
+    <div class="grid" id="productGrid"></div>
+  </main>
+  <script src="app.js"></script>
+  <script>
+    (function () {
+      var grid = document.getElementById("productGrid");
+      ShopLite.PRODUCTS.forEach(function (p) {
+        var art = document.createElement("article");
+        art.className = "card";
+        art.setAttribute("data-testid", "product-" + p.id);
+        art.innerHTML =
+          "<h2>" + p.name + "</h2>" +
+          "<p>" + p.desc + "</p>" +
+          "<p><strong>$" + p.price + "</strong></p>" +
+          '<button type="button" class="btn" data-testid="add-' + p.id + '" aria-label="Add ' + p.name + ' to cart">Add to cart</button>';
+        art.querySelector("button").addEventListener("click", function () {
+          ShopLite.addToCart(p.id);
+          var note = document.createElement("p");
+          note.className = "ok";
+          note.setAttribute("role", "status");
+          note.textContent = p.name + " added.";
+          art.appendChild(note);
+          setTimeout(function () { note.remove(); }, 1200);
+        });
+        grid.appendChild(art);
+      });
+    })();
+  </script>
+</body>
+</html>

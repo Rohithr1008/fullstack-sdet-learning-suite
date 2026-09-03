@@ -1,0 +1,10 @@
+# Dev / repair artifacts (not needed at runtime — fixes are baked into the study app)
+apply_fixes.mjs
+Javascript_essentials_part1_study_app_backup_before_fixes.html
+
+# Playwright / Node
+/node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

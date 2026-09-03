@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShopLite — Playwright Essentials demo app</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="index.html">ShopLite</a>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart <span id="cartBadge" class="badge" data-testid="cart-count">0</span></a>
+      <a href="login.html">Login</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="account.html">Account</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <h1>Welcome to ShopLite</h1>
+      <p>A tiny storefront for Playwright Essentials labs — forms, auth, cart, and mocked checkout.</p>
+      <div class="cta">
+        <a class="btn" href="products.html" data-testid="shop-now">Shop now</a>
+        <a class="btn ghost" href="login.html">Sign in</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="feat-h">
+      <h2 id="feat-h">Why this demo exists</h2>
+      <ul>
+        <li>Accessible roles and labels for <code>getByRole</code> practice</li>
+        <li>Login that writes <code>localStorage</code> for storageState labs</li>
+        <li>Cart + checkout with a fake API endpoint for network mocking</li>
+        <li>Dialogs, downloads, and a frame page for advanced actions</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Quick links</h2>
+      <p>
+        <a href="dialog.html">Dialogs</a> ·
+        <a href="download.html">Downloads</a> ·
+        <a href="frame.html">IFrame</a> ·
+        <a href="a11y-bad.html">A11y sample (intentionally imperfect)</a>
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Playwright Essentials companion fixture — not a real shop.</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

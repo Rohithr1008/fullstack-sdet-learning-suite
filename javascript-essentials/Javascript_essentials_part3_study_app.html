@@ -1,0 +1,1141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript Essentials — Part 3</title>
+</head>
+<body>
+<a class="skip-link" href="#progressBar">Skip to content</a>
+
+<h1>JavaScript Essentials - Part 3</h1>
+
+<div class="partnav" aria-label="Part navigation">
+  <a href="index.html">Hub</a>
+  <a href="Javascript_essentials_part1_study_app.html">1 Core</a>
+  <a href="Javascript_essentials_part2_study_app.html">2 Async/OOP</a>
+  <strong>3 MERN Bridge</strong>
+  <a href="Javascript_essentials_part4_study_app.html">4 MERN Foundations</a>
+  <a href="Javascript_essentials_part5_study_app.html">5 Production →</a>
+</div>
+
+<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" title="Toggle light/dark theme" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px 0;align-items:center;">
+  <span style="font-weight:600;margin-right:4px;">📐 Size:</span>
+  <button onclick="fontZoom3(-1)" title="Decrease text size" aria-label="Decrease text size">A−</button>
+  <button onclick="fontZoom3(0)" title="Reset text size" aria-label="Reset text size">A</button>
+  <button onclick="fontZoom3(1)" title="Increase text size" aria-label="Increase text size">A+</button>
+  <span style="width:14px;"></span>
+  <button onclick="collapseAll3(true)" title="Expand all quiz answers" aria-label="Expand all quiz answers">📖 Expand all</button>
+  <button onclick="collapseAll3(false)" title="Collapse all quiz answers" aria-label="Collapse all quiz answers">📕 Collapse all</button>
+  <span style="width:14px;"></span>
+  <button id="focusBtn3" onclick="focusMode3(this)" title="Focus Mode hides distractions for calm, deep reading" aria-pressed="false">🧘 Focus Mode</button>
+</div>
+
+<div id="focusHint" style="display:none;background:#eef2ff;border:2px solid #5a67d8;border-radius:8px;padding:8px 14px;margin:6px 0;color:#3730a3;font-weight:600;">🧘 <strong>Focus Mode ON</strong> — extra panels are hidden and quizzes are closed so you can read one thing at a time. Click "🧘 Focus Mode" again to bring everything back.</div>
+
+<p>A quick reference covering the JavaScript for <strong>full-stack (MERN)</strong> development: Map/Set, generators, regex, DOM & events, fetch, and Node core.</p>
+
+<div id="progressBar" style="background:#2d3748;border:1px solid #4a5568;border-radius:8px;padding:10px 16px;margin:10px 0;color:#e2e8f0;font-weight:600;text-align:center;">📊 Progress: 0/10 sections (0%)</div>
+
+<div id="boostBar" style="background:#1a202c;border:2px solid #dd6b20;border-radius:12px;padding:12px 16px;margin:12px 0;color:#e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+  <div style="font-weight:700;">⚡ <span id="streakCount" style="color:#fbbf24;">0-day streak</span></div>
+  <div style="font-weight:700;">⭐ <span id="pointCount" style="color:#fbbf24;">0 XP</span></div>
+  <div><button onclick="boostSurprise3()" title="Jump to a random section" aria-label="Surprise me" style="padding:6px 14px;background:#dd6b20;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🎲 Surprise me</button></div>
+  <div><button onclick="startFocusTimer3()" title="Start/stop a 25-minute focus sprint" aria-label="Focus sprint" style="padding:6px 14px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🧠 Focus sprint</button></div>
+  <div><span id="focusTimer" style="font-weight:700;color:#68d391;">⏱ 25:00</span></div>
+</div>
+
+<div id="toastZone" style="position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;"></div>
+<canvas id="confettiCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;display:none;"></canvas>
+
+<div id="learningPathPanel" style="background:#2d3748;border:2px solid #805ad5;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#b794f4;margin-top:0;">🧭 Learning Path Recommendations</h3>
+  <div id="learningPathContent" style="color:#e2e8f0;"><p>⏳ Complete sections to get personalized recommendations…</p></div>
+</div>
+
+<div id="spacedRepetitionPanel" style="background:#2d3748;border:2px solid #319795;border-radius:12px;padding:16px 20px;margin:16px 0;">
+  <h3 style="color:#4fd1c5;margin-top:0;">🃏 Spaced Repetition Flashcards</h3>
+  <div id="srCard" style="background:#1a202c;border:1px solid #4a5568;border-radius:8px;padding:16px;margin:10px 0;text-align:center;">
+    <p id="srQuestion" style="color:#e2e8f0;font-size:16px;margin:0 0 12px 0;">Click "Start Review" to begin!</p>
+    <p id="srAnswer" style="color:#68d391;font-size:14px;margin:0 0 12px 0;display:none;"></p>
+    <div id="srButtons" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button onclick="startSRReview()" style="padding:8px 16px;background:#319795;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Start Review</button>
+      <button onclick="srToggleShuffle()" id="srShuffleBtn" style="padding:8px 16px;background:#4a5568;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔀 Shuffle: Off</button>
+    </div>
+    <div id="srStats" style="color:#a0aec0;font-size:12px;margin-top:10px;"></div>
+  </div>
+</div>
+
+<style>
+<!-- SHARED-SHELL-CSS:START -->
+/* Shared study-app shell — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-CSS markers drifts. */
+
+/* Skip link + part navigation */
+.skip-link { position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; width:auto; height:auto; background:#fff; color:#2b6cb0; padding:8px 14px; border-radius:6px; font-weight:700; box-shadow:0 0 0 3px #2b6cb0; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#2d3748; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px 0; font-size:0.95rem; }
+.partnav a { color:#7dd3fc; text-decoration:none; font-weight:600; }
+.partnav a:hover { text-decoration:underline; }
+.partnav strong { color:#fff; }
+
+/* Focus Mode (common panels; part-specific panels stay in each app) */
+body.focus-mode #progressBar,
+body.focus-mode #boostBar,
+body.focus-mode #boostBar1,
+body.focus-mode #learningPathPanel,
+body.focus-mode #spacedRepetitionPanel { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+
+/* Quiz boxes + why-right/wrong */
+.quiz-box { background: #f7f9fc; border: 2px solid #4299e1; border-radius: 10px; padding: 14px 18px; margin: 18px 0; }
+.quiz-box h3 { margin-top: 0; color: #2b6cb0; }
+.quiz-box details { background: #ffffff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; margin: 8px 0; }
+.quiz-box summary { cursor: pointer; font-weight: 600; }
+.quiz-correct { color: #276749; font-weight: 700; }
+.quiz-wrong { color: #9b2c2c; }
+
+/* Predict-the-output cards */
+.predict { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin: 14px 0; }
+.predict details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 8px 12px; }
+.predict summary { cursor: pointer; font-weight: 600; }
+
+/* Mood check */
+.mood { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mood > span { font-weight: 700; margin-right: 4px; }
+.mood input { display: none; }
+.mood label { cursor: pointer; border: 1px solid #a0aec0; border-radius: 999px; padding: 4px 12px; background: #fff; font-size: 14px; user-select: none; }
+.mood input:checked + label { background: #38a169; border-color: #38a169; color: #fff; font-weight: 700; }
+
+/* 7-day study plan + certificate + spot-the-bug */
+.studyplan7 { margin: 14px 0; }
+.studyplan7 summary { cursor: pointer; font-weight: 700; background: #eef2ff; padding: 8px 12px; border-radius: 8px; border: 1px solid #5a67d8; }
+.certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border: 3px solid #d69e2e; border-radius: 14px; padding: 24px; text-align: center; margin: 24px 0; }
+.certificate h2 { color: #744210; margin-top: 0; border-bottom: none; }
+.certificate .big { font-size: 20px; font-weight: 700; color: #744210; }
+.spotbug { display: grid; gap: 10px; margin: 14px 0; }
+.spotbug details { background: #fff; border: 1px solid #cbd5e0; border-radius: 8px; padding: 10px 14px; }
+
+/* Font size classes */
+html.font-sm { font-size: 15px; }
+html.font-md { font-size: 17px; }
+html.font-lg { font-size: 18px; }
+
+/* Interactive chrome — WCAG AA contrast for white-on-fill buttons */
+.mark-btn { background: #276749 !important; color: #ffffff !important; }
+.mark-btn.done { background: #4a5568 !important; color: #ffffff !important; }
+.theme-btn { background: #2d3748 !important; color: #ffffff !important; }
+.section-complete-btn { background: #276749 !important; color: #ffffff !important; }
+.copy-btn { background: #2d3748 !important; color: #ffffff !important; }
+/* Self-rating / focus hints — muted gray fails AA on light body */
+[id^="rating-section"] > span { color: #4a5568 !important; }
+.mood input:checked + label {
+  background: #276749 !important;
+  border-color: #276749 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Surprise" i],
+#boostBar1 button[aria-label*="Surprise" i],
+button[onclick*="boostSurprise"] {
+  background: #9c4221 !important;
+  color: #ffffff !important;
+}
+#boostBar button[aria-label*="Focus sprint" i],
+#boostBar button[aria-label*="focus sprint" i],
+#boostBar1 button[aria-label*="Focus sprint" i],
+#boostBar1 button[aria-label*="focus sprint" i],
+button[onclick*="startFocusTimer"] {
+  background: #234e52 !important;
+  color: #ffffff !important;
+}
+button[onclick*="showSRAnswer"],
+button[onclick*="srKnow"],
+button[onclick*="startSRReview"],
+button[onclick*="srFlip"],
+button[onclick*="srToggleShuffle"],
+button[onclick*="srAnswer"],
+button[onclick*="srFlip4"],
+button[onclick*="rateSR"],
+button[onclick*="setSelfRating"] {
+  background: #2c5282 !important;
+  color: #ffffff !important;
+}
+/* Tabs: unselected dark-on-light; selected white-on-dark-blue (AA) */
+.tabs label {
+  color: #1a365d !important;
+  border-color: #2b6cb0 !important;
+  background: #ebf8ff !important;
+}
+#tab-arr:checked ~ label[for="tab-arr"],
+#tab-str:checked ~ label[for="tab-str"],
+.tabs input:checked + label {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.sandbox button, .challenge button, .auth-box button, .mock-api button,
+.interactive-tool button, .chall button {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+.l-react, .l-express, .l-mongo, .l-node, .l-auth, .l-prod,
+.chip, .chip-h, .chip-p, .chip-s {
+  color: #ffffff !important;
+}
+/* Part 1 playground / stepper + Part 4 project demo buttons
+   (inline pastel fills fail AA with white text) */
+button[onclick*="checkTruthiness"],
+button[onclick*="runSandbox"],
+button[onclick*="clearSandbox"],
+button[onclick*="elvStep"],
+button[onclick*="elvPlay"],
+button[onclick*="elvReset"],
+button[onclick*="runChallenge"],
+button[onclick*="resetChallenge"],
+button[onclick*="checkAnswer"],
+button[onclick*="runTest"],
+button[onclick*="hoistingPlay"],
+button[onclick*="hoistingReset"],
+button[onclick*="scopeStep"],
+button[onclick*="scopeReset"],
+button[onclick*="memReset"],
+button[onclick*="showOptional"],
+button[onclick*="showCoercion"],
+button[onclick*="filterExercises"],
+button[onclick*="resetCode"],
+button[onclick*="p4Add"],
+button[onclick*="p4Load"],
+button[onclick*="p4Reset"],
+button[onclick*="p4Show"] {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+/* Lesson demo output inside light .chall panels used dark-theme text colors */
+.chall #p4-notes-list,
+.chall #p4-product-view,
+.chall #p4-reviews-list {
+  color: #1a202c !important;
+}
+.chall #p4-notes-log { color: #166534 !important; }
+.chall #p4-reviews-list small { color: #4a5568 !important; }
+.layer-diagram .ld-node { color: #ffffff !important; }
+
+/* Callouts — always set explicit color so dark body text never lands on light panels */
+.tip, .warn, .chall, .tipbox, .why, .interactive-note { color: #1a202c; }
+.tip { background: #f0fff4; border-left: 4px solid #38a169; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.warn { background: #fffaf0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.chall { background: #f5f3ff; border-left: 4px solid #6b46c1; padding: 10px 14px; border-radius: 6px; margin: 8px 0; }
+.tipbox { border: 1px dashed #be185d; background: #fdf2f8; border-radius: 8px; padding: 10px 14px; margin: 10px 0; }
+.why { background: #eef2ff; border-left: 4px solid #5a67d8; padding: 6px 12px; border-radius: 6px; margin: 6px 0 10px 0; font-size: 0.92rem; }
+.interactive-note { background: #eef6ff; border-left: 4px solid #2b6cb0; padding: 10px 14px; border-radius: 6px; }
+
+/* Dark via OS preference */
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+  .quiz-box h3 { color: #90cdf4; }
+  .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .quiz-correct { color: #68d391; }
+  .quiz-wrong { color: #fc8181; }
+  .predict details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+  .studyplan7 summary { background: #1c2333; color: #e2e8f0; }
+  .spotbug details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+  .tip { background: #132a1c; color: #e2e8f0; }
+  .warn { background: #2b2013; color: #e2e8f0; }
+  .chall { background: #2b1420; color: #e2e8f0; }
+  .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+  .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+  .interactive-note { background: #17202b; color: #e2e8f0; }
+  body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+}
+
+/* Manual theme wins over OS preference (preserve font-* separately in JS) */
+html.force-light body { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box { background: #f7f9fc; color: #1a202c; }
+html.force-light .quiz-box details { background: #ffffff; color: #1a202c; }
+html.force-light .quiz-box h3 { color: #2b6cb0; }
+html.force-light .quiz-correct { color: #276749; }
+html.force-light .quiz-wrong { color: #9b2c2c; }
+html.force-light .predict details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .mood label { background: #fff; color: #1a202c; border-color: #a0aec0; }
+html.force-light .studyplan7 summary { background: #eef2ff; color: #1a202c; }
+html.force-light .spotbug details { background: #fff; border-color: #cbd5e0; color: #1a202c; }
+html.force-light .tip { background: #f0fff4; color: #1a202c; }
+html.force-light .warn { background: #fffaf0; color: #1a202c; }
+html.force-light .chall { background: #f5f3ff; color: #1a202c; }
+html.force-light .tipbox { background: #fdf2f8; color: #1a202c; }
+html.force-light .why { background: #eef2ff; color: #1a202c; }
+html.force-light .interactive-note { background: #eef6ff; color: #1a202c; }
+html.force-light body.focus-mode h2 { background: #eef2ff; color: #1a202c; }
+html.force-light .certificate { background: linear-gradient(135deg, #fffbeb, #fefcbf); border-color: #d69e2e; color: #744210; }
+
+html.force-dark body { background: #0d1117; color: #e6edf3; }
+html.force-dark .quiz-box { background: #141c28; border-color: #2b6cb0; color: #e2e8f0; }
+html.force-dark .quiz-box details { background: #0f1622; border-color: #2d3748; color: #e2e8f0; }
+html.force-dark .quiz-box h3 { color: #90cdf4; }
+html.force-dark .quiz-correct { color: #68d391; }
+html.force-dark .quiz-wrong { color: #fc8181; }
+html.force-dark .predict details,
+html.force-dark .spotbug details,
+html.force-dark .studyplan7 summary { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+html.force-dark .mood label { background: #141c28; color: #cbd5e0; border-color: #2d3748; }
+html.force-dark .certificate { background: linear-gradient(135deg, #2b2013, #744210); border-color: #d69e2e; color: #fffbeb; }
+html.force-dark .tip { background: #132a1c; color: #e2e8f0; }
+html.force-dark .warn { background: #2b2013; color: #e2e8f0; }
+html.force-dark .chall { background: #2b1420; color: #e2e8f0; }
+html.force-dark .tipbox { background: #2b1420; color: #e2e8f0; border-color: #be185d; }
+html.force-dark .why { background: #1c2333; border-left-color: #6366f1; color: #dbe4ef; }
+html.force-dark .interactive-note { background: #17202b; color: #e2e8f0; }
+html.force-dark body.focus-mode h2 { background: #1c2333; color: #e2e8f0; }
+
+/* Reduced motion + print basics */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .toast, details[open] > :not(summary) { animation: none !important; }
+}
+@media print {
+  .theme-btn, #boostBar, #boostBar1, #toastZone, #toastZone1, #confettiCanvas, #confettiCanvas1,
+  .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, .quiz-box button,
+  button { display: none !important; }
+  body { background: #fff !important; color: #000 !important; max-width: 100%; }
+  .quiz-box, .flashcard, pre { background: #fff !important; border-color: #ccc !important; color: #000 !important; }
+  details { border: 1px solid #ccc; margin: 4px 0; padding: 4px; page-break-inside: avoid; }
+}
+<!-- SHARED-SHELL-CSS:END -->
+
+body { background: #f7f9fc; color: #1a202c; margin: 0 auto; max-width: 980px; padding: 16px 20px 60px 20px; font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; }
+/* Focus Mode: calm, distraction-free reading */
+body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #spacedRepetitionPanel, body.focus-mode #progressBar { display:none !important; }
+body.focus-mode h1 { text-align:center; }
+body.focus-mode h2 { background:#eef2ff; padding:8px 12px; border-radius:8px; }
+body.focus-mode .interactive-note, body.focus-mode .partnav, body.focus-mode #focusHint ~ .theme-btn { opacity:.9; }
+html { scroll-behavior: smooth; font-size: 16px; }
+h2[id], h3[id] { scroll-margin-top: 16px; }
+.theme-btn { float: right; margin: 4px 0 8px 10px; padding: 6px 14px; background: #4a5568; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
+nav a { color: #2b6cb0; text-decoration: none; font-weight: 600; }
+h2 { border-bottom: 3px solid #4299e1; padding-bottom: 6px; }
+.flashcard { background: #fffbeb; border: 2px solid #d69e2e; border-radius: 10px; padding: 10px 14px; margin: 10px 0; }
+.flashcard summary { cursor: pointer; font-weight: 700; color: #744210; }
+.flashcard .back { margin-top: 8px; }
+.badge { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px; margin-left: 6px; vertical-align: middle; font-weight: 700; }
+.b-green  { background: #c6f6d5; color: #22543d; }
+.b-yellow { background: #fefcbf; color: #744210; }
+.b-red    { background: #fed7d7; color: #742a2a; }
+.b-time   { background: #e2e8f0; color: #2d3748; font-weight: 600; }
+.hint { background: #fffbeb; border: 1px dashed #d69e2e; border-radius: 8px; padding: 8px 12px; margin: 10px 0; }
+.hint summary { cursor: pointer; font-weight: 700; color: #744210; }
+.mark-btn { margin: 8px 0 4px 0; padding: 5px 12px; background: #38a169; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.mark-btn.done { background: #718096; }
+.sandbox { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 14px; color: #e2e8f0; }
+.sandbox textarea { width: 100%; box-sizing: border-box; background: #0b1220; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; font-family: "Cascadia Code", Consolas, monospace; padding: 10px; }
+.sandbox .out { background: #020617; color: #86efac; border-radius: 6px; padding: 10px; margin-top: 8px; min-height: 40px; white-space: pre-wrap; font-family: "Cascadia Code", monospace; }
+.sandbox .err { color: #fca5a5; }
+.sandbox button { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; margin: 6px 6px 0 0; }
+.challenge { border: 1px solid #4a5568; border-radius: 10px; padding: 12px 16px; margin: 14px 0; background: #fafbfc; }
+.challenge textarea { width: 100%; box-sizing: border-box; background: #0b1220; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; font-family: "Cascadia Code", Consolas, monospace; padding: 10px; }
+.challenge .result { margin-top: 8px; padding: 8px 10px; border-radius: 6px; font-weight: 600; white-space: pre-wrap; }
+.pass { background: #c6f6d5; color: #22543d; }
+.fail { background: #fed7d7; color: #742a2a; }
+.toast { background: #1a202c; color: #e2e8f0; border-left: 4px solid #dd6b20; padding: 10px 14px; border-radius: 8px; box-shadow: 0 6px 16px rgba(0,0,0,.3); font-weight: 600; max-width: 280px; animation: slidein .3s ease; }
+.toast.celebrate { border-left-color: #38a169; }
+.toast.badge { border-left-color: #805ad5; }
+@keyframes slidein { from { opacity:0; transform: translateX(20px);} to { opacity:1; transform:none;} }
+.totop { text-align: right; margin: 6px 0; }
+.totop a { font-size: 13px; color: #2b6cb0; text-decoration: none; }
+.footer { text-align: center; padding: 18px; margin-top: 30px; background: #2d3748; border-radius: 10px; color: #e2e8f0; }
+@media (prefers-color-scheme: dark) {
+  body { background: #0d1117; color: #e6edf3; }
+  h2 { border-bottom-color: #63b3ed; }
+  .flashcard { background: #241d0e; border-color: #975a16; color: #e2e8f0; }
+  .challenge { background: #141c28; border-color: #2d3748; }
+  nav a { color: #90cdf4; }
+  pre { background: #0b1220; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+@media print { .theme-btn, #boostBar, #toastZone, #confettiCanvas, .mark-btn, .copy-btn, .sandbox, .challenge, .totop, nav, button { display: none !important; } body { background:#fff!important; color:#000!important; } }
+/* ===== Part-1-style enhancements (parity) ===== */
+
+</style>
+
+<div class="interactive-note">💡 <strong>Interactive Study App — Part 3 (MERN Bridge):</strong> Map/Set playground, RegExp tester, DOM sandbox, Node quick-ref, 5 auto-graded challenges, Spaced Repetition, Learning Path, progress, dark mode, and ADHD-engagement (XP/streak).</div>
+
+<nav>
+<h2 id="table-of-contents">📑 Table of Contents</h2>
+<p>🔗 <a href="#1-mapsets">1. Map &amp; Set</a> · <a href="#2-generators">2. Generators</a> · <a href="#3-regexp">3. RegExp</a> · <a href="#4-dom">4. DOM &amp; Events</a> · <a href="#5-fetch">5. fetch</a> · <a href="#6-node">6. Node Core</a> · <a href="#7-pitfalls">7. Pitfalls</a> · <a href="#8-exercises">8. Exercises</a> · <a href="#9-challenges">9. Challenges</a> · <a href="#10-answers">10. Answer Key</a></p>
+</nav>
+<div class="studyplan7"><details><summary>📅 Suggested 7-day study plan (click to open)</summary>
+<p>Small, spaced bites beat a marathon. Mark each section done and the progress + certificate track you.</p>
+<ul>
+<li><strong>Day 1:</strong> Sections 1–2 (Map/Set + Generators) — read + quiz.</li>
+<li><strong>Day 2:</strong> Section 3 (Regular Expressions) — play in the RegExp tester.</li>
+<li><strong>Day 3:</strong> Section 4 (DOM &amp; Events) — click the live demo.</li>
+<li><strong>Day 4:</strong> Section 5 (fetch) — run the live fetch demo.</li>
+<li><strong>Day 5:</strong> Section 6 (Node core) + flashcards.</li>
+<li><strong>Day 6:</strong> Sections 7–8 (Pitfalls + practice) — try the Spot-the-Bug quiz.</li>
+<li><strong>Day 7:</strong> Section 9 (Challenges) — pass all 5, then claim your certificate below.</li>
+</ul>
+</details></div>
+
+<div class="mood"><span>Before you start, how do you feel?</span>
+<input type="radio" id="mood-start-1" name="mood-start3"><label for="mood-start-1">🌱 brand new</label>
+<input type="radio" id="mood-start-2" name="mood-start3"><label for="mood-start-2">🙂 okay</label>
+<input type="radio" id="mood-start-3" name="mood-start3"><label for="mood-start-3">💪 ready</label>
+</div>
+
+<hr>
+
+<h2 id="1-mapsets">1. Map &amp; Set</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> MongoDB cursors and de-duplicating tags/lists in a cart or feed use these daily — `Set` removes duplicates in one line, and `Map` stores any key type in order.</div>
+<button class="mark-btn" onclick="toggleSection(1)">✅ Mark Complete</button>
+<div class="tip">💡 <strong>Map</strong> = any keys + insertion order. <strong>Set</strong> = unique values.</div>
+
+<h3>🧪 Map / Set Playground</h3>
+<div class="sandbox" id="ms-box">
+  <textarea id="ms-code" rows="2">const s = new Set([1,1,2,3,3]);
+s.size;</textarea>
+  <br>
+  <button onclick="msRun()">▶️ Run</button>
+  <button onclick="document.getElementById('ms-code').value=''">🗑 Clear</button>
+  <div class="out" id="ms-out">Output…</div>
+</div>
+
+<pre><code>const user = new Map();
+user.set("name", "Rohit");
+console.log(user.get("name"));  // "Rohit"
+console.log(user.size);         // 1
+
+const unique = [...new Set([1,1,2,3,3])]; // [1,2,3]</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Map &amp; Set quiz</h3>
+<details><summary>Q1. `new Set([1,1,2,3,3]).size` = ?</summary>
+<p><span class="quiz-wrong">❌ 5</span> — Set drops duplicates</p>
+<p><span class="quiz-correct">✅ 3</span> — unique values → size 3</p></details>
+<details><summary>Q2. Which allows any key type &amp; keeps order?</summary>
+<p><span class="quiz-wrong">❌ Object</span> — object keys are strings/symbols only</p>
+<p><span class="quiz-correct">✅ Map</span> — Map keeps insertion order and any key type</p></details>
+<details><summary>Q3. De-dupe `[...]` using a Set?</summary>
+<p><span class="quiz-wrong">❌ arr.filter((x,i)=>arr.indexOf(x)===i) only</span> — works but Set is the idiomatic one-liner</p>
+<p><span class="quiz-correct">✅ [...new Set(arr)]</span> — [...new Set(arr)]</p></details>
+</div>
+
+<hr>
+<h2 id="2-generators">2. Generators</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> paginating large API results and async data streams (Mongo cursors, infinite scroll) are built on generators — `for await` is what consumes them.</div>
+<button class="mark-btn" onclick="toggleSection(2)">✅ Mark Complete</button>
+<div class="tip">💡 <strong>function*</strong> + <strong>yield</strong>. <code>.next()</code> → <code>{value, done}</code>.</div>
+
+<pre><code>function* countUp(){ yield 1; yield 2; yield 3; }
+const g = countUp();
+g.next(); // {value:1, done:false}
+
+function* fib(){ let a=0,b=1; while(true){ yield a; [a,b]=[b,a+b]; } }
+const f = fib();
+f.next().value; // 0  (then 1, 1, 2...)</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Generators quiz</h3>
+<details><summary>Q1. What does `.next()` return?</summary>
+<p><span class="quiz-wrong">❌ just the value</span> — generators return an iterator result object</p>
+<p><span class="quiz-correct">✅ {value, done}</span> — {value, done}</p></details>
+<details><summary>Q2. What keyword marks a generator?</summary>
+<p><span class="quiz-wrong">❌ async function</span> — async is different</p>
+<p><span class="quiz-correct">✅ function*</span> — function* marks a generator</p></details>
+</div>
+
+<hr>
+<h2 id="3-regexp">3. Regular Expressions</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> slugifying URLs, validating emails/phone numbers, and search autocomplete on your Express API are all regex under the hood.</div>
+<button class="mark-btn" onclick="toggleSection(3)">✅ Mark Complete</button>
+<div class="chall">🔤 Patterns for validation / extraction, flags <code>g i m</code>.</div>
+
+<h3>🧪 RegExp Tester</h3>
+<div class="sandbox" id="rx-box">
+  <textarea id="rx-pattern" rows="1">^\d{3}-\d{3}-\d{4}$</textarea>
+  <textarea id="rx-text" rows="1">555-123-4567</textarea><br>
+  <button onclick="rxTest()">▶️ Test</button>
+  <div class="out" id="rx-out">Result…</div>
+</div>
+
+<pre><code>/^\d{3}-\d{3}-\d{4}$/.test("555-123-4567"); // true
+"a1b2".match(/\d/g);                          // ["1","2"]</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 RegExp quiz</h3>
+<details><summary>Q1. Flag to find ALL matches?</summary>
+<p><span class="quiz-wrong">❌ i</span> — i is case-insensitive</p>
+<p><span class="quiz-correct">✅ g</span> — g finds all matches</p></details>
+<details><summary>Q2. `"abc123".replace(/\d/g,"#")` = ?</summary>
+<p><span class="quiz-wrong">❌ abc123</span> — digits are replaced when /g is used</p>
+<p><span class="quiz-correct">✅ abc###</span> — abc###</p></details>
+</div>
+
+<hr>
+<h2 id="4-dom">4. DOM &amp; Events</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> this is exactly what React compiles to — every `onClick`/`onChange` becomes `addEventListener` + reading `event.target`.</div>
+<button class="mark-btn" onclick="toggleSection(4)">✅ Mark Complete</button>
+<div class="warn">🌐 Browser-only — run in dev tools or a React project.</div>
+
+<pre><code>const btn = document.querySelector("#save");
+const li = document.createElement("li");
+li.textContent = "New"; li.classList.add("active");
+document.querySelector("#list").appendChild(li);
+
+btn.addEventListener("click", (e) => console.log(e.target));
+form.addEventListener("submit", (e) => e.preventDefault());</code></pre>
+
+<div class="tip">🖱 <strong>Try it live (DOM demo):</strong> each click below calls <code>addEventListener</code> and updates <code>textContent</code> — the exact foundation React's <code>onClick</code> uses.</div>
+<div class="sandbox" id="dom-lab">
+  <button onclick="domAdd()" id="domBtn">➕ Click me</button>
+  <button onclick="domReset()">↺ Reset</button>
+  <span style="margin-left:10px;">Clicks: <strong id="domCount">0</strong></span>
+  <div class="out" id="domOut">0 clicks so far — click the button!</div>
+</div>
+
+<div class="quiz-box">
+<h3>🎯 DOM quiz</h3>
+<details><summary>Q1. Which returns the FIRST match?</summary>
+<p><span class="quiz-wrong">❌ querySelectorAll</span> — All returns a NodeList</p>
+<p><span class="quiz-correct">✅ querySelector</span> — querySelector returns the first match</p></details>
+<details><summary>Q2. What stops a form reloading?</summary>
+<p><span class="quiz-wrong">❌ stopPropagation()</span> — that stops bubbling, not the default submit</p>
+<p><span class="quiz-correct">✅ preventDefault()</span> — preventDefault()</p></details>
+<details><summary>Q3. What is `event.target`?</summary>
+<p><span class="quiz-wrong">❌ The listener element always</span> — currentTarget is the listener; target is the origin</p>
+<p><span class="quiz-correct">✅ The element the event occurred on</span> — the element the event occurred on</p></details>
+</div>
+
+<hr>
+<h2 id="5-fetch">5. fetch</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> the React front-end talking to your Express API — every read/write to the server goes through `fetch`, and checking `res.ok` is non-negotiable.</div>
+<button class="mark-btn" onclick="toggleSection(5)">✅ Mark Complete</button>
+<div class="chall">📡 Talk to your Express API. Returns a promise; check <code>res.ok</code>.</div>
+
+<pre><code>async function getUsers(){
+  const res = await fetch("https://api.example.com/users");
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+async function createUser(name){
+  const res = await fetch("/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}</code></pre>
+
+<div class="tip">🌍 <strong>Try it live (fetch demo):</strong> this calls the public JSONPlaceholder API, checks <code>res.ok</code>, then renders the result — the real pattern every MERN <code>fetch</code> follows.</div>
+<div class="sandbox" id="fetch-lab">
+  <button onclick="fetchDemo()">🚀 Run fetch demo</button>
+  <span id="fetchStatus" style="margin-left:10px;font-weight:600;">Not run yet</span>
+  <div class="out" id="fetchOut">Click the button to fetch a sample user from the internet.</div>
+</div>
+
+<div class="quiz-box">
+<h3>🎯 fetch quiz</h3>
+<details><summary>Q1. Does fetch reject on a 500?</summary>
+<p><span class="quiz-wrong">❌ Yes</span> — fetch only rejects on network failure</p>
+<p><span class="quiz-correct">✅ No — check res.ok</span> — check res.ok yourself</p></details>
+<details><summary>Q2. How to send JSON in POST?</summary>
+<p><span class="quiz-wrong">❌ body: obj</span> — body must be a string + Content-Type header</p>
+<p><span class="quiz-correct">✅ body: JSON.stringify(obj) + JSON header</span> — JSON.stringify + JSON header</p></details>
+<details><summary>Q3. Body methods you can call?</summary>
+<p><span class="quiz-wrong">❌ As many as you want</span> — the body stream can be read only once</p>
+<p><span class="quiz-correct">✅ One (json/text/formData)</span> — One (json/text/formData)</p></details>
+</div>
+
+<hr>
+<h2 id="6-node">6. Node Core</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> `fs`, `path`, `process.env`, and `http` are the engine running Express &amp; Mongoose on the server — the "N" in MERN.</div>
+<button class="mark-btn" onclick="toggleSection(6)">✅ Mark Complete</button>
+<div class="tip">🖥 Node runs JS on the server — Express &amp; Mongoose on top.</div>
+
+<pre><code>import { promises as fs } from "node:fs";
+import path from "node:path";
+const data = await fs.readFile(path.join(".","data.json"), "utf8");
+const PORT = process.env.PORT || 3000;
+
+import { createServer } from "node:http";
+createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ ok: true }));
+}).listen(3000);</code></pre>
+
+<div class="quiz-box">
+<h3>🎯 Node quiz</h3>
+<details><summary>Q1. Sync file read?</summary>
+<p><span class="quiz-wrong">❌ fs.readFile</span> — readFile is async (callback/promise)</p>
+<p><span class="quiz-correct">✅ fs.readFileSync</span> — fs.readFileSync</p></details>
+<details><summary>Q2. `process.env.PORT`?</summary>
+<p><span class="quiz-wrong">❌ A hard-coded constant</span> — env vars come from the environment</p>
+<p><span class="quiz-correct">✅ An env variable</span> — an env variable</p></details>
+<details><summary>Q3. Best read in a handler?</summary>
+<p><span class="quiz-wrong">❌ fs.readFileSync</span> — sync I/O blocks the event loop</p>
+<p><span class="quiz-correct">✅ fs.promises.readFile (non-blocking)</span> — fs.promises.readFile (non-blocking)</p></details>
+</div>
+
+<hr>
+<h2 id="7-pitfalls">7. Common Pitfalls (MERN)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> these are the real bugs that crash MERN apps in production — knowing them up-front saves hours of debugging later.</div>
+<button class="mark-btn" onclick="toggleSection(7)">✅ Mark Complete</button>
+<div class="warn">1. <strong>await inside .forEach</strong> — use <code>for...of</code>.</div>
+<div class="warn">2. <strong>Not checking res.ok</strong> after fetch.</div>
+<div class="warn">3. <strong>Calling .json() twice</strong> — one-time stream.</div>
+<div class="warn">4. <strong>Blocking the event loop</strong> with sync fs in a handler.</div>
+<div class="warn">5. <strong>Mutating React state</strong> — copy then <code>setItems([...items, x])</code>.</div>
+<div class="tip">💡 <strong>Preview — full treatment in Part 4:</strong> this is the classic React immutability trap. Part 4 covers it with live demos and challenges — here it's just the foreshadow.</div>
+<div class="warn">6. <strong>Object where Map/Set fits</strong> better.</div>
+<div class="warn">7. <strong>Forgetting the g flag</strong> for all matches.</div>
+
+<hr>
+<h2 id="8-exercises">8. Practice Exercises</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> short, spaced, low-stakes practice is how knowledge moves from "seen it" to "can build with it."</div>
+<button class="mark-btn" onclick="toggleSection(8)">✅ Mark Complete</button>
+<p><strong>Ex1</strong> <span class="badge b-green">Easy</span> Map of 3 students → scores; iterate.</p>
+<p><strong>Ex2</strong> <span class="badge b-green">Easy</span> Dedupe with a Set: <code>[...new Set(arr)]</code>.</p>
+<p><strong>Ex3</strong> <span class="badge b-yellow">Medium</span> Generator <code>take(gen, n)</code> → first 8 Fibonacci.</p>
+<p><strong>Ex4</strong> <span class="badge b-yellow">Medium</span> <code>isEmail(s)</code> true for <code>"a@b.co"</code>.</p>
+<p><strong>Ex5</strong> <span class="badge b-yellow">Medium</span> Create an <code>&lt;li&gt;</code>, set text, add class, append. (browser)</p>
+<p><strong>Ex6</strong> <span class="badge b-yellow">Medium</span> <code>getData(url)</code> fetch + check res.ok.</p>
+<p><strong>Ex7</strong> <span class="badge b-yellow">Medium</span> <code>postData(url, obj)</code> JSON POST.</p>
+<p><strong>Ex8</strong> <span class="badge b-yellow">Medium</span> Read <code>data.json</code> with fs.promises + path.join.</p>
+
+<hr>
+<h2 id="9-challenges">9. Challenges (auto-graded)</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> these graded challenges mirror the exact coding tasks you'll do daily as a MERN dev — a safe place to make (and fix) mistakes.</div>
+<button class="mark-btn" onclick="toggleSection(9)">✅ Mark Complete</button>
+<p>Write each function, click <strong>Run Tests</strong>. Instant pass/fail; completion saved.</p>
+
+<div class="challenge">
+  <strong>C1 — Unique words counter</strong> <span class="badge b-red">Hard</span><br>
+  <code>countWords(text)</code> → Map of word→count. Return <code>{count: Number} or object</code>; we test <code>counts.get</code>.
+  <textarea id="chal1" rows="5">function countWords(text) {
+  // your code here — return a Map
+}</textarea>
+  <button class="mark-btn" onclick="runTest(1)">▶️ Run Tests</button>
+  <div class="result" id="res1"></div>
+</div>
+
+<div class="challenge">
+  <strong>C2 — Slugify</strong> <span class="badge b-red">Hard</span><br>
+  <code>slugify("Hello World!")</code> → <code>"hello-world"</code>.
+  <textarea id="chal2" rows="4">function slugify(s) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(2)">▶️ Run Tests</button>
+  <div class="result" id="res2"></div>
+</div>
+
+<div class="challenge">
+  <strong>C3 — isEven range via generator</strong> <span class="badge b-red">Hard</span><br>
+  Write a generator <code>range(start, end)</code> that yields integers.
+  <textarea id="chal3" rows="4">function* range(start, end) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(3)">▶️ Run Tests</button>
+  <div class="result" id="res3"></div>
+</div>
+
+<div class="challenge">
+  <strong>C4 — fetchWithTimeout</strong> <span class="badge b-red">Hard</span><br>
+  <code>fetchWithTimeout(url, ms)</code> using AbortController.
+  <textarea id="chal4" rows="6">async function fetchWithTimeout(url, ms) {
+  // your code here
+}</textarea>
+  <button class="mark-btn" onclick="runTest(4)">▶️ Run Tests</button>
+  <div class="result" id="res4"></div>
+</div>
+
+<div class="challenge">
+  <strong>C5 — word frequency (object)</strong> <span class="badge b-red">Hard</span><br>
+  <code>freq(text)</code> → plain object of word counts.
+  <textarea id="chal5" rows="5">function freq(text) {
+  // your code here — return an object
+}</textarea>
+  <button class="mark-btn" onclick="runTest(5)">▶️ Run Tests</button>
+  <div class="result" id="res5"></div>
+</div>
+
+<hr>
+<h2 id="10-answers">10. Answer Key</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> compare your work against the canonical solutions — noticing small differences is where real learning happens.</div>
+<button class="mark-btn" onclick="toggleSection(10)">✅ Mark Complete</button>
+<div class="quiz-box">
+<h3>✅ Quiz answers</h3>
+<details><summary>Reveal</summary>
+<p><span class="quiz-wrong">❌ Skipping the answer key</span> — checking answers locks in learning</p>
+<p><span class="quiz-correct">✅ S1: 3 · Map · Set · S2: {value,done} · function* · S3: g · abc###<br>S4: querySelector · preventDefault · target · S5: No · JSON + header · One<br>S6: readFileSync · env · fs.promises</span> — compare your picks to the section key</p></details>
+</div>
+
+<div class="quiz-box">
+<h3>🧪 Challenge solutions</h3>
+<details><summary>C1 — countWords</summary>
+<p><span class="quiz-wrong">❌ Using an object only and forgetting Map</span> — Map is the right tool here</p>
+<p><span class="quiz-correct">✅ Canonical solution</span> — count with Map.set/get</p>
+<pre><code>function countWords(text){
+  const m = new Map();
+  for (const w of text.split(/\s+/).filter(Boolean)) m.set(w,(m.get(w)||0)+1);
+  return m; // Map
+}</code></pre></details>
+<details><summary>C2 — slugify</summary>
+<p><span class="quiz-wrong">❌ Leaving spaces and uppercase</span> — slugs are lowercase hyphenated</p>
+<p><span class="quiz-correct">✅ Canonical solution</span> — lower + replace non-alnum + trim hyphens</p>
+<pre><code>const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");</code></pre></details>
+<details><summary>C3 — range generator</summary>
+<p><span class="quiz-wrong">❌ Returning an array from a normal function</span> — generators use function* and yield</p>
+<p><span class="quiz-correct">✅ Canonical solution</span> — function* range with yield</p>
+<pre><code>function* range(s,e){ for(let i=s;i<=e;i++) yield i; }</code></pre></details>
+<details><summary>C4 — fetchWithTimeout</summary>
+<p><span class="quiz-wrong">❌ Ignoring AbortController</span> — timeouts need abort signals</p>
+<p><span class="quiz-correct">✅ Canonical solution</span> — AbortController + clearTimeout in finally</p>
+<pre><code>async function fetchWithTimeout(url,ms){
+  const c=new AbortController(); const t=setTimeout(()=>c.abort(),ms);
+  try{ const res=await fetch(url,{signal:c.signal}); if(!res.ok) throw new Error(`HTTP ${res.status}`); return await res.json(); }
+  finally{ clearTimeout(t); }
+}</code></pre></details>
+<details><summary>C5 — freq</summary>
+<p><span class="quiz-wrong">❌ Returning a Map when an object is required</span> — match the expected return type</p>
+<p><span class="quiz-correct">✅ Canonical solution</span> — plain object tallies</p>
+<pre><code>function freq(text){
+  const o={};
+  for (const w of text.split(/\s+/).filter(Boolean)) o[w]=(o[w]||0)+1;
+  return o;
+}</code></pre></details>
+</div>
+
+<h2 id="spot-bug3">🐞 Spot-the-Bug — final boss quiz</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> catch the classic MERN mistakes before they catch you.</div>
+<div class="spotbug">
+<details><summary>Q1. What's the bug?  <code>const notes = Note.find();</code></summary><p class="quiz-correct">Missing <code>await</code> — it's a promise, not data. Use <code>await Note.find()</code>.</p></details>
+<details><summary>Q2. What's the bug?  <code>setNotes(notes.push(newOne))</code></summary><p class="quiz-correct"><code>push</code> mutates and returns the length — use <code>setNotes([...notes, newOne])</code>.</p></details>
+<details><summary>Q3. What's the bug?  React frontend calling <code>http://localhost:3000</code> from a different port</summary><p class="quiz-correct">CORS — add <code>app.use(cors())</code> on the server.</p></details>
+<details><summary>Q4. What's the bug?  <code>fetch(url); const d = await res.json();</code></summary><p class="quiz-correct">Never assigned the fetch result to <code>res</code>, and didn't check <code>res.ok</code>.</p></details>
+<details><summary>Q5. What's the bug?  <code>Note.findByIdAndUpdate(id, upd)</code></summary><p class="quiz-correct">Returns the OLD doc — add <code>{ new: true }</code> to get the updated one.</p></details>
+</div>
+<div class="mood"><span>How was Spot-the-Bug?</span>
+<input type="radio" id="mood-bug-1" name="mood-bug3"><label for="mood-bug-1">😅 tough</label>
+<input type="radio" id="mood-bug-2" name="mood-bug3"><label for="mood-bug-2">🙂 okay</label>
+<input type="radio" id="mood-bug-3" name="mood-bug3"><label for="mood-bug-3">😎 nailed it</label>
+</div>
+<hr>
+
+<h2 id="predict-more3">🤔 More predict-the-output cards</h2>
+<div class="why">🚩 <strong>Why it matters:</strong> guessing the output builds the mental model fast.</div>
+<div class="predict">
+<details><summary><code>[...new Set([1,1,2,3,3])]</code> → ?</summary><p class="quiz-correct"><code>[1,2,3]</code></p></details>
+<details><summary><code>"A  B!!".toLowerCase().replace(/[^a-z0-9]+/g,"-")</code> → ?</summary><p class="quiz-correct"><code>"a-b-"</code> (after slugify trims edges → <code>"a-b"</code>)</p></details>
+<details><summary><code>new Map().set("a",1).size</code> → ?</summary><p class="quiz-correct">1</p></details>
+<details><summary><code>/a+/g.test("baaaad")</code> → ?</summary><p class="quiz-correct">true (one or more <code>a</code>)</p></details>
+</div>
+<hr>
+
+<h2 id="certificate3">🏆 Certificate of Completion</h2>
+<div class="certificate" id="certPanel3">
+<h2>🎓 Certificate of Completion</h2>
+<p>This certifies that <span class="big">You</span> have completed</p>
+<p class="big">JavaScript Essentials — Part 3 (MERN Bridge)</p>
+<p id="certStatus3">Complete <strong>all 10 sections</strong> (✅ on each "Mark Complete" button) to unlock your certificate.</p>
+</div>
+
+<div class="footer">🎉 <strong>Congratulations!</strong> You've completed JavaScript Essentials — Part 3 (MERN Bridge)!</div>
+
+<div class="totop"><a href="#table-of-contents">⬆ Back to top</a></div>
+
+<script>
+// ===== Part 3 Study App — Script =====
+<!-- SHARED-SHELL-JS:START -->
+/* Shared study-app shell JS — source of truth.
+   Edit this file, then run: node scripts/inline-shell.js
+   CI fails if HTML between SHARED-SHELL-JS markers drifts. */
+(function (global) {
+  "use strict";
+
+  var FONT_CLASSES = ["font-sm", "font-md", "font-lg"];
+  var FONT_LEVELS = ["font-sm", "", "font-md", "font-lg"];
+
+  function normalizeThemeMode(value) {
+    if (value === "dark" || value === "force-dark") return "force-dark";
+    if (value === "light" || value === "force-light") return "force-light";
+    return null;
+  }
+
+  function setThemeMode(mode, btnId) {
+    var root = document.documentElement;
+    root.classList.remove("force-dark", "force-light");
+    root.classList.add(mode);
+    var btn = document.getElementById(btnId || "themeBtn");
+    if (btn) btn.textContent = mode === "force-dark" ? "☀️ Light mode" : "🌙 Dark mode";
+    return mode;
+  }
+
+  function isDark() {
+    var root = document.documentElement;
+    if (root.classList.contains("force-dark")) return true;
+    if (root.classList.contains("force-light")) return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function applyTheme(storageKey, btnId) {
+    var saved = normalizeThemeMode(localStorage.getItem(storageKey));
+    if (saved) return setThemeMode(saved, btnId);
+    return setThemeMode(isDark() ? "force-dark" : "force-light", btnId);
+  }
+
+  function toggleTheme(storageKey, btnId) {
+    var next = isDark() ? "force-light" : "force-dark";
+    setThemeMode(next, btnId);
+    localStorage.setItem(storageKey, next);
+    return next;
+  }
+
+  function clearFontClasses(html) {
+    FONT_CLASSES.forEach(function (c) {
+      html.classList.remove(c);
+    });
+  }
+
+  function fontZoom(dir, storageKey) {
+    var html = document.documentElement;
+    var cur = "";
+    FONT_CLASSES.forEach(function (c) {
+      if (html.classList.contains(c)) cur = c;
+    });
+    clearFontClasses(html);
+    if (dir !== 0) {
+      var idx = cur === "font-md" ? 2 : cur === "font-lg" ? 3 : cur === "font-sm" ? 0 : 1;
+      var nxt = Math.max(0, Math.min(3, idx + dir));
+      var addCls = FONT_LEVELS[nxt];
+      if (addCls) html.classList.add(addCls);
+      localStorage.setItem(storageKey, addCls || "normal");
+    } else {
+      localStorage.setItem(storageKey, "normal");
+    }
+  }
+
+  function applyFontZoom(storageKey) {
+    var saved = localStorage.getItem(storageKey);
+    if (saved && saved !== "normal" && FONT_CLASSES.indexOf(saved) >= 0) {
+      clearFontClasses(document.documentElement);
+      document.documentElement.classList.add(saved);
+    }
+  }
+
+  function focusMode(btn, hintId) {
+    var on = !document.body.classList.contains("focus-mode");
+    document.body.classList.toggle("focus-mode", on);
+    var hint = hintId ? document.getElementById(hintId) : null;
+    if (hint) hint.style.display = on ? "block" : "none";
+    if (btn) {
+      btn.textContent = on ? "🧘 Focus ON" : "🧘 Focus Mode";
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.style.background = on ? "#319795" : "";
+    }
+    document.querySelectorAll("details").forEach(function (d) {
+      try {
+        d.open = false;
+      } catch (e) {}
+    });
+    if (on) {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {}
+    }
+    return on;
+  }
+
+  function collapseDetails(expand, selector) {
+    var sel = selector || ".quiz-box details";
+    document.querySelectorAll(sel).forEach(function (d) {
+      if (expand) d.setAttribute("open", "open");
+      else d.removeAttribute("open");
+    });
+  }
+
+  function enhanceA11y() {
+    document
+      .querySelectorAll(
+        '.code-editor:not([aria-label]):not([aria-labelledby]), [contenteditable="true"]:not([aria-label]):not([aria-labelledby])'
+      )
+      .forEach(function (el, i) {
+        if (!el.getAttribute("role")) el.setAttribute("role", "textbox");
+        el.setAttribute("aria-multiline", "true");
+        el.setAttribute("aria-label", "Code editor " + (i + 1));
+      });
+    document.querySelectorAll("textarea:not([aria-label]):not([aria-labelledby])").forEach(function (el, i) {
+      if (!el.id && !el.getAttribute("name")) {
+        el.setAttribute("aria-label", "Code input " + (i + 1));
+      } else if (el.id && !document.querySelector('label[for="' + el.id + '"]')) {
+        el.setAttribute("aria-label", el.getAttribute("placeholder") || "Code input " + (i + 1));
+      }
+    });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", enhanceA11y);
+    } else {
+      enhanceA11y();
+    }
+  }
+
+  global.StudyShell = {
+    setThemeMode: setThemeMode,
+    isDark: isDark,
+    applyTheme: applyTheme,
+    toggleTheme: toggleTheme,
+    fontZoom: fontZoom,
+    applyFontZoom: applyFontZoom,
+    focusMode: focusMode,
+    collapseDetails: collapseDetails,
+    enhanceA11y: enhanceA11y,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+<!-- SHARED-SHELL-JS:END -->
+
+function toggleTheme() { StudyShell.toggleTheme("p3-theme"); }
+function applySysDark() { StudyShell.applyTheme("p3-theme"); }
+applySysDark();
+
+function fontZoom3(dir) { StudyShell.fontZoom(dir, "p3-font"); }
+function applyFontZoom3() { StudyShell.applyFontZoom("p3-font"); }
+
+// ===== Progress =====
+function toggleSection(n) {
+  var key = "p3-sec-" + n;
+  var done = localStorage.getItem(key) === "1";
+  localStorage.setItem(key, done ? "0" : "1");
+  var btn = document.querySelector('button[onclick="toggleSection(' + n + ')"]');
+  if (btn) { btn.textContent = done ? "✅ Mark Complete" : "✅ Completed"; btn.classList.toggle("done", !done); }
+  if (!done && localStorage.getItem(key) === "1") { addXP3(20); trackStreak3(); celebrate3(); toast3(enc3[Math.floor(Math.random()*enc3.length)], "celebrate"); }
+  updateProgress();
+}
+function updateProgress() {
+  var total = 10, done = 0;
+  for (var i = 1; i <= total; i++) if (localStorage.getItem("p3-sec-" + i) === "1") done++;
+  var bar = document.getElementById("progressBar");
+  if (bar) bar.textContent = "📊 Progress: " + done + "/" + total + " sections (" + Math.round((done / total) * 100) + "%)";
+  updateLearningPath3(done);
+}
+function markButtons() {
+  for (var i = 1; i <= 10; i++) {
+    var b = document.querySelector('button[onclick="toggleSection(' + i + ')"]');
+    if (b && localStorage.getItem("p3-sec-" + i) === "1") { b.textContent = "✅ Completed"; b.classList.add("done"); }
+  }
+}
+function updateLearningPath3(done) {
+  var el = document.getElementById("learningPathContent");
+  if (!el) return;
+  if (done === 0) { el.innerHTML = "<p>⏳ Start with <strong>Section 1 (Map &amp; Set)</strong> — foundation tiles first.</p>"; return; }
+  var names = {1:"Map & Set",2:"Generators",3:"RegExp",4:"DOM & Events",5:"fetch",6:"Node Core",7:"Pitfalls",8:"Exercises",9:"Challenges",10:"Answer Key"};
+  var next = "";
+  for (var i = 1; i <= 10; i++) if (localStorage.getItem("p3-sec-" + i) !== "1") { next = i; break; }
+  el.innerHTML = next ? "<p>⏳ Next: <strong>Section " + next + " (" + names[next] + ")</strong></p>" : "<p>🎉 All sections complete!</p>";
+}
+
+// ===== SRS Flashcards =====
+var srState3 = JSON.parse(localStorage.getItem("p3-sr") || "{}");
+var srCards3 = [
+  {q:"What does a Map allow that an object doesn't?", a:"Any key type (objects, numbers, functions)", lvl:1},
+  {q:"What does a Set guarantee?", a:"Unique values (size counts unique)", lvl:1},
+  {q:"What does a generator's .next() return?", a:"{value, done}", lvl:1},
+  {q:"Which flag finds ALL regex matches?", a:"g (global)", lvl:1},
+  {q:"What stops a form from reloading?", a:"event.preventDefault()", lvl:1},
+  {q:"Does fetch reject on a 500?", a:"No — check res.ok", lvl:1},
+  {q:"How do you read a file in Node?", a:"fs.readFileSync or fs.promises.readFile", lvl:1},
+  {q:"What is process.env.PORT?", a:"An environment variable", lvl:1}
+];
+var srIdx3 = 0, srShuffle3 = localStorage.getItem("p3-sr-shuffle") === "1";
+function srToggleShuffle() {
+  srShuffle3 = !srShuffle3; localStorage.setItem("p3-sr-shuffle", srShuffle3 ? "1" : "0");
+  var b = document.getElementById("srShuffleBtn"); if (b) { b.textContent = "🔀 Shuffle: " + (srShuffle3 ? "On":"Off"); b.style.background = srShuffle3 ? "#e53e3e":"#4a5568"; }
+}
+function startSRReview() {
+  var due = srCards3.filter(function(c){ var m=srState3[c.q]||{}; return !m.next || Date.now() >= m.next; });
+  if (srShuffle3 && due.length > 1) for (var i=due.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=due[i]; due[i]=due[j]; due[j]=t; }
+  srIdx3 = due.length === 0 ? -1 : 0; showSRCard3();
+}
+function showSRCard3() {
+  var q=document.getElementById("srQuestion"), a=document.getElementById("srAnswer"), btn=document.getElementById("srButtons");
+  if (!q) return;
+  if (srIdx3 === -1) { q.textContent="🎉 All reviewed!"; a.style.display="none"; btn.innerHTML='<button onclick="startSRReview()">Reset</button>'; renderSRStats3(); return; }
+  var c=srCards3[srIdx3]; q.textContent="Q: "+c.q; a.textContent="A: "+c.a; a.style.display="none";
+  btn.innerHTML='<button onclick="srFlip3()">Show Answer</button>'; renderSRStats3();
+}
+function srFlip3() {
+  document.getElementById("srAnswer").style.display="block";
+  document.getElementById("srButtons").innerHTML='<button onclick="srRate3(1)">👍 Got it</button><button onclick="srRate3(0)">👎 Again</button>';
+}
+function srRate3(good) {
+  var c=srCards3[srIdx3], m=srState3[c.q]||{lvl:0,next:0};
+  if (good) m.lvl=Math.min(4,(m.lvl||0)+1); else m.lvl=Math.max(1,(m.lvl||0)-1);
+  var days=[0,1,3,7,14]; m.next=Date.now()+days[m.lvl]*86400000;
+  srState3[c.q]=m; localStorage.setItem("p3-sr", JSON.stringify(srState3));
+  srIdx3++; if (srIdx3>=srCards3.length) srIdx3=-1; showSRCard3();
+}
+function renderSRStats3() {
+  var s=document.getElementById("srStats"); if(!s) return;
+  var n=0,l=0,ma=0; srCards3.forEach(function(c){ var lvl=(srState3[c.q]||{}).lvl||0; if(lvl===0)n++; else if(lvl<3)l++; else ma++; });
+  s.textContent="🆕 "+n+" · 📖 "+l+" · 🏆 "+ma;
+}
+
+// ===== Game Engine (ADHD engagement) =====
+var boost3 = JSON.parse(localStorage.getItem("p3-boost") || '{"xp":0,"streakDate":"","streak":0}');
+var boostX3 = boost3.xp || 0, boostStreak3 = boost3.streak || 0, boostDate3 = boost3.streakDate || "";
+var enc3 = ["You've got this! 🎯","One more! ✨","Tiny steps count 🐾","Future-you says thanks 🙌","Progress > perfection 💪"];
+function saveBoost3() {
+  localStorage.setItem("p3-boost", JSON.stringify({xp:boostX3,streak:boostStreak3,streakDate:boostDate3}));
+  var s=document.getElementById("streakCount"), p=document.getElementById("pointCount");
+  if (s) s.textContent=boostStreak3+"-day streak"; if (p) p.textContent=boostX3+" XP";
+}
+function addXP3(a){ boostX3+=a; saveBoost3(); }
+function trackStreak3() {
+  var today=new Date().toISOString().slice(0,10); if (boostDate3===today) return;
+  var y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  boostStreak3=(boostDate3===y)?boostStreak3+1:1; boostDate3=today; saveBoost3();
+  if (boostStreak3>=3) toast3("🔥 "+boostStreak3+"-day streak!", "badge");
+}
+function toast3(msg,cls) {
+  var z=document.getElementById("toastZone"); if(!z) return;
+  var t=document.createElement("div"); t.className="toast"+(cls?" "+cls:""); t.textContent=msg;
+  z.appendChild(t); setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },4000);
+}
+function celebrate3() {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var c=document.getElementById("confettiCanvas"); if(!c) return;
+  c.style.display="block"; c.width=window.innerWidth; c.height=window.innerHeight;
+  var ctx=c.getContext("2d"); var colors=["#fbbf24","#38a169","#4299e1","#e53e3e","#805ad5","#dd6b20"]; var parts=[];
+  for(var i=0;i<120;i++) parts.push({x:Math.random()*c.width,y:-20-Math.random()*c.height,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,r:3+Math.random()*4,col:colors[Math.floor(Math.random()*colors.length)],rot:Math.random()*Math.PI});
+  var frames=0; (function draw(){ ctx.clearRect(0,0,c.width,c.height);
+    parts.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.rot+=.05; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.col; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore(); });
+    frames++; if(frames<120) requestAnimationFrame(draw); else { ctx.clearRect(0,0,c.width,c.height); c.style.display="none"; } })();
+}
+function boostSurprise3() {
+  var names={1:"Section 1 (Map & Set)",2:"Section 2 (Generators)",3:"Section 3 (RegExp)",4:"Section 4 (DOM & Events)",5:"Section 5 (fetch)",6:"Section 6 (Node Core)"};
+  var done=[],all=[]; for(var i=1;i<=10;i++){ if(localStorage.getItem("p3-sec-"+i)==="1") done.push(i); all.push(i); }
+  var undone=all.filter(function(n){return done.indexOf(n)===-1;}); var pick=undone.length?undone[Math.floor(Math.random()*undone.length)]:all[Math.floor(Math.random()*all.length)];
+  var ids={1:"1-mapsets",2:"2-generators",3:"3-regexp",4:"4-dom",5:"5-fetch",6:"6-node"}; var h=document.getElementById(ids[pick]||"table-of-contents");
+  toast3("🎲 Surprise! "+(names[pick]||"Section "+pick),"badge"); if(h) h.scrollIntoView({behavior:"smooth"});
+}
+var focusLen3=25*60, focusLeft3=focusLen3, focusTimer3=null, focusRun3=false;
+function startFocusTimer3() {
+  var d=document.getElementById("focusTimer");
+  if(focusRun3){ clearInterval(focusTimer3); focusRun3=false; focusLeft3=focusLen3; if(d)d.textContent="⏱ 25:00"; toast3("🧠 Sprint done — take a break! ☕","celebrate"); return; }
+  focusRun3=true; focusTimer3=setInterval(function(){ focusLeft3--; if(d)d.textContent="⏱ "+Math.floor(focusLeft3/60)+":"+String(focusLeft3%60).padStart(2,"0");
+    if(focusLeft3<=0){ clearInterval(focusTimer3); focusRun3=false; focusLeft3=focusLen3; if(d)d.textContent="⏱ 25:00"; celebrate3(); toast3("🎉 Focus sprint +10 XP","celebrate"); addXP3(10); trackStreak3(); } },1000);
+}
+
+// ===== Playgrounds =====
+function msRun() {
+  var code=document.getElementById("ms-code").value, out=document.getElementById("ms-out");
+  out.className="out"; try { var r=new Function("return eval('('+code+')')")(); out.textContent="Result: "+String(r); }
+  catch(e){ out.className="out err"; out.textContent="Error: "+e.message; }
+}
+function rxTest() {
+  var pat=document.getElementById("rx-pattern").value, text=document.getElementById("rx-text").value, out=document.getElementById("rx-out");
+  out.className="out"; try { var re=new RegExp(pat); out.textContent=re.test(text)?"✅ MATCH":"❌ no match"; }
+  catch(e){ out.className="out err"; out.textContent="Invalid regex: "+e.message; }
+}
+
+// ===== Auto-Graded Challenges =====
+function runTest(n) {
+  var code=document.getElementById("chal"+n).value, res=document.getElementById("res"+n);
+  res.className="result";
+  var harness="return (async () => {\n  var passed=[], failed=[];\n  function check(name, cond){ (cond?passed:failed).push(name); }\n"+code+"\n"+(P3_TESTS[n]||"")+"\n  return {passed:passed, failed:failed};\n})();";
+  var fn; try { fn=new Function(harness); } catch(e){ res.className="result fail"; res.textContent="Syntax Error: "+e.message; return; }
+  Promise.resolve(fn()).then(function(r){
+    res.className=r.failed.length?"result fail":"result pass";
+    var lines=r.passed.map(function(t){return "✅ "+t;}).concat(r.failed.map(function(t){return "❌ "+t;}));
+    if(r.passed.length && !r.failed.length){ lines.push("🎉 All tests passed!"); addXP3(30); toast3("🏅 Challenge complete! +30 XP","badge"); celebrate3(); markChallengeComplete(n); }
+    res.textContent=lines.join("\n")||"(no tests ran)";
+  }).catch(function(e){ res.className="result fail"; res.textContent="Error: "+e.message; });
+}
+function markChallengeComplete(n) {
+  var c=JSON.parse(localStorage.getItem("p3-chal")||"{}"); c[n]=true; localStorage.setItem("p3-chal",JSON.stringify(c));
+}
+var P3_TESTS = {
+  1: 'var m=countWords("the cat and the cat");\ncheck("is Map", m instanceof Map);\ncheck("cat count=2", m.get("cat")===2);\ncheck("size=3", m.size===3);',
+  2: 'check("slug hello-world", slugify("Hello World!")==="hello-world");\ncheck("slug collapse", slugify("A  B!!")==="a-b");\ncheck("slug edges", slugify("!Hi!")==="hi");',
+  3: 'var r=[...range(1,5)];\ncheck("range 1-5", JSON.stringify(r)===JSON.stringify([1,2,3,4,5]));\ncheck("length 5", r.length===5);',
+  4: 'check("fn exists", typeof fetchWithTimeout==="function");',
+  5: 'var f=freq("the cat sat on mat");\ncheck("freq the=1", f["the"]===1);\ncheck("freq cat=1", f["cat"]===1);\ncheck("freq mat=1", f["mat"]===1);'
+};
+
+// ===== Copy buttons =====
+function addCopyButtons3() {
+  document.querySelectorAll("pre code").forEach(function(code){
+    if(code.parentNode.querySelector("button.cp3")) return;
+    var b=document.createElement("button"); b.className="mark-btn cp3"; b.textContent="📋"; b.style.float="right";
+    b.onclick=function(){ navigator.clipboard.writeText(code.textContent).then(function(){ b.textContent="✅"; setTimeout(function(){b.textContent="📋";},1500); }); };
+    code.parentNode.insertBefore(b, code);
+  });
+}
+
+function focusMode3(btn) { StudyShell.focusMode(btn, "focusHint"); }
+function collapseAll3(open) { StudyShell.collapseDetails(open, "details"); }
+
+// ===== Live DOM demo (Section 4) =====
+var domCount3 = 0;
+function domAdd(){
+  domCount3++;
+  var c = document.getElementById("domCount"), o = document.getElementById("domOut");
+  if(c) c.textContent = domCount3;
+  if(o){
+    o.textContent = domCount3 + " click" + (domCount3===1?"":"s") + " so far — event fired by addEventListener!";
+    if(domCount3%5===0){ o.textContent += " 🎉 Nice momentum!"; }
+  }
+}
+function domReset(){
+  domCount3 = 0;
+  var c = document.getElementById("domCount"), o = document.getElementById("domOut");
+  if(c) c.textContent = "0";
+  if(o) o.textContent = "0 clicks so far — click the button!";
+}
+
+// ===== Live fetch demo (Section 5) =====
+function fetchDemo(){
+  var status = document.getElementById("fetchStatus"), out = document.getElementById("fetchOut");
+  if(status) status.textContent = "⏳ Loading…";
+  if(out) out.style.opacity = "0.4";
+  fetch("https://jsonplaceholder.typicode.com/users/1")
+    .then(function(res){
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function(user){
+      if(out){
+        out.style.opacity = "1";
+        out.innerHTML = "✅ <strong>Fetched</strong>: " + user.name + " — " + user.email +
+          "<br><code>res.ok</code> was " + "<code>true</code>, then <code>.json()</code> decoded the payload.";
+      }
+      if(status) status.textContent = "✅ Done";
+    })
+    .catch(function(err){
+      if(out){ out.style.opacity = "1"; out.textContent = "⚠️ fetch failed: " + err.message + " (offline?)"; }
+      if(status) status.textContent = "❌ Error";
+    });
+}
+
+
+// ===== Certificate + scrollspy =====
+function updateCertificate3() {  var total = 10, done = 0;  for (var i = 1; i <= total; i++) if (localStorage.getItem("p3-sec-" + i) === "1") done++;  var panel = document.getElementById("certPanel3"), status = document.getElementById("certStatus3");  if (!panel) return;  if (done === total) {    panel.style.background = "linear-gradient(135deg,#c6f6d5,#68d391)";    panel.style.borderColor = "#38a169";    if (status) status.innerHTML = "🎉 <strong>Certificate earned!</strong> All 10 sections completed. Well done!";  } else {    panel.style.background = "";    panel.style.borderColor = "#d69e2e";    if (status) status.textContent = "Complete " + (total - done) + " more section(s) to unlock. (" + done + "/" + total + ")";  }}function scrollspy3() {  var links = document.querySelectorAll("#table-of-contents a");  var find = "";  Array.prototype.forEach.call(links, function(a){ var el = document.getElementById(a.getAttribute("href").slice(1)); if (el && el.getBoundingClientRect && el.getBoundingClientRect().top <= 90) find = a.getAttribute("href").slice(1); });  Array.prototype.forEach.call(links, function(a){ var h = a.getAttribute("href").slice(1); a.style.fontWeight = (h === find) ? "700" : ""; a.style.color = (h === find) ? "#90cdf4" : ""; });}if (window.addEventListener) window.addEventListener("scroll", function(){ try{ scrollspy3(); }catch(e){} }, { passive:true });
+
+// ===== Init =====
+markButtons();
+updateProgress();
+renderSRStats3();
+applyFontZoom3();
+saveBoost3();
+addCopyButtons3();
+updateCertificate3();
+</script>
+</body>
+</html>
+
+<!--P3H-END-->

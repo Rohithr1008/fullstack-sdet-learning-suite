@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>database-essentials — Part 3: ORMs, Migrations & Database Testing</title>
+  <style>
+    :root { --bg-primary: #1a202c; --bg-card: #2d3748; --text-primary: #e2e8f0; --accent: #319795; --success: #38a169; --border: #4a5568; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { color: var(--accent); }
+    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
+    .est-time { font-size: 0.85rem; background: var(--border); padding: 4px 10px; border-radius: 12px; }
+    pre { background: #111827; color: #63b3ed; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    .btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .progress-bar-fill { height: 8px; background: var(--success); width: 0%; transition: width 0.3s; margin-bottom: 20px; }
+  </style>
+</head>
+<body class="theme-dark">
+  <div class="container">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <button class="btn" onclick="document.body.classList.toggle('focus-mode-active')">🧘 Focus Mode</button>
+    </div>
+    <div style="background: var(--border); border-radius: 4px;"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+    <h1>Database Essentials — Part 3: ORMs (Prisma/Drizzle) & Database Testing</h1>
+
+    <div class="section-card">
+      <h2>1. Type-Safe ORMs (Prisma & Drizzle) <span class="est-time">⏱ ~15 min</span></h2>
+      <p>Object-Relational Mapping allows querying databases using object-oriented code instead of raw SQL strings.</p>
+      <pre>
+// Querying with Prisma ORM
+const activeUsers = await prisma.user.findMany({
+  where: { active: true },
+  include: { posts: true }
+});
+      </pre>
+      <input type="checkbox" id="sec-1" onchange="updateProgress()" /> <label for="sec-1">Mark Section 1 Complete</label>
+    </div>
+
+    <div class="section-card">
+      <h2>2. Database Testing & Fixtures <span class="est-time">⏱ ~12 min</span></h2>
+      <p>Seed deterministic test data and clean up database state between automated test runs.</p>
+      <pre>
+// Seeding fixture data before API test
+beforeEach(async () => {
+  await db.query('TRUNCATE TABLE users RESTART IDENTITY CASCADE;');
+  await db.query('INSERT INTO users (name) VALUES ($1);', ['Test User']);
+});
+      </pre>
+      <input type="checkbox" id="sec-2" onchange="updateProgress()" /> <label for="sec-2">Mark Section 2 Complete</label>
+    </div>
+  </div>
+  <script>
+    function updateProgress() {
+      const checks = document.querySelectorAll('input[type="checkbox"]');
+      const checked = Array.from(checks).filter(c => c.checked).length;
+      document.getElementById('progressFill').style.width = ((checked / checks.length) * 100) + '%';
+    }
+  </script>
+</body>
+</html>

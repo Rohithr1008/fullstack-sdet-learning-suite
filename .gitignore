@@ -1,0 +1,21 @@
+﻿# Dependencies / Build outputs
+node_modules/
+dist/
+build/
+.cache/
+
+# Testing reports & traces
+test-results/
+playwright-report/
+blob-report/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

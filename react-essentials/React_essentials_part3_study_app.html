@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React Essentials — Part 3: Styling & Testing</title>
+<style>
+:root { --accent:#1d4f91; --bg:#f4f7fb; --text:#182333; --card:#fff; --muted:#5b6b80; --border:#d9e2ec; }
+html.force-dark, html.force-dark body { --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --muted:#8a9bb0; --border:#28374d; }
+html.force-dark { color-scheme: dark; }
+body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
+.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#1e3a5f; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
+.partnav a { color:#93c5fd; text-decoration:none; font-weight:600; }
+.partnav strong { color:#fff; }
+.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 12px; align-items:center; }
+.toolbar button { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; cursor:pointer; }
+#progressBar { background:#1e3a5f; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; margin-bottom:16px; }
+.bar { height:8px; background:#334155; border-radius:999px; margin-top:6px; overflow:hidden; }
+.fill { height:100%; background:#38a169; width:0%; transition:width 0.3s; }
+h1 { color:var(--accent); }
+h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
+.quiz-box, .playground { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.quiz-box details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
+summary { cursor:pointer; font-weight:600; }
+pre, code { font-family:ui-monospace,Consolas,monospace; }
+pre { overflow:auto; background:var(--card); border:1px solid var(--border); padding:12px; border-radius:8px; }
+.mark { margin:12px 0; }
+.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; }
+.mark button.done { background:#276749; }
+
+/* Accessible Component Demo */
+.a11y-btn { padding:10px 18px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+.a11y-btn:focus-visible { outline:3px solid #f59e0b; outline-offset:2px; }
+
+/* ADHD Accessibility Additions */
+html.force-dark { color-scheme: dark; --bg:#0d1420; --text:#dbe4ef; --card:#151f30; --border:#28374d; }
+body.font-sm { font-size: 14px !important; }
+body.font-lg { font-size: 18px !important; }
+.skip-link { position: absolute; left: -9999px; }
+.skip-link:focus { position: fixed; left: 8px; top: 8px; z-index: 9999; background: #fff; color: #1d4f91; padding: 8px 14px; border-radius: 6px; font-weight: 700; }
+.toolbar-adhd { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; align-items: center; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 8px; }
+.toolbar-adhd button { padding: 4px 10px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: 600; }
+body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer { display: none !important; }
+.est-time { font-size: 0.82rem; background: #e2e8f0; color: #2d3748; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+</style>
+</head>
+<body id="mainContent">
+
+<a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="toolbar-adhd">
+  <span>📐 Text Size:</span>
+  <button onclick="document.body.classList.remove('font-sm','font-lg')">Default</button>
+  <button onclick="document.body.classList.add('font-sm')">A-</button>
+  <button onclick="document.body.classList.add('font-lg')">A+</button>
+  <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+</div>
+
+
+<div class="partnav">
+  <strong>React Essentials:</strong>
+  <a href="React_essentials_part1_study_app.html">Part 1 (JSX)</a> ·
+  <a href="React_essentials_part2_study_app.html">Part 2 (State)</a> ·
+  <span>Part 3 (Styling)</span> ·
+  <a href="index.html">Hub</a>
+</div>
+
+<div class="toolbar">
+  <button id="themeToggle">🌓 Toggle Dark Mode</button>
+</div>
+
+<div id="progressBar">
+  <div id="progressLabel">Part 3 Progress: 0/4 completed</div>
+  <div class="bar"><div class="fill" id="progressFill"></div></div>
+</div>
+
+<h1>React Essentials — Part 3: Styling & Testing</h1>
+<p>Master CSS Modules, Tailwind CSS overview, accessible component patterns, and Playwright component testing.</p>
+
+<section id="sec-1">
+  <h2>1. CSS Modules & Local Scoping</h2>
+  <pre><code>import styles from './Card.module.css';
+
+function Card({ children }) {
+  return &lt;div className={styles.cardWrapper}&gt;{children}&lt;/div&gt;;
+}</code></pre>
+  <div class="mark"><button onclick="toggleSec(1)">Mark Section 1 Complete</button></div>
+</section>
+
+<section id="sec-2">
+  <h2>2. Accessible Focus Management</h2>
+  <div class="playground">
+    <h3>Interactive Demo: Accessible Focus State</h3>
+    <button class="a11y-btn" aria-label="Perform action">Focus Me via Tab Key</button>
+  </div>
+  <div class="mark"><button onclick="toggleSec(2)">Mark Section 2 Complete</button></div>
+</section>
+
+<section id="sec-3">
+  <h2>3. Playwright E2E Strategy for React</h2>
+  <pre><code>test('interacts with accessible button', async ({ page }) =&gt; {
+  const btn = page.getByRole('button', { name: /perform action/i });
+  await btn.click();
+});</code></pre>
+  <div class="mark"><button onclick="toggleSec(3)">Mark Section 3 Complete</button></div>
+</section>
+
+<section id="sec-4">
+  <h2>4. Knowledge Check Quiz</h2>
+  <div class="quiz-box">
+    <details>
+      <summary>Q1: Why should you avoid selecting elements by CSS hash class names in automated tests?</summary>
+      <p><b>Answer:</b> Hash class names change dynamically on every build, leading to brittle test scripts.</p>
+    </details>
+  </div>
+  <div class="mark"><button onclick="toggleSec(4)">Mark Section 4 Complete</button></div>
+</section>
+
+<script>
+const TOTAL_SECS = 4;
+function updateProgress() {
+  let done = 0;
+  for(let i=1; i<=TOTAL_SECS; i++) {
+    if(localStorage.getItem('react-p3-s'+i) === '1') done++;
+  }
+  document.getElementById('progressLabel').textContent = `Part 3 Progress: ${done}/${TOTAL_SECS} completed`;
+  document.getElementById('progressFill').style.width = `${(done/TOTAL_SECS)*100}%`;
+  
+  for(let i=1; i<=TOTAL_SECS; i++) {
+    const btn = document.querySelector(`#sec-${i} .mark button`);
+    if(btn) {
+      if(localStorage.getItem('react-p3-s'+i) === '1') {
+        btn.textContent = `✓ Section ${i} Completed`;
+        btn.classList.add('done');
+      } else {
+        btn.textContent = `Mark Section ${i} Complete`;
+        btn.classList.remove('done');
+      }
+    }
+  }
+}
+
+function toggleSec(n) {
+  const current = localStorage.getItem('react-p3-s'+n);
+  localStorage.setItem('react-p3-s'+n, current === '1' ? '0' : '1');
+  updateProgress();
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  document.documentElement.classList.toggle('force-dark');
+});
+
+updateProgress();
+</script>
+</body>
+</html>
