@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Roadmap & Visual Flowchart — Full Stack & SDET Suite</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #1a202c;
+      --card: #2d3748;
+      --text: #e2e8f0;
+      --accent: #63b3ed;
+      --border: #4a5568;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 24px; line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; }
+    .nav-header { display: flex; gap: 16px; margin-bottom: 20px; font-weight: 600; }
+    .nav-header a { color: #63b3ed; text-decoration: none; }
+    .nav-header a:hover { text-decoration: underline; }
+    .roadmap-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 24px 0; overflow-x: auto; text-align: center; }
+    .phase-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
+    .phase-card h2 { color: #63b3ed; margin-top: 0; }
+    .phase-card ol { margin: 0; padding-left: 20px; }
+    .phase-card li { margin-bottom: 8px; }
+    .phase-card a { color: #7dd3fc; text-decoration: none; font-weight: bold; }
+    .phase-card a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🗺️ Full Stack & SDET Curriculum Learning Roadmap</h1>
+    <div class="nav-header">
+      <a href="index.html">🚀 Master Launchpad Index</a>
+      <a href="README.md">📖 Workspace README</a>
+    </div>
+
+    <p><strong>Target Path:</strong> Full Stack Developer & SDET / Automation Quality Engineer<br>
+    <strong>Total Duration:</strong> ~20 Weeks (Flexible / Self-Paced)</p>
+
+    <h2>📊 Visual Learning Flowchart</h2>
+    <div class="roadmap-box">
+      <pre class="mermaid">
+flowchart TD
+    subgraph PHASE1["Phase 1: Foundations (Weeks 1–3)"]
+        HTML["1. html-css-essentials\n(3 Parts • HTML5, A11y, Flexbox, Grid)"]
+        GIT["2. git-essentials\n(3 Parts • Git CLI, Staging, Branches, PRs)"]
+    end
+
+    subgraph PHASE2["Phase 2: Core Programming (Weeks 4–7)"]
+        JS["3. javascript-essentials\n(3 Parts • Core JS, DOM, Async, Visualizers)"]
+        DB["4. database-essentials\n(3 Parts • SQL, Tables, Joins, ORMs)"]
+    end
+
+    subgraph PHASE3["Phase 3: Backend & Type Safety (Weeks 8–11)"]
+        NODE["5. node-express-essentials\n(3 Parts • Event Loop, Express, Middleware, JWT)"]
+        TS_TESTER["6. typescript-for-testers\n(2 Parts • TS Primitives, Interfaces, Fixtures)"]
+    end
+
+    subgraph PHASE4["Phase 4: Frontend Framework & Design (Weeks 12–14)"]
+        REACT["7. react-essentials\n(3 Parts • JSX, Components, Hooks, RTL)"]
+        FIGMA["8. figma-to-dev\n(1 Part • Auto Layout, Tokens, Dev Mode)"]
+    end
+
+    subgraph PHASE5["Phase 5: Automated Testing & Performance (Weeks 15–18)"]
+        PW["9. playwright-essentials\n(3 Parts • E2E, POM Pattern, Network Mocks, CI)"]
+        API["10. api-data-essentials\n(3 Parts • REST, JSON Schema, k6 Load Testing)"]
+        PERF["11. perf-basics\n(3 Parts • Core Web Vitals, Lighthouse, DevTools)"]
+        TS_DEV["12. typescript-develop-test\n(3 Parts • Fullstack TS Build & Test Loop)"]
+    end
+
+    subgraph PHASE6["Phase 6: Capstone Projects & Career (Weeks 19–20)"]
+        CAP1["13. automation-portfolio\n(Express + Vanilla JS App + Test Suite)"]
+        CAP2["14. phase-bc-fullstack-app\n(React + Express + Vite App + E2E Suite)"]
+        CAREER["15. automation-tester-path\n(Roadmap, Testing Pyramid, Interview Prep)"]
+        CSS_ADV["16. css-advanced\n(3 Parts • Motion, Container Queries, Tokens)"]
+    end
+
+    HTML --> GIT
+    GIT --> JS
+    JS --> DB
+    DB --> NODE
+    NODE --> TS_TESTER
+    TS_TESTER --> REACT
+    REACT --> FIGMA
+    FIGMA --> PW
+    PW --> API
+    API --> PERF
+    PERF --> TS_DEV
+    TS_DEV --> CAP1
+    CAP1 --> CAP2
+    CAP2 --> CAREER
+    CAREER --> CSS_ADV
+      </pre>
+    </div>
+
+    <h2>📅 Step-by-Step Study Guide</h2>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 1: Web & Version Control Foundations (Weeks 1–3)</h2>
+      <ol>
+        <li><a href="html-css-essentials/Html_css_essentials_part1_study_app.html">html-css-essentials</a> — Learn semantic HTML5, CSS box model, flexbox, grid, and accessibility (a11y).</li>
+        <li><a href="git-essentials/Git_essentials_part1_study_app.html">git-essentials</a> — Master git init, staging, commits, branch creation, merging, and GitHub Pull Requests.</li>
+      </ol>
+    </div>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 2: Core Programming & Data (Weeks 4–7)</h2>
+      <ol>
+        <li><a href="javascript-essentials/Javascript_essentials_part1_study_app.html">javascript-essentials</a> — Master JS fundamentals, DOM manipulation, closures, Promises, and Event Loop visualizers.</li>
+        <li><a href="database-essentials/Database_essentials_part1_study_app.html">database-essentials</a> — Learn relational database tables, SQL queries (SELECT, INSERT, UPDATE), joins, and ORMs.</li>
+      </ol>
+    </div>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 3: Backend & Type Safety (Weeks 8–11)</h2>
+      <ol>
+        <li><a href="node-express-essentials/Node_express_essentials_part1_study_app.html">node-express-essentials</a> — Build Node.js servers, Express routing, middleware chains, REST controllers, and JWT auth.</li>
+        <li><a href="typescript-for-testers/Typescript_for_testers_part1_study_app.html">typescript-for-testers</a> — Learn TypeScript primitives, interfaces, union types, tsconfig, and JS→TS migration.</li>
+      </ol>
+    </div>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 4: Frontend Framework & Design Systems (Weeks 12–14)</h2>
+      <ol>
+        <li><a href="react-essentials/React_essentials_part1_study_app.html">react-essentials</a> — Learn React JSX, functional components, props, useState/useEffect hooks, and RTL.</li>
+        <li><a href="figma-to-dev/Figma_to_dev_study_app.html">figma-to-dev</a> — Learn Figma Dev Mode, mapping Auto Layout to CSS Flexbox, and design token hierarchies.</li>
+      </ol>
+    </div>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 5: Automated Testing & Performance (Weeks 15–18)</h2>
+      <ol>
+        <li><a href="playwright-essentials/Playwright_essentials_part1_study_app.html">playwright-essentials</a> — Master Playwright E2E testing, locators, Page Object Model (POM), network mocks, and CI.</li>
+        <li><a href="api-data-essentials/Api_data_essentials_part1_study_app.html">api-data-essentials</a> — Learn REST API testing, authorization headers, JSON Schema validation, and k6 load testing.</li>
+        <li><a href="perf-basics/Perf_basics_part1_study_app.html">perf-basics</a> — Optimize Core Web Vitals (LCP, INP, CLS), interpret Lighthouse scores, and audit DevTools.</li>
+        <li><a href="typescript-develop-test/Typescript_develop_test_part1_study_app.html">typescript-develop-test</a> — Build and test a real Task Board app using full TS dev and Playwright loop.</li>
+      </ol>
+    </div>
+
+    <div class="phase-card">
+      <h2>🔹 Phase 6: Capstones & Career (Weeks 19–20)</h2>
+      <ol>
+        <li><a href="automation-portfolio/Automation_portfolio_study_app.html">automation-portfolio</a> — Launch and test against a complete Express + Vanilla JS Task Board portfolio application.</li>
+        <li><a href="phase-bc-fullstack-app/Phase_bc_fullstack_app_study_app.html">phase-bc-fullstack-app</a> — Launch and test against a full-stack React + Express + Vite capstone application.</li>
+        <li><a href="automation-tester-path/Automation_tester_path_study_app.html">automation-tester-path</a> — Review testing pyramid strategies, non-functional testing, career roadmaps, and SDET interview prep.</li>
+        <li><a href="css-advanced/Css_advanced_part1_study_app.html">css-advanced</a> — Explore CSS motion keyframes, 3D transforms, container queries, and subgrid.</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+  </script>
+</body>
+</html>

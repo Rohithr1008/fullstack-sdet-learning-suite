@@ -2,9 +2,8 @@
 
 Welcome to the **Full Stack Developer & SDET Learning Suite** — a comprehensive 16-project, self-contained curriculum designed for mastering full-stack web development, test automation, and quality engineering.
 
-- 🌐 **[Live Interactive Web App (GitHub Pages)](https://rohithr1008.github.io/fullstack-sdet-learning-suite/)**
-- 🗺️ **[Learning Roadmap & Study Guide](learning_roadmap.md)**
-- 🚀 **[Master Launchpad Index (index.html)](index.html)**
+- 🌐 **[Live Interactive Master Dashboard](https://rohithr1008.github.io/fullstack-sdet-learning-suite/)**
+- 🗺️ **[Live Visual Learning Flowchart](https://rohithr1008.github.io/fullstack-sdet-learning-suite/learning_roadmap.html)**
 - 📋 **[Fixes & Completion Summary](fixes_summary.md)**
 - 🤝 **[Project Handoff Guide](HANDOFF.md)**
 
