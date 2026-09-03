@@ -1,516 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perf Basics — Part 1</title>
-<style>
-:root { --accent:#0f766e; --bg:#f0f7f4; --text:#14241c; --card:#fff; --muted:#5b7168; --border:#c5ddd4; }
-html.force-dark, html.force-dark body { --bg:#0c1612; --text:#d8ebe2; --card:#12201a; --muted:#8a9e94; --border:#243830; }
-html.force-dark { color-scheme: dark; }
-body { margin:0; font:16px/1.6 "Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); padding:16px 18px 48px; max-width:880px; margin-inline:auto; }
-body.font-sm { font-size:14px; } body.font-lg { font-size:18px; }
-.skip-link { position:absolute; left:-9999px; }
-.skip-link:focus { position:fixed; left:8px; top:8px; z-index:9999; background:#fff; color:var(--accent); padding:8px 14px; border-radius:6px; font-weight:700; }
-.partnav { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#134e4a; color:#e2e8f0; padding:8px 12px; border-radius:8px; margin:6px 0 12px; }
-.partnav a { color:#5eead4; text-decoration:none; font-weight:600; }
-.partnav strong { color:#fff; }
-.theme-btn, button { cursor:pointer; }
-h1 { color:var(--accent); }
-h2 { border-bottom:3px solid var(--accent); padding-bottom:6px; margin-top:2rem; }
-.why { background:#e6fffa; border-left:4px solid #319795; padding:6px 12px; border-radius:6px; margin:6px 0 10px; font-size:0.92rem; }
-html.force-dark .why { background:#0f1f1c; }
-.quiz-box, .panel, .mock, .certificate { background:var(--card); border:2px solid var(--border); border-radius:12px; padding:14px 18px; margin:14px 0; }
-.quiz-box details, .flash details { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin:8px 0; }
-summary { cursor:pointer; font-weight:600; }
-.quiz-correct { color:#276749; font-weight:700; }
-html.force-dark .quiz-correct { color:#68d391; }
-.badge { display:inline-block; font-size:12px; padding:2px 9px; border-radius:999px; font-weight:700; margin-left:6px; }
-.b-green { background:#c6f6d5; color:#22543d; }
-.b-yellow { background:#fefcbf; color:#744210; }
-.toolbar { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; align-items:center; }
-.toolbar button, .theme-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-weight:600; }
-#progressBar { background:#134e4a; color:#e2e8f0; border-radius:8px; padding:10px 16px; font-weight:600; text-align:center; }
-.mark { margin:8px 0; }
-.mark button { background:var(--accent); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:600; }
-body.focus-mode #progressBar, body.focus-mode #boostBar, body.focus-mode #learningPathPanel, body.focus-mode #srPanel, body.focus-mode .studyplan7 { display:none !important; }
-#focusHint { display:none; background:#eef2ff; border:2px solid #5a67d8; border-radius:8px; padding:8px 14px; margin:6px 0; color:#3730a3; font-weight:600; }
-html.force-dark #focusHint { background:#1a1a2e; color:#c7d2fe; }
-table { border-collapse:collapse; width:100%; margin:10px 0; }
-th, td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
-.mock label { display:block; margin:6px 0 2px; font-weight:600; }
-.mock input, .mock select { width:100%; max-width:280px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); }
-.mock .out { margin-top:10px; padding:10px; border-radius:8px; background:var(--bg); font-family:ui-monospace,Consolas,monospace; font-size:14px; }
-.certificate { text-align:center; border-color:#d69e2e; background:linear-gradient(135deg,#ecfdf5,#fef9c3); }
-html.force-dark .certificate { background:linear-gradient(135deg,#0f1f1c,#422006); }
-.certificate.locked { opacity:0.75; }
-.mood { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:10px; }
-.mood input { display:none; }
-.mood label { border:1px solid var(--border); border-radius:999px; padding:4px 12px; background:var(--card); cursor:pointer; font-size:14px; }
-.mood input:checked + label { background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; }
-.studyplan7 { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 16px; margin:14px 0; }
-footer { text-align:center; margin-top:28px; color:var(--muted); font-size:13px; }
-@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
-@media print { .toolbar, .theme-btn, #boostBar, #srPanel { display:none !important; } }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Testing Basics — Part 1: Core Web Vitals (LCP, INP, CLS) & Lighthouse Audits</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #4ade80;
+      --warning: #facc15;
+      --code-bg: #090d16;
+      --muted: #94a3b8;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #7dd3fc; margin-top: 36px; font-size: 1.5rem; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: normal; margin-left: 8px; }
+    .why { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; color: #7dd3fc; overflow-x: auto; font-size: 0.95rem; }
+    .code-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 6px 14px; border-radius: 8px 8px 0 0; font-size: 0.85rem; color: #94a3b8; border: 1px solid var(--border); border-bottom: none; }
+    .copy-btn { background: #334155; color: #fff; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .line-annotation { background: #131c2e; border-left: 3px solid #38bdf8; padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; color: #cbd5e1; }
+    .line-annotation code { color: #facc15; }
+    .quiz-box { background: #162032; border: 2px solid #0284c7; border-radius: 10px; padding: 16px; margin: 20px 0; }
+    .quiz-box details { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; margin-top: 8px; }
+    .quiz-box summary { cursor: pointer; font-weight: bold; color: #38bdf8; }
+    .quiz-correct { color: #4ade80; }
+    .spotbug details, .predict details { background: #1e293b; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .spotbug summary, .predict summary { cursor: pointer; font-weight: bold; color: #facc15; }
+    .mark-btn { background: #16a34a; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .mark-btn.done { background: #475569; }
+    
+    /* Panel / Flashcards / Boost */
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin: 20px 0; }
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #1e293b; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.95rem; }
+    .partnav a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: #1e293b; padding: 10px 16px; border-radius: 8px; }
+    .toolbar button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0f172a; color: #fff; cursor: pointer; font-weight: 600; }
+    #progressBar { font-weight: bold; color: #38bdf8; margin: 14px 0; }
+    
+    /* Focus & Dark Mode */
+    body.focus-mode .partnav, body.focus-mode .toolbar, body.focus-mode #boostBar, body.focus-mode #srPanel { display: none !important; }
+    .focus-banner { display: none; background: #0284c7; color: #fff; text-align: center; padding: 8px; font-weight: bold; border-radius: 6px; margin-bottom: 16px; }
+    body.focus-mode .focus-banner { display: block !important; }
+    
+    /* Certificate */
+    .certificate { display: none; background: linear-gradient(135deg, #1e293b, #0f172a); border: 3px solid #facc15; border-radius: 14px; padding: 28px; text-align: center; margin: 30px 0; }
+    .certificate.unlocked { display: block; }
+  </style>
 </head>
-<body>
-<a class="skip-link" href="#progressBar">Skip to content</a>
+<body id="mainContent">
 
-<h1>Perf Basics — Part 1</h1>
-
-<div class="partnav" aria-label="Part navigation">
-  <a href="index.html">Hub</a>
-  <strong>1 Perf Basics</strong>
-  <span style="opacity:.8">(single-part kit)</span>
-</div>
-
-<button id="themeBtn" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle light/dark theme">🌙 Dark mode</button>
-
-<div class="toolbar">
-  <span style="font-weight:600;">📐 Size:</span>
-  <button type="button" onclick="fontZoom(-1)" aria-label="Decrease text size">A−</button>
-  <button type="button" onclick="fontZoom(0)" aria-label="Reset text size">A</button>
-  <button type="button" onclick="fontZoom(1)" aria-label="Increase text size">A+</button>
-  <button type="button" onclick="collapseAll(true)">📖 Expand all</button>
-  <button type="button" onclick="collapseAll(false)">📕 Collapse all</button>
-  <button type="button" id="focusBtn" onclick="focusMode(this)" aria-pressed="false">🧘 Focus Mode</button>
-</div>
-<div id="focusHint">🧘 <strong>Focus Mode ON</strong> — extra panels hidden. Click Focus Mode again to restore.</div>
-
-<p>Performance literacy for automation testers: SLIs/SLOs, k6 hello-world, reading p95, and when perf ≠ functional E2E.</p>
-
-<div id="progressBar" role="status">📊 Progress: 0/12 sections (0%)</div>
-
-<div id="boostBar" class="panel" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
-  <strong>⚡ <span id="streakCount">0-day streak</span></strong>
-  <strong>⭐ <span id="pointCount">0 XP</span></strong>
-  <button type="button" onclick="surpriseJump()">🎲 Surprise me</button>
-</div>
-
-<details class="studyplan7"><summary>📅 Suggested 7-day study plan</summary>
-<ol>
-<li>Days 1–2: §§1–3 goals &amp; numbers</li>
-<li>Day 3: §4 run <code>k6 run labs/hello.js</code> (if installed)</li>
-<li>Days 4–5: §§5–6 p95 + E2E boundary</li>
-<li>Day 6: glossary + pitfalls + Spot-the-Bug</li>
-<li>Day 7: practice, challenges, certificate</li>
-</ol>
-</details>
-
-<div id="learningPathPanel" class="panel">
-  <h3 style="margin-top:0;color:var(--accent);">🧭 Learning Path</h3>
-  <div id="learningPathContent">Complete a section to get a next-step tip.</div>
-</div>
-
-<div id="srPanel" class="panel">
-  <h3 style="margin-top:0;color:var(--accent);">🃏 Flashcard drill</h3>
-  <p id="srQ">Click Start to begin.</p>
-  <p id="srA" style="display:none;color:#0f766e;font-weight:600;"></p>
-  <div id="srBtns"><button type="button" onclick="srStart()">Start Review</button></div>
-</div>
-
-<!-- ===== SECTIONS ===== -->
-
-<h2 id="s1">1. What performance testing is (and isn't)</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> green functional tests ≠ capacity under traffic.</div>
-<p>Perf checks <strong>speed and capacity goals</strong> under load. It does not replace unit/API/E2E correctness tests.</p>
-<table>
-<tr><th>Question</th><th>Tool family</th></tr>
-<tr><td>Does the journey work?</td><td>Playwright / E2E</td></tr>
-<tr><td>Is the contract right?</td><td>API tests</td></tr>
-<tr><td>Stay under X ms at N users?</td><td>k6 / load tools</td></tr>
-</table>
-<div class="quiz-box">
-<strong>🧪 Self-test</strong>
-<details><summary>Can Playwright alone guarantee p95 &lt; 300 ms at 200 RPS?</summary><p class="quiz-correct">No.</p></details>
-<details><summary>One question perf answers that unit tests don't?</summary><p class="quiz-correct">Latency/error behavior under concurrent load.</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="1" onclick="toggleSection(1)">Mark Complete</button></div>
-
-<h2 id="s2">2. SLIs &amp; SLOs in plain language</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> goals beat opinions.</div>
-<table>
-<tr><th>Term</th><th>Meaning</th></tr>
-<tr><td>SLI</td><td>What you measure</td></tr>
-<tr><td>SLO</td><td>Target on that measure</td></tr>
-<tr><td>SLA</td><td>External/contract promise</td></tr>
-</table>
-
-<div class="mock" id="sloMock" aria-label="SLO checker mock">
-  <strong>🧪 Live mock — SLO checker</strong>
-  <label for="sliName">SLI name</label>
-  <input id="sliName" value="http_req_duration (checkout)" />
-  <label for="sloP">Percentile</label>
-  <select id="sloP"><option>p95</option><option>p99</option><option>p50</option></select>
-  <label for="sloMs">Target ms</label>
-  <input id="sloMs" type="number" value="400" />
-  <label for="sloObs">Observed ms</label>
-  <input id="sloObs" type="number" value="520" />
-  <p><button type="button" onclick="runSloCheck()">Check SLO</button></p>
-  <div class="out" id="sloOut">Enter values and click Check SLO.</div>
-</div>
-
-<div class="quiz-box">
-<details><summary>“p95 &lt; 500 ms” — SLI or SLO?</summary><p class="quiz-correct">SLO.</p></details>
-<details><summary>“Request duration in ms” — SLI or SLO?</summary><p class="quiz-correct">SLI.</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="2" onclick="toggleSection(2)">Mark Complete</button></div>
-
-<h2 id="s3">3. Latency, throughput, and load</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> different numbers → different fixes.</div>
-<table>
-<tr><th>Concept</th><th>Means</th><th>Unit</th></tr>
-<tr><td>Latency</td><td>Time per request</td><td>ms</td></tr>
-<tr><td>Throughput</td><td>Work per time</td><td>RPS</td></tr>
-<tr><td>Load</td><td>Concurrency</td><td>VUs</td></tr>
-</table>
-<div class="quiz-box">
-<details><summary>1000 RPS + 50 ms p95 — slow?</summary><p class="quiz-correct">Usually no.</p></details>
-<details><summary>5 RPS + 4 s p95 — problem?</summary><p class="quiz-correct">Yes — terrible latency.</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="3" onclick="toggleSection(3)">Mark Complete</button></div>
-
-<h2 id="s4">4. k6 hello-world</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> run one script; read the table.</div>
-<p>Lab file: <code>labs/hello.js</code> · Command: <code>k6 run labs/hello.js</code> · Install: <a href="https://k6.io/docs/get-started/installation/" target="_blank" rel="noopener">k6 docs</a></p>
-<pre style="overflow:auto;background:var(--card);border:1px solid var(--border);padding:12px;border-radius:8px;"><code>import http from 'k6/http';
-import { check, sleep } from 'k6';
-
-export const options = {
-  vus: 1,
-  duration: '10s',
-  thresholds: {
-    http_req_failed: ['rate&lt;0.01'],
-    http_req_duration: ['p(95)&lt;500'],
-  },
-};
-
-export default function () {
-  const res = http.get('https://test.k6.io');
-  check(res, { 'status is 200': (r) =&gt; r.status === 200 });
-  sleep(1);
-}</code></pre>
-<p class="why">⚠️ Never point early scripts at production.</p>
-<div class="quiz-box">
-<details><summary>What does vus: 1 mean?</summary><p class="quiz-correct">One virtual user.</p></details>
-<details><summary>p95 800 ms vs threshold p(95)&lt;500?</summary><p class="quiz-correct">Threshold fails the run.</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="4" onclick="toggleSection(4)">Mark Complete</button></div>
-
-<h2 id="s5">5. Interpreting p95</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> averages hide abandoners.</div>
-<p><strong>p95</strong> = 95% of requests were faster than this number.</p>
-
-<div class="mock" aria-label="Percentile interpreter mock">
-  <strong>🧪 Live mock — percentile interpreter</strong>
-  <label for="latList">Comma-separated latencies (ms)</label>
-  <input id="latList" value="80,90,100,110,120,200,250,900" style="max-width:100%;" />
-  <p><button type="button" onclick="runPercentiles()">Compute mean / p50 / p95</button></p>
-  <div class="out" id="percOut">Paste sample times and compute.</div>
-</div>
-
-<div class="quiz-box">
-<details><summary>Mean fine, p95 terrible — meaning?</summary><p class="quiz-correct">Tail latency: a small % of requests are very slow.</p></details>
-<details><summary>Prefer mean or p95 for user-facing SLO?</summary><p class="quiz-correct">Prefer percentile (p95/p99).</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="5" onclick="toggleSection(5)">Mark Complete</button></div>
-
-<h2 id="s6">6. When perf ≠ functional E2E</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> wrong tool → false confidence.</div>
-<table>
-<tr><th>Goal</th><th>Prefer</th></tr>
-<tr><td>Journey correctness</td><td>Playwright E2E</td></tr>
-<tr><td>Latency under N VUs</td><td>k6</td></tr>
-<tr><td>One smoke timing</td><td>Light check — not a full perf program</td></tr>
-</table>
-<div class="quiz-box">
-<details><summary>Only Playwright for “perf” — risk?</summary><p class="quiz-correct">Few UI timings ≠ capacity / SLO under load.</p></details>
-<details><summary>Can k6 replace all E2E?</summary><p class="quiz-correct">No.</p></details>
-</div>
-<div class="mark"><button type="button" data-sec="6" onclick="toggleSection(6)">Mark Complete</button></div>
-
-<h2 id="s7">7. Glossary</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> shared words prevent false greens.</div>
-<table>
-<tr><th>Term</th><th>Meaning</th></tr>
-<tr><td>SLI / SLO / SLA</td><td>Measure / target / contract</td></tr>
-<tr><td>VU</td><td>Virtual user</td></tr>
-<tr><td>RPS</td><td>Requests per second</td></tr>
-<tr><td>Check</td><td>Per-response assert (k6)</td></tr>
-<tr><td>Threshold</td><td>Aggregate gate; can fail the run</td></tr>
-<tr><td>p95 / p99</td><td>High percentiles; tail latency</td></tr>
-</table>
-<div class="mark"><button type="button" data-sec="7" onclick="toggleSection(7)">Mark Complete</button></div>
-
-<h2 id="s8">8. Common pitfalls</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> bad tests create outages or false greens.</div>
-<ol>
-<li>Load-testing prod by accident</li>
-<li>Tiny samples labeled “p95”</li>
-<li>Mean-only reports</li>
-<li>E2E browsers as load generators</li>
-<li>No SLO before scripting</li>
-<li>High RPS with high errors</li>
-<li>Warm-cache only without saying so</li>
-</ol>
-<div class="quiz-box">
-<strong>🐞 Spot-the-Bug</strong>
-<details><summary>“Perf OK — avg 120 ms” (15 samples, no p95/errors)</summary><p class="quiz-correct">Too few samples; mean-only; missing errors/SLO.</p></details>
-<details><summary>500 Playwright workers in CI “for load”</summary><p class="quiz-correct">Wrong tool; use k6 on APIs/non-prod.</p></details>
-</div>
-<div class="mood"><span>Mood after pitfalls:</span>
-<input type="radio" name="mp" id="mp1"><label for="mp1">😅</label>
-<input type="radio" name="mp" id="mp2"><label for="mp2">🙂</label>
-<input type="radio" name="mp" id="mp3"><label for="mp3">😎</label>
-</div>
-<div class="mark"><button type="button" data-sec="8" onclick="toggleSection(8)">Mark Complete</button></div>
-
-<h2 id="s9">9. Practice exercises</h2>
-<p><span class="badge b-green">easy</span> ~20 min</p>
-<ol>
-<li>Write one SLI + one SLO for login.</li>
-<li>Label: 250 RPS · 180 ms p95 · 50 VUs.</li>
-<li>Sketch options: 5 VUs, 30s, p95 &lt; 400.</li>
-<li>Why Playwright green ≠ Black Friday ready.</li>
-<li>Times 50…900 — p95 nearer 90 or 900?</li>
-</ol>
-<div class="mark"><button type="button" data-sec="9" onclick="toggleSection(9)">Mark Complete</button></div>
-
-<h2 id="s10">10. Challenges</h2>
-<p><span class="badge b-yellow">medium</span></p>
-<p><strong>C1.</strong> avg 90 · p95 90 · p99 2.5s · 0% errors — message to product?</p>
-<p><strong>C2.</strong> Rewrite “feel fast” as an SLO.</p>
-<p><strong>C3.</strong> Better 3-bullet plan than 1000 Playwright workers for perf.</p>
-<div class="mark"><button type="button" data-sec="10" onclick="toggleSection(10)">Mark Complete</button></div>
-
-<h2 id="s11">11. Answer key</h2>
-<details><summary>Practice answers</summary>
-<ol>
-<li>SLI = login duration; SLO = e.g. p95 &lt; 300 ms / week.</li>
-<li>Throughput · latency · load.</li>
-<li><code>{ vus:5, duration:'30s', thresholds:{ http_req_duration:['p(95)&lt;400'] } }</code></li>
-<li>E2E ≠ capacity under load.</li>
-<li><strong>900</strong>.</li>
-</ol>
-</details>
-<details><summary>Challenge answers</summary>
-<p><strong>C1.</strong> Tail risk at p99 — dig into outliers if that cohort matters.</p>
-<p><strong>C2.</strong> e.g. 99.9% of GET /home &lt; 400 ms over 30 days.</p>
-<p><strong>C3.</strong> Keep E2E for journeys; add k6 + thresholds; report p95/errors.</p>
-</details>
-<div class="mark"><button type="button" data-sec="11" onclick="toggleSection(11)">Mark Complete</button></div>
-
-<h2 id="s12">12. Where to go next</h2>
-<div class="why">🚩 <strong>Why it matters:</strong> literacy ≠ full perf career — know the map.</div>
-<ul>
-<li><a href="https://k6.io/docs/" target="_blank" rel="noopener">k6 docs</a></li>
-<li><a href="https://sre.google/sre-book/service-level-objectives/" target="_blank" rel="noopener">Google SRE — Service Level Objectives</a></li>
-<li>Sibling kits: JE · Playwright · API &amp; Data · Strategy</li>
-</ul>
-<div class="mark"><button type="button" data-sec="12" onclick="toggleSection(12)">Mark Complete</button></div>
-
-<h2 id="certificate">🏆 Certificate of Completion</h2>
-<div class="certificate locked" id="certPanel">
-  <p class="big" id="certStatus">Complete all <strong>12 sections</strong> to unlock your optional certificate.</p>
-  <div id="certBody" hidden>
-    <h3 style="margin:0 0 8px;border:none;">Perf Basics — Part 1</h3>
-    <p>This certifies literacy in SLIs/SLOs, k6 hello-world, interpreting p95, and the boundary between perf and functional E2E.</p>
-    <p><em>Automation Tester Path · optional certificate</em></p>
+  <div class="partnav">
+    <a href="../index.html">🏠 Master Index</a> |
+    
+    <strong>Part 1: Core Web Vitals (LCP, INP, CLS) & Lighthouse Audits</strong>
+    | <a href="Perf_basics_part2_study_app.html">Next Part ▶</a>
   </div>
+
+  <div class="focus-banner">🧘 Focus Mode Active — All Distractions Hidden</div>
+
+  <div class="toolbar">
+    <span>📐 Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+  </div>
+
+  <div class="container">
+    <h1>Performance Testing Basics — Part 1: Core Web Vitals (LCP, INP, CLS) & Lighthouse Audits</h1>
+    <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
+    
+    <div id="progressBar">📊 Progress: 0/1 sections completed (0%)</div>
+    
+    <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+      <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
+      <span>⭐ <strong>XP: <span id="xpCount">0 XP</span></strong></span>
+      <button onclick="surpriseMe()" style="background:#0284c7;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">🎲 Surprise Question</button>
+    </div>
+
+    <!-- FLASHCARD DRILL -->
+    <div id="srPanel" class="panel">
+      <h3 style="margin-top:0;color:#38bdf8;">🃏 Spaced Repetition Flashcard Drill</h3>
+      <p id="cardQ">Click 'Start Review' to begin flashcard testing.</p>
+      <p id="cardA" style="display:none;color:#4ade80;font-weight:bold;margin-top:10px;"></p>
+      <div style="margin-top:12px;">
+        <button id="cardBtn" onclick="nextCard()" style="background:#38bdf8;color:#0f172a;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;">Start Review</button>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    
+<h2 id="s1">1. Understanding Core Web Vitals (LCP, INP, CLS) <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Page speed directly impacts user retention and Google search rankings. Slow loading web pages cause 53% of mobile users to abandon a site.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Core Web Vitals like a patient health checkup at a medical clinic:\n• LCP (Largest Contentful Paint) = How fast the main image or headline appears on screen (Target: < 2.5s).\n• INP (Interaction to Next Paint) = How fast the screen updates when you tap a button (Target: < 200ms).\n• CLS (Cumulative Layout Shift) = How much text jumps around unexpectedly while loading (Target: < 0.1 shift index).</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Google Core Web Vitals measure real-world user experience metrics:\n\n1. LCP (Largest Contentful Paint): Measures loading performance. Marks the point when the main content of a page has likely loaded.\n2. INP (Interaction to Next Paint): Replaced FID. Measures page responsiveness by logging the latency of all click, tap, and key interactions.\n3. CLS (Cumulative Layout Shift): Measures visual stability. Caused by images without explicit width/height dimensions or dynamically injected ads.</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>// PerformanceObserver API: Measuring LCP in JavaScript
+const observer = new PerformanceObserver((entryList) => {
+  const entries = entryList.getEntries();
+  const lastEntry = entries[entries.length - 1];
+  console.log('LCP Value (ms):', lastEntry.startTime);
+  console.log('LCP Element:', lastEntry.element);
+});
+
+observer.observe({ type: 'largest-contentful-paint', buffered: true });</code></pre>
+
+
+<div class="line-annotation"><code>observe({ type: 'largest-contentful-paint' })</code> — Observes LCP candidate elements as the browser renders.</div><div class="line-annotation"><code>lastEntry.startTime</code> — Timestamp in milliseconds when the largest content element finished rendering.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Not setting explicit `width` and `height` attributes on `<img>` tags, causing high CLS layout shifts.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Always provide width and height attributes or CSS aspect-ratio on images.</p>
+  </details>
 </div>
 
-<footer>Perf Basics · Part 1 · works offline · sibling to JE / Playwright / API kits</footer>
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What is the recommended threshold for a Good Largest Contentful Paint (LCP)?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Under 2.5 seconds.</p>
+  </details>
+</div>
 
-<script>
-(function () {
-  const TOTAL = 12;
-  const KEY = (n) => 'p1-sec-' + n;
-  const BOOST = 'p1-boost';
-  const FONT = 'p1-font';
-  const THEME = 'p1-theme';
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: Which Core Web Vital metric measures unexpected layout shifts while a page loads?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> CLS (Cumulative Layout Shift)</p>
+    <p><em>Rationale:</em> CLS quantifies visual stability by measuring how much elements shift position during load.</p>
+  </details>
+</div>
 
-  const cards = [
-    { q: 'SLI vs SLO?', a: 'SLI = what you measure. SLO = the target.' },
-    { q: 'What is p95?', a: '95% of requests were faster than this value.' },
-    { q: 'VU means?', a: 'Virtual user — concurrent executor in a load tool.' },
-    { q: 'Check vs threshold (k6)?', a: 'Check = per response; threshold = aggregate gate that can fail the run.' },
-    { q: 'Playwright for load?', a: 'Usually no — prefer k6 for concurrency/capacity.' },
-    { q: 'Why not mean-only?', a: 'Averages hide tail latency and user pain.' }
-  ];
-  let srIndex = 0;
-  let srShow = false;
+<div class="mark"><button type="button" class="mark-btn" data-sec="1" onclick="toggleSection(1)">Mark Section 1 Complete</button></div>
 
-  function doneCount() {
-    let n = 0;
-    for (let i = 1; i <= TOTAL; i++) if (localStorage.getItem(KEY(i)) === '1') n++;
-    return n;
-  }
 
-  function updateProgress() {
-    const n = doneCount();
-    const pct = Math.round((n / TOTAL) * 100);
-    document.getElementById('progressBar').textContent = '📊 Progress: ' + n + '/' + TOTAL + ' sections (' + pct + '%)';
-    for (let i = 1; i <= TOTAL; i++) {
-      const btn = document.querySelector('button[data-sec="' + i + '"]');
-      if (btn) btn.textContent = localStorage.getItem(KEY(i)) === '1' ? '✅ Completed' : 'Mark Complete';
+    <!-- CERTIFICATE -->
+    <div id="certificate" class="certificate">
+      <h2>🏆 Certificate of Completion</h2>
+      <p>Congratulations! You have completed 100% of <strong>Performance Testing Basics — Part 1: Core Web Vitals (LCP, INP, CLS) & Lighthouse Audits</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 1/1 Sections Passed</p>
+    </div>
+  </div>
+
+  <script>
+    const flashcards = [{"q":"What metric replaced FID in Core Web Vitals?","a":"INP (Interaction to Next Paint)."},{"q":"What causes high CLS?","a":"Images without dimensions, un-styled custom web fonts loading late, and dynamic DOM insertions."}];
+    let cardIdx = -1;
+    let completedSet = new Set();
+    let xp = 0;
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-header').nextElementSibling.innerText;
+      navigator.clipboard.writeText(code);
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy', 2000);
     }
-    const path = document.getElementById('learningPathContent');
-    if (n === 0) path.textContent = 'Start with §1 — what perf is (and isn\'t).';
-    else if (n < 4) path.textContent = 'Next: finish goals & numbers (§§1–3), then run the k6 lab.';
-    else if (n < 7) path.textContent = 'Next: p95 + E2E boundary (§§5–6), then glossary.';
-    else if (n < TOTAL) path.textContent = 'Next: pitfalls, practice, and challenges — then claim the certificate.';
-    else path.textContent = 'All sections done — scroll to your certificate 🏆';
 
-    const cert = document.getElementById('certPanel');
-    const status = document.getElementById('certStatus');
-    const body = document.getElementById('certBody');
-    if (n >= TOTAL) {
-      cert.classList.remove('locked');
-      status.hidden = true;
-      body.hidden = false;
-    } else {
-      cert.classList.add('locked');
-      status.hidden = false;
-      body.hidden = true;
-      status.innerHTML = 'Complete all <strong>12 sections</strong> to unlock your optional certificate. (' + n + '/' + TOTAL + ')';
+    function toggleSection(sNum) {
+      const btn = document.querySelector(`[data-sec="${sNum}"]`);
+      if (completedSet.has(sNum)) {
+        completedSet.delete(sNum);
+        btn.innerText = `Mark Section ${sNum} Complete`;
+        btn.classList.remove('done');
+      } else {
+        completedSet.add(sNum);
+        btn.innerText = `✅ Section ${sNum} Completed!`;
+        btn.classList.add('done');
+        xp += 50;
+        document.getElementById('xpCount').innerText = xp + ' XP';
+      }
+      updateProgress();
     }
-  }
 
-  window.toggleSection = function (n) {
-    const on = localStorage.getItem(KEY(n)) === '1';
-    localStorage.setItem(KEY(n), on ? '0' : '1');
-    if (!on) addXp(5);
-    updateProgress();
-  };
-
-  function loadBoost() {
-    try { return JSON.parse(localStorage.getItem(BOOST) || '{}'); } catch { return {}; }
-  }
-  function saveBoost(b) { localStorage.setItem(BOOST, JSON.stringify(b)); }
-  function addXp(x) {
-    const b = loadBoost();
-    b.xp = (b.xp || 0) + x;
-    const today = new Date().toDateString();
-    if (b.last !== today) {
-      b.streak = (b.last && (Date.now() - new Date(b.last).getTime() < 172800000)) ? (b.streak || 0) + 1 : 1;
-      b.last = today;
+    function updateProgress() {
+      const total = 1;
+      const count = completedSet.size;
+      const pct = Math.round((count / total) * 100);
+      document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
+      if (count === total) {
+        document.getElementById('certificate').classList.add('unlocked');
+      }
     }
-    saveBoost(b);
-    renderBoost();
-  }
-  function renderBoost() {
-    const b = loadBoost();
-    document.getElementById('pointCount').textContent = (b.xp || 0) + ' XP';
-    document.getElementById('streakCount').textContent = (b.streak || 0) + '-day streak';
-  }
 
-  window.fontZoom = function (dir) {
-    document.body.classList.remove('font-sm', 'font-lg');
-    let cur = localStorage.getItem(FONT) || 'md';
-    if (dir === 0) cur = 'md';
-    else if (dir < 0) cur = cur === 'lg' ? 'md' : 'sm';
-    else cur = cur === 'sm' ? 'md' : 'lg';
-    localStorage.setItem(FONT, cur);
-    if (cur === 'sm') document.body.classList.add('font-sm');
-    if (cur === 'lg') document.body.classList.add('font-lg');
-  };
+    function nextCard() {
+      const q = document.getElementById('cardQ');
+      const a = document.getElementById('cardA');
+      const btn = document.getElementById('cardBtn');
 
-  window.toggleTheme = function () {
-    const html = document.documentElement;
-    const dark = html.classList.toggle('force-dark');
-    html.classList.toggle('force-light', !dark);
-    localStorage.setItem(THEME, dark ? 'dark' : 'light');
-    document.getElementById('themeBtn').textContent = dark ? '☀️ Light mode' : '🌙 Dark mode';
-  };
-
-  window.focusMode = function (btn) {
-    const on = document.body.classList.toggle('focus-mode');
-    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-    document.getElementById('focusHint').style.display = on ? 'block' : 'none';
-    if (on) collapseAll(false);
-  };
-
-  window.collapseAll = function (open) {
-    document.querySelectorAll('details').forEach((d) => { d.open = !!open; });
-  };
-
-  window.surpriseJump = function () {
-    const n = 1 + Math.floor(Math.random() * TOTAL);
-    const el = document.getElementById('s' + n);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  window.runSloCheck = function () {
-    const name = document.getElementById('sliName').value.trim() || 'SLI';
-    const p = document.getElementById('sloP').value;
-    const target = Number(document.getElementById('sloMs').value);
-    const obs = Number(document.getElementById('sloObs').value);
-    const ok = obs <= target;
-    document.getElementById('sloOut').textContent =
-      'SLO: ' + p + ' of ' + name + ' < ' + target + ' ms\n' +
-      'Observed: ' + obs + ' ms → ' + (ok ? 'PASS ✅' : 'BREACH ❌') +
-      (ok ? '' : '\nAction: investigate tail (DB, deps, GC) — not more E2E clicks.');
-    addXp(2);
-  };
-
-  function percentile(sorted, p) {
-    if (!sorted.length) return NaN;
-    const idx = Math.ceil((p / 100) * sorted.length) - 1;
-    return sorted[Math.max(0, Math.min(sorted.length - 1, idx))];
-  }
-
-  window.runPercentiles = function () {
-    const raw = document.getElementById('latList').value.split(/[,\s]+/).map(Number).filter((n) => !Number.isNaN(n) && n >= 0);
-    if (raw.length < 2) {
-      document.getElementById('percOut').textContent = 'Need at least 2 numeric samples.';
-      return;
+      if (a.style.display === 'none' && cardIdx >= 0) {
+        a.style.display = 'block';
+        btn.innerText = 'Next Flashcard ▶';
+      } else {
+        cardIdx = (cardIdx + 1) % flashcards.length;
+        q.innerText = 'Q: ' + flashcards[cardIdx].q;
+        a.innerText = 'A: ' + flashcards[cardIdx].a;
+        a.style.display = 'none';
+        btn.innerText = 'Show Answer 👁';
+      }
     }
-    const sorted = raw.slice().sort((a, b) => a - b);
-    const mean = raw.reduce((s, x) => s + x, 0) / raw.length;
-    const p50 = percentile(sorted, 50);
-    const p95 = percentile(sorted, 95);
-    document.getElementById('percOut').textContent =
-      'n=' + raw.length +
-      '\nmean ≈ ' + mean.toFixed(1) + ' ms' +
-      '\np50 ≈ ' + p50 + ' ms' +
-      '\np95 ≈ ' + p95 + ' ms' +
-      '\n(Note: simple nearest-rank demo — production tools use their own estimators.)';
-    addXp(2);
-  };
 
-  window.srStart = function () {
-    srIndex = 0; srShow = false; renderSr();
-  };
-  function renderSr() {
-    const c = cards[srIndex % cards.length];
-    document.getElementById('srQ').textContent = c.q;
-    const a = document.getElementById('srA');
-    a.style.display = srShow ? 'block' : 'none';
-    a.textContent = c.a;
-    document.getElementById('srBtns').innerHTML = srShow
-      ? '<button type="button" onclick="srNext()">Next</button>'
-      : '<button type="button" onclick="srReveal()">Show answer</button>';
-  }
-  window.srReveal = function () { srShow = true; renderSr(); };
-  window.srNext = function () { srIndex++; srShow = false; renderSr(); addXp(1); };
-
-  // boot
-  const theme = localStorage.getItem(THEME);
-  if (theme === 'dark' || (!theme && matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('force-dark');
-    document.getElementById('themeBtn').textContent = '☀️ Light mode';
-  } else {
-    document.documentElement.classList.add('force-light');
-  }
-  fontZoom(0);
-  const savedFont = localStorage.getItem(FONT);
-  if (savedFont === 'sm') document.body.classList.add('font-sm');
-  if (savedFont === 'lg') document.body.classList.add('font-lg');
-  renderBoost();
-  updateProgress();
-})();
-</script>
-<!--P1H-END-->
+    function surpriseMe() {
+      const sec = Math.floor(Math.random() * 1) + 1;
+      document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
