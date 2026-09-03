@@ -44,11 +44,29 @@ body.focus-mode #progressBar, body.focus-mode .partnav, body.focus-mode footer {
 .est-time { font-size: 0.82rem; background: #e2e8f0; color: #2d3748; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
+
+/* Enhanced Focus Mode */
+body.focus-mode #progressBar,
+body.focus-mode .partnav,
+body.focus-mode footer,
+body.focus-mode .studyplan7,
+body.focus-mode #boostBar,
+body.focus-mode #srPanel,
+body.focus-mode #learningPathPanel { display: none !important; }
+
+body.focus-mode .container { max-width: 760px !important; margin: 20px auto; }
+body.focus-mode h1 { font-size: 1.6rem; text-align: center; }
+body.focus-mode .section-card, body.focus-mode .quiz-box { box-shadow: 0 0 20px rgba(99,179,237,0.3) !important; border-color: #63b3ed !important; }
+
+.focus-banner { display: none; background: #2b6cb0; color: #fff; text-align: center; padding: 6px; font-weight: bold; border-radius: 6px; margin: 10px 0; }
+body.focus-mode .focus-banner { display: block !important; }
+
 </style>
 </head>
 <body id="mainContent">
 
 <a class="skip-link" href="#mainContent">Skip to content</a>
+<div class="focus-banner">🧘 Focus Mode Active</div>
 <div class="toolbar-adhd">
   <span>📐 Text Size:</span>
   <button onclick="document.body.classList.remove('font-sm','font-lg')">Default</button>
