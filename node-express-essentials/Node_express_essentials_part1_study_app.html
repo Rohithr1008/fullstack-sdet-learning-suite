@@ -1,87 +1,148 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>node-express-essentials — Part 1: Node Core & Express Routing</title>
+  <title>Node & Express Essentials — Part 1: Event Loop & REST Routing</title>
   <style>
     :root {
-      --bg-primary: #1a202c;
-      --bg-card: #2d3748;
-      --text-primary: #e2e8f0;
-      --border: #4a5568;
-      --accent: #68d391;
-      --success: #38a169;
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --accent: #3fb950;
+      --accent-hover: #2ea043;
+      --code-bg: #010409;
     }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; line-height: 1.6; }
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 { color: var(--accent); }
-    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
-    .est-time { font-size: 0.85rem; background: var(--border); padding: 4px 10px; border-radius: 12px; }
-    pre { background: #111827; color: #68d391; padding: 12px; border-radius: 8px; overflow-x: auto; }
-    .top-controls { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 20px; }
-    .btn { background: var(--accent); color: #1a202c; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .progress-bar-fill { height: 8px; background: var(--success); width: 0%; transition: width 0.3s; margin-bottom: 20px; }
-    body.focus-mode-active .top-controls, body.focus-mode-active .progress-bar-fill { display: none !important; }
-  
-.partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #2d3748; color: #e2e8f0; padding: 10px 16px; border-radius: 8px; margin: 10px 0 20px; font-size: 0.95rem; }
-.partnav a { color: #63b3ed; text-decoration: none; font-weight: 600; }
-.partnav a:hover { text-decoration: underline; }
-.partnav strong { color: #fff; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #58a6ff; margin-top: 36px; font-size: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #8b949e; padding: 4px 12px; border-radius: 12px; font-weight: normal; }
+    .concept-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 28px; }
+    .why-box { background: rgba(63, 185, 80, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: monospace; color: #7ee787; overflow-x: auto; font-size: 0.95rem; }
+    .line-annotation { background: #1f242c; border-left: 3px solid var(--accent); padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; }
+    
+    /* Interactive API Simulator */
+    .api-simulator { background: #131922; border: 2px solid var(--accent); border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .api-endpoint { display: flex; gap: 10px; margin-bottom: 14px; }
+    .method-badge { background: #238636; color: #fff; padding: 6px 12px; border-radius: 6px; font-weight: bold; }
+    .url-input { flex-grow: 1; background: #010409; color: #58a6ff; border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-family: monospace; }
+    .btn-send { background: var(--accent); color: #0d1117; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .response-box { background: #010409; border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-top: 14px; font-family: monospace; color: #7ee787; white-space: pre-wrap; }
 
-</style>
+    /* Controls */
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #161b22; color: #c9d1d9; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; }
+    .partnav a { color: #58a6ff; text-decoration: none; font-weight: 600; }
+    .toolbar-adhd { display: flex; gap: 10px; margin-bottom: 20px; background: #161b22; padding: 10px 16px; border-radius: 8px; }
+    .toolbar-adhd button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0d1117; color: #fff; cursor: pointer; font-weight: 600; }
+  </style>
 </head>
-<body class="theme-dark">
+<body>
 
-<div class="partnav">
-  <a href="../index.html">🏠 Master Index</a> |
-  <strong>Part 1: Node & Express</strong> | <a href="Node_express_essentials_part2_study_app.html">Part 2: Layered REST API</a> | <a href="Node_express_essentials_part3_study_app.html">Part 3: Auth & Security</a>
-</div>
+  <div class="partnav">
+    <a href="../index.html">🏠 Master Index</a> |
+    <strong>Part 1: Node & Express</strong> |
+    <a href="Node_express_essentials_part2_study_app.html">Part 2: Layered REST API</a> |
+    <a href="Node_express_essentials_part3_study_app.html">Part 3: Auth & Security</a>
+  </div>
+
+  <div class="toolbar-adhd">
+    <span>📐 Text Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+  </div>
 
   <div class="container">
-    <div class="top-controls">
-      <button class="btn" onclick="document.body.classList.toggle('focus-mode-active')">🧘 Focus Mode</button>
-    </div>
-    <div style="background: var(--border); border-radius: 4px;"><div class="progress-bar-fill" id="progressFill"></div></div>
-    
-    <h1>Node & Express Essentials — Part 1: Event Loop & REST APIs</h1>
+    <h1>Node & Express Essentials — Part 1: Event Loop & REST Routing</h1>
 
-    <div class="section-card">
-      <h2>1. The Node.js Event Loop & Non-Blocking I/O <span class="est-time">⏱ ~12 min</span></h2>
-      <p>Node.js executes JavaScript on a single thread using non-blocking I/O callbacks handled by libuv.</p>
-      <pre>
+    <div class="concept-card">
+      <h2 id="s1">1. How Node.js Handles 10,000 Requests Simultaneously <span class="est-time">⏱ ~15 min</span></h2>
+      <div class="why-box">
+        💡 <strong>Beginner Metaphor:</strong> Imagine a restaurant with <strong>1 Waiter (Node's Single Thread)</strong> and <strong>5 Chefs in the Kitchen (C++ Worker Threads in libuv)</strong>. The waiter takes an order, hands it to the kitchen, and immediately takes the next customer's order without standing around waiting for the steak to cook!
+      </div>
+      <p>Traditional servers (like Java Tomcat or PHP Apache) create a new heavy OS thread for every single HTTP user. If 1,000 users connect, memory fills up and the server crashes. Node.js uses Non-Blocking I/O so a single thread can serve thousands of concurrent connections!</p>
+
+      <div class="code-block">
 const fs = require('fs');
 
-// Non-blocking asynchronous read
-fs.readFile('data.json', 'utf8', (err, data) => {
+console.log('1. Customer places order (Start)');
+
+// Non-blocking asynchronous file read
+fs.readFile('menu.json', 'utf8', (err, data) => {
   if (err) throw err;
-  console.log('File content loaded!');
+  console.log('3. Kitchen finished cooking (File loaded callback)!');
 });
-      </pre>
-      <input type="checkbox" id="sec-1" onchange="updateProgress()" /> <label for="sec-1">Mark Section 1 Complete</label>
+
+console.log('2. Waiter takes next customer order (End of main thread loop)');
+      </div>
+
+      <h3>Line-by-Line Breakdown:</h3>
+      <div class="line-annotation"><code>console.log('1...')</code>: Main JavaScript thread executes synchronously. Output: 1. Customer places order.</div>
+      <div class="line-annotation"><code>fs.readFile(...)</code>: Node delegates hard disk I/O to libuv background thread. The main thread DOES NOT WAIT and keeps moving!</div>
+      <div class="line-annotation"><code>console.log('2...')</code>: Main thread finishes synchronously. Output: 2. Waiter takes next customer order.</div>
+      <div class="line-annotation"><code>(err, data) => { ... }</code>: When disk reading finishes, libuv places callback into the Event Queue. Main thread executes it. Output: 3. Kitchen finished...</div>
     </div>
 
-    <div class="section-card">
-      <h2>2. Express Routers & Middleware Chain <span class="est-time">⏱ ~15 min</span></h2>
-      <p>Middleware functions execute sequentially during the request-response cycle.</p>
-      <pre>
-const express = require('express');
-const app = express();
+    <div class="concept-card">
+      <h2 id="s2">2. Interactive REST API Simulator <span class="est-time">⏱ ~20 min</span></h2>
+      <p>Test real Express routing and HTTP request/response handling live below!</p>
 
-app.use(express.json()); // Built-in body parser middleware
+      <div class="api-simulator">
+        <h3>⚡ Interactive Express API Simulator</h3>
+        <p>Select an endpoint and send an HTTP request to see Express middleware and route execution in action!</p>
+        
+        <div class="api-endpoint">
+          <select id="apiMethod" class="method-badge" style="border:none;outline:none;">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+          </select>
+          <input type="text" id="apiUrl" class="url-input" value="/api/tasks" />
+          <button class="btn-send" onclick="sendApiRequest()">Send Request 🚀</button>
+        </div>
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: Date.now() });
-});
-      </pre>
-      <input type="checkbox" id="sec-2" onchange="updateProgress()" /> <label for="sec-2">Mark Section 2 Complete</label>
+        <div>
+          <strong>Request Headers:</strong> <code style="color:#58a6ff;">Content-Type: application/json</code><br>
+          <strong>Middleware Trace:</strong> <span id="middlewareTrace" style="color:#f2cc60;">Click Send Request to run...</span>
+        </div>
+
+        <div class="response-box" id="apiResponseBox">
+Status: Waiting for request...
+        </div>
+      </div>
     </div>
   </div>
+
   <script>
-    function updateProgress() {
-      const checks = document.querySelectorAll('input[type="checkbox"]');
-      const checked = Array.from(checks).filter(c => c.checked).length;
-      document.getElementById('progressFill').style.width = ((checked / checks.length) * 100) + '%';
+    function sendApiRequest() {
+      const method = document.getElementById('apiMethod').value;
+      const url = document.getElementById('apiUrl').value.trim();
+      const trace = document.getElementById('middlewareTrace');
+      const box = document.getElementById('apiResponseBox');
+
+      trace.innerHTML = '1. logger() -> 2. express.json() -> 3. router.handle()';
+
+      if (method === 'GET' && url === '/api/tasks') {
+        box.innerHTML = 'HTTP/1.1 200 OK\nContent-Type: application/json\n\n' +
+          JSON.stringify([
+            { id: 1, title: 'Learn Node.js Event Loop', completed: true },
+            { id: 2, title: 'Build Express REST API', completed: false }
+          ], null, 2);
+      } else if (method === 'POST' && url === '/api/tasks') {
+        box.innerHTML = 'HTTP/1.1 201 Created\nContent-Type: application/json\n\n' +
+          JSON.stringify({
+            id: 3,
+            title: 'New Task Created via API Simulator',
+            completed: false,
+            createdAt: new Date().toISOString()
+          }, null, 2);
+      } else {
+        box.innerHTML = 'HTTP/1.1 404 Not Found\nContent-Type: application/json\n\n' +
+          JSON.stringify({ error: 'Route ' + method + ' ' + url + ' not found' }, null, 2);
+      }
     }
   </script>
 </body>

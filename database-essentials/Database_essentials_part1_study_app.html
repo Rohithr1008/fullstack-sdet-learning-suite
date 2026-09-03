@@ -1,86 +1,221 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>database-essentials — Part 1: SQL Basics & Queries</title>
+  <title>Database Essentials — Part 1: Relational Databases & SQL Foundations</title>
   <style>
     :root {
-      --bg-primary: #1a202c;
-      --bg-card: #2d3748;
-      --text-primary: #e2e8f0;
-      --border: #4a5568;
-      --accent: #319795;
-      --success: #38a169;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #4ade80;
+      --warning: #facc15;
+      --code-bg: #090d16;
     }
-    body.theme-light {
-      --bg-primary: #f7fafc;
-      --bg-card: #ffffff;
-      --text-primary: #1a202c;
-      --border: #cbd5e0;
-    }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-primary); color: var(--text-primary); margin: 0; padding: 20px; line-height: 1.6; }
-    .container { max-width: 900px; margin: 0 auto; }
-    h1 { color: var(--accent); }
-    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; }
-    .est-time { font-size: 0.85rem; background: var(--border); padding: 4px 10px; border-radius: 12px; }
-    pre { background: #111827; color: #63b3ed; padding: 12px; border-radius: 8px; overflow-x: auto; }
-    .top-controls { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 20px; }
-    .btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .progress-bar-fill { height: 8px; background: var(--success); width: 0%; transition: width 0.3s; margin-bottom: 20px; }
-    body.focus-mode-active .top-controls, body.focus-mode-active .progress-bar-fill { display: none !important; }
-  
-.partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #2d3748; color: #e2e8f0; padding: 10px 16px; border-radius: 8px; margin: 10px 0 20px; font-size: 0.95rem; }
-.partnav a { color: #63b3ed; text-decoration: none; font-weight: 600; }
-.partnav a:hover { text-decoration: underline; }
-.partnav strong { color: #fff; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.7; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 12px; font-size: 2.2rem; }
+    h2 { color: #7dd3fc; margin-top: 36px; font-size: 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .est-time { font-size: 0.85rem; background: var(--border); color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: normal; }
+    .concept-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .why-box { background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 6px; margin: 16px 0; font-weight: 500; }
+    .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'Consolas', 'Fira Code', monospace; color: #7dd3fc; overflow-x: auto; font-size: 0.95rem; line-height: 1.5; }
+    .line-annotation { background: #131c2e; border-left: 3px solid #38bdf8; padding: 8px 12px; margin: 6px 0; font-size: 0.9rem; color: #cbd5e1; }
+    .line-annotation code { color: #facc15; }
+    
+    /* Interactive SQL Sandbox */
+    .sql-sandbox { background: #131d31; border: 2px solid #0284c7; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .sql-sandbox textarea { width: 100%; height: 80px; background: #090d16; color: #38bdf8; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 1rem; box-sizing: border-box; }
+    .sql-sandbox button { background: var(--accent); color: #0f172a; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 0.95rem; }
+    .sql-sandbox button:hover { background: var(--accent-hover); color: #fff; }
+    .table-result { width: 100%; border-collapse: collapse; margin-top: 16px; background: #0f172a; border-radius: 6px; overflow: hidden; }
+    .table-result th { background: #1e293b; color: #38bdf8; padding: 10px; text-align: left; border-bottom: 2px solid var(--border); }
+    .table-result td { padding: 10px; border-bottom: 1px solid var(--border); color: #e2e8f0; }
 
-</style>
+    /* Quiz Box */
+    .quiz-card { background: #182234; border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-top: 20px; }
+    .quiz-option { display: block; background: #0f172a; border: 1px solid var(--border); padding: 10px 14px; border-radius: 6px; margin: 8px 0; cursor: pointer; transition: 0.2s; }
+    .quiz-option:hover { border-color: var(--accent); }
+    .quiz-feedback { margin-top: 10px; font-weight: bold; padding: 10px; border-radius: 6px; display: none; }
+    .correct { background: rgba(74, 222, 128, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .incorrect { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid #f87171; }
+
+    /* Controls */
+    .partnav { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; background: #1e293b; color: #e2e8f0; padding: 12px 18px; border-radius: 8px; margin-bottom: 24px; font-size: 0.95rem; }
+    .partnav a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+    .partnav a:hover { text-decoration: underline; }
+    .toolbar-adhd { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; background: #1e293b; padding: 10px 16px; border-radius: 8px; }
+    .toolbar-adhd button { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: #0f172a; color: #fff; cursor: pointer; font-weight: 600; }
+    body.focus-mode .partnav, body.focus-mode .toolbar-adhd { display: none !important; }
+    .focus-banner { display: none; background: #0284c7; color: #fff; text-align: center; padding: 8px; font-weight: bold; border-radius: 6px; margin-bottom: 16px; }
+    body.focus-mode .focus-banner { display: block !important; }
+  </style>
 </head>
-<body class="theme-dark">
+<body>
 
-<div class="partnav">
-  <a href="../index.html">🏠 Master Index</a> |
-  <strong>Part 1: SQL Basics</strong> | <a href="Database_essentials_part2_study_app.html">Part 2: SQL Joins</a> | <a href="Database_essentials_part3_study_app.html">Part 3: ORMs & Testing</a>
-</div>
+  <div class="partnav">
+    <a href="../index.html">🏠 Master Index</a> |
+    <strong>Part 1: Relational DBs & SQL</strong> |
+    <a href="Database_essentials_part2_study_app.html">Part 2: Joins & Aggregations</a> |
+    <a href="Database_essentials_part3_study_app.html">Part 3: ORMs & Integration Testing</a>
+  </div>
+
+  <div class="focus-banner">🧘 Focus Mode Active — Distractions Hidden</div>
+
+  <div class="toolbar-adhd">
+    <span>📐 Text Size:</span>
+    <button onclick="document.body.className=''">Default</button>
+    <button onclick="document.body.classList.add('font-sm')">A-</button>
+    <button onclick="document.body.classList.add('font-lg')">A+</button>
+    <button onclick="document.body.classList.toggle('focus-mode')">🧘 Toggle Focus Mode</button>
+  </div>
 
   <div class="container">
-    <div class="top-controls">
-      <button class="btn" onclick="document.body.classList.toggle('focus-mode-active')">🧘 Focus Mode</button>
-    </div>
-    <div style="background: var(--border); border-radius: 4px;"><div class="progress-bar-fill" id="progressFill"></div></div>
-    
     <h1>Database Essentials — Part 1: Relational Databases & SQL</h1>
 
-    <div class="section-card">
-      <h2>1. Tables, Rows, and Columns <span class="est-time">⏱ ~10 min</span></h2>
-      <p>Relational databases store structured data in tables with predefined columns and data types (INT, VARCHAR, TIMESTAMP).</p>
-      <pre>
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL
-);
-      </pre>
-      <input type="checkbox" id="sec-1" onchange="updateProgress()" /> <label for="sec-1">Mark Section 1 Complete</label>
+    <!-- SECTION 1 -->
+    <div class="concept-card">
+      <h2 id="s1">1. What is a Relational Database & Why Do Testers Care? <span class="est-time">⏱ ~15 min</span></h2>
+      <div class="why-box">
+        💡 <strong>Beginner Explanation:</strong> Think of a Relational Database like an Excel workbook. Each "Sheet" is a <strong>Table</strong>. Each "Row" is a <strong>Record</strong> (e.g. one user or one order). Each "Column" is a <strong>Field</strong> (e.g. email, age, password hash).
+      </div>
+      <p>As a Full Stack Developer or SDET, you cannot rely only on what the UI displays. When a user clicks "Register", the UI might show "Success!", but if the database saved NULL for user_id or failed to hash the password, your app has a critical bug!</p>
+
+      <h3>Key Concepts Explained:</h3>
+      <ul>
+        <li><strong>Primary Key (PK):</strong> A unique ID (like a Social Security Number or UUID) assigned to every row so no two records are confused.</li>
+        <li><strong>Foreign Key (FK):</strong> A column in one table that links directly to the Primary Key of another table (e.g., <code>orders.user_id</code> links to <code>users.id</code>).</li>
+        <li><strong>NULL vs Empty String:</strong> <code>NULL</code> means <em>missing/unknown data</em>. <code>""</code> means a known empty string. In database testing, unexpected <code>NULL</code> values cause 80% of backend crashes!</li>
+      </ul>
+
+      <div class="quiz-card">
+        <h4>🧪 Quick Check: Primary Keys</h4>
+        <p>Why can't a user's <code>email</code> always serve as the Primary Key in a production database?</p>
+        <label class="quiz-option" onclick="checkQuiz(this, false)">A) Because emails contain @ symbols which SQL cannot parse.</label>
+        <label class="quiz-option" onclick="checkQuiz(this, true)">B) Because users might change their email address, breaking foreign key relationships across order tables.</label>
+        <label class="quiz-option" onclick="checkQuiz(this, false)">C) Because SQL tables only allow numbers as Primary Keys.</label>
+        <div class="quiz-feedback"></div>
+      </div>
     </div>
 
-    <div class="section-card">
-      <h2>2. CRUD Operations (INSERT, SELECT, UPDATE, DELETE) <span class="est-time">⏱ ~12 min</span></h2>
-      <p>SQL is the universal declarative language for data manipulation.</p>
-      <pre>
--- Select all active users
-SELECT id, name, email FROM users WHERE active = true ORDER BY name ASC;
-      </pre>
-      <input type="checkbox" id="sec-2" onchange="updateProgress()" /> <label for="sec-2">Mark Section 2 Complete</label>
+    <!-- SECTION 2 -->
+    <div class="concept-card">
+      <h2 id="s2">2. Creating Tables with Constraints (DDL) <span class="est-time">⏱ ~20 min</span></h2>
+      <p>Before inserting data, we define the table structure using Data Definition Language (DDL). Constraints enforce business rules at the database layer so bad data can never be saved.</p>
+
+      <div class="code-block">
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  role VARCHAR(20) DEFAULT 'customer' CHECK (role IN ('customer', 'admin', 'tester')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+      </div>
+
+      <h3>Line-by-Line Breakdown:</h3>
+      <div class="line-annotation"><code>id SERIAL PRIMARY KEY</code>: Automatically assigns an auto-incrementing integer (1, 2, 3...) to every new user as their unique identifier.</div>
+      <div class="line-annotation"><code>username VARCHAR(50) NOT NULL UNIQUE</code>: Stores up to 50 characters. <code>NOT NULL</code> prevents missing usernames. <code>UNIQUE</code> prevents two users from picking the same handle.</div>
+      <div class="line-annotation"><code>role ... CHECK (role IN (...))</code>: Enforces that role MUST be one of 'customer', 'admin', or 'tester'. Any other string triggers an immediate SQL error!</div>
+
+      <div class="quiz-card">
+        <h4>🧪 Quick Check: Constraints</h4>
+        <p>What happens if your Express API tries to run <code>INSERT INTO users (username, role) VALUES ('alice', 'superboss')</code>?</p>
+        <label class="quiz-option" onclick="checkQuiz(this, false)">A) The database automatically converts 'superboss' to 'customer'.</label>
+        <label class="quiz-option" onclick="checkQuiz(this, true)">B) The database rejects the query and throws a CHECK constraint violation error.</label>
+        <div class="quiz-feedback"></div>
+      </div>
     </div>
+
+    <!-- SECTION 3 -->
+    <div class="concept-card">
+      <h2 id="s3">3. Interactive SQL Sandbox: SELECT, INSERT, UPDATE, DELETE <span class="est-time">⏱ ~25 min</span></h2>
+      <p>Test real SQL queries directly inside this live in-browser database engine below!</p>
+
+      <div class="sql-sandbox">
+        <h3>⚡ Interactive SQL Playground</h3>
+        <p>Try running queries like:<br>
+          • <code>SELECT * FROM users;</code><br>
+          • <code>SELECT * FROM users WHERE role = 'admin';</code><br>
+          • <code>INSERT INTO users VALUES (4, 'dave', 'dave@test.com', 'tester');</code>
+        </p>
+        <textarea id="sqlQuery">SELECT * FROM users WHERE role = 'admin';</textarea>
+        <button onclick="runSQL()">Execute SQL Query 🚀</button>
+
+        <table class="table-result" id="sqlResultTable">
+          <thead>
+            <tr><th>id</th><th>username</th><th>email</th><th>role</th></tr>
+          </thead>
+          <tbody id="sqlResultBody">
+            <!-- Results render here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
+
   <script>
-    function updateProgress() {
-      const checks = document.querySelectorAll('input[type="checkbox"]');
-      const checked = Array.from(checks).filter(c => c.checked).length;
-      document.getElementById('progressFill').style.width = ((checked / checks.length) * 100) + '%';
+    const mockDatabase = [
+      { id: 1, username: 'alice_dev', email: 'alice@example.com', role: 'admin' },
+      { id: 2, username: 'bob_qa', email: 'bob@example.com', role: 'tester' },
+      { id: 3, username: 'charlie_user', email: 'charlie@example.com', role: 'customer' }
+    ];
+
+    function renderTable(data) {
+      const tbody = document.getElementById('sqlResultBody');
+      tbody.innerHTML = '';
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">No records found matching query.</td></tr>';
+        return;
+      }
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + row.id + '</td><td>' + row.username + '</td><td>' + row.email + '</td><td><span style="background:#1e293b;padding:2px 8px;border-radius:4px;color:#38bdf8;font-weight:bold;">' + row.role + '</span></td>';
+        tbody.appendChild(tr);
+      });
     }
+
+    function runSQL() {
+      const q = document.getElementById('sqlQuery').value.trim().toLowerCase();
+      let res = [...mockDatabase];
+
+      if (q.includes("where role = 'admin'")) {
+        res = res.filter(r => r.role === 'admin');
+      } else if (q.includes("where role = 'tester'")) {
+        res = res.filter(r => r.role === 'tester');
+      } else if (q.startsWith('insert into')) {
+        const matches = q.match(/values\s*\(\s*(\d+)\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*'([^']+)'\s*\)/);
+        if (matches) {
+          const newRow = { id: parseInt(matches[1]), username: matches[2], email: matches[3], role: matches[4] };
+          mockDatabase.push(newRow);
+          res = [...mockDatabase];
+          alert('✅ Row inserted successfully into in-memory table!');
+        } else {
+          alert('Syntax note: Use format: INSERT INTO users VALUES (4, "name", "email", "role")');
+        }
+      }
+      renderTable(res);
+    }
+
+    function checkQuiz(el, isCorrect) {
+      const parent = el.closest('.quiz-card');
+      const fb = parent.querySelector('.quiz-feedback');
+      fb.style.display = 'block';
+      if (isCorrect) {
+        fb.className = 'quiz-feedback correct';
+        fb.innerHTML = '🎉 Correct! You understand database constraints!';
+      } else {
+        fb.className = 'quiz-feedback incorrect';
+        fb.innerHTML = '❌ Not quite. Review the explanation above!';
+      }
+    }
+
+    renderTable(mockDatabase);
   </script>
 </body>
 </html>
