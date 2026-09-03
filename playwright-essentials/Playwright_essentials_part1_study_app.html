@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Playwright Essentials — Part 1: Locators, Auto-Waiting & Assertions</title>
+  <title>Playwright Masterclass — Part 1: Locators, Auto-Waiting, Filtering & Web-First Assertions</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -60,7 +60,7 @@
   <div class="partnav">
     <a href="../index.html">🏠 Master Index</a> |
     
-    <strong>Part 1: Locators, Auto-Waiting & Assertions</strong>
+    <strong>Part 1: Locators, Auto-Waiting, Filtering & Web-First Assertions</strong>
     | <a href="Playwright_essentials_part2_study_app.html">Next Part ▶</a>
   </div>
 
@@ -75,10 +75,10 @@
   </div>
 
   <div class="container">
-    <h1>Playwright Essentials — Part 1: Locators, Auto-Waiting & Assertions</h1>
+    <h1>Playwright Masterclass — Part 1: Locators, Auto-Waiting, Filtering & Web-First Assertions</h1>
     <p>Comprehensive interactive guide with real-world examples, line-by-line breakdowns, and quizzes.</p>
     
-    <div id="progressBar">📊 Progress: 0/2 sections completed (0%)</div>
+    <div id="progressBar">📊 Progress: 0/3 sections completed (0%)</div>
     
     <div id="boostBar" class="panel" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;">
       <span>⚡ <strong>Streak: <span id="streakCount">1 Day</span></strong></span>
@@ -98,63 +98,73 @@
 
     <!-- SECTIONS -->
     
-<h2 id="s1">1. Playwright Locators & Web-First Assertions <span class="est-time">⏱ ~20 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> Traditional Selenium sleep timers cause slow, flaky automation. Playwright locators auto-wait for elements to be visible, enabled, and stable before performing actions.</div>
-<p>Locators are at the core of Playwright auto-waiting. Unlike Selenium `findElement()`, a Playwright `locator` does not immediately query the DOM — it is an immutable description of how to find elements when an action (like `.click()`) or assertion (like `expect().toBeVisible()`) is executed.</p>
+<h2 id="s1">1. Playwright Architecture: Node.js CDP Protocol & Isolated Browser Contexts <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Unlike Selenium which uses slow HTTP WebDriver JSON Wire protocol, Playwright communicates directly with Chromium, Firefox, and WebKit at the browser engine level via WebSockets (CDP / DevTools Protocol).</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Playwright Architecture like controlling a smart home via a fiber-optic cable vs sending letters through slow snail mail:\n• Selenium = Sending a letter through the post office every time you want to turn on a light bulb (high latency, slow polling).\n• Playwright = A direct high-speed fiber-optic cable connection (WebSocket) wired straight into the light switch. Commands execute in less than 1 millisecond!\n• Browser Context = Creating brand new incognito windows for every single test in less than 10ms without reopening the heavy main browser process.</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright consists of 3 architectural layers:\n\n1. Browser Instance: The underlying browser binary engine (Chromium, Firefox, or WebKit). Initialized once per worker process.\n2. BrowserContext: A completely isolated, lightweight in-memory session (like a fresh incognito window). It holds its own cookies, localStorage, indexedDB, and cache. Creating a BrowserContext takes ~10 milliseconds!\n3. Page: A single tab or window inside a BrowserContext.</p>
+    </p>
 
 
 
 
 <div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>import { test, expect } from '@playwright/test';
+<pre><code>import { test, expect, chromium } from '@playwright/test';
 
-test('User authentication flow', async ({ page }) => {
-  // Navigate to login page
-  await page.goto('http://localhost:3000/login');
+test('Direct BrowserContext demonstration', async () => {
+  // Launch single heavy browser engine instance
+  const browser = await chromium.launch({ headless: true });
 
-  // Locate input fields via accessibility role & label
-  const usernameInput = page.getByLabel('Username');
-  const passwordInput = page.getByLabel('Password');
-  const submitButton = page.getByRole('button', { name: 'Sign In' });
+  // Create isolated BrowserContext 1 (User A session)
+  const contextA = await browser.newContext();
+  const pageA = await contextA.newPage();
+  await pageA.goto('http://localhost:3000/login');
+  await pageA.fill('#username', 'user_alpha');
 
-  // Auto-waiting click and type actions
-  await usernameInput.fill('alice_admin');
-  await passwordInput.fill('SecurePass123!');
-  await submitButton.click();
+  // Create isolated BrowserContext 2 (User B session - completely independent cookies/cache)
+  const contextB = await browser.newContext();
+  const pageB = await contextB.newPage();
+  await pageB.goto('http://localhost:3000/login');
+  await pageB.fill('#username', 'user_beta');
 
-  // Web-first polling assertion
-  const welcomeBanner = page.getByTestId('welcome-banner');
-  await expect(welcomeBanner).toBeVisible({ timeout: 5000 });
-  await expect(welcomeBanner).toContainText('Welcome back, alice_admin');
+  // Cleanup contexts
+  await contextA.close();
+  await contextB.close();
+  await browser.close();
 });</code></pre>
 
 
-<div class="line-annotation"><code>page.getByLabel('Username')</code> — Recommended locator strategy matching accessible form label text.</div><div class="line-annotation"><code>page.getByRole('button', { name: 'Sign In' })</code> — Matches accessibility role and visible text, ensuring button is accessible to screen readers.</div><div class="line-annotation"><code>await expect(welcomeBanner).toBeVisible()</code> — Web-first assertion that automatically polls DOM until visible or timeout is reached.</div>
+<div class="line-annotation"><code>chromium.launch({ headless: true })</code> — Launches underlying browser engine binary process.</div><div class="line-annotation"><code>browser.newContext()</code> — Creates brand-new isolated in-memory session (~10ms) with zero shared cookie leak.</div><div class="line-annotation"><code>context.newPage()</code> — Opens fresh tab window inside the isolated context.</div>
 
 
 
 <div class="spotbug">
   <details>
     <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Using `await page.waitForTimeout(5000)` hardcoded sleep calls in test suites.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Use web-first assertions like `await expect(locator).toBeVisible()` which retry automatically.</p>
+    <p><strong>Common Pitfall:</strong> Re-launching the heavy `browser.launch()` inside every single test function.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Use Playwright built-in `{ page }` or `{ context }` fixtures which reuse the browser instance and create lightweight contexts automatically.</p>
   </details>
 </div>
 
 <div class="predict">
   <details>
     <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> What happens if the Sign In button is disabled when page.click() is called?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> Playwright auto-waits until the button becomes enabled. If it remains disabled after timeout (30s), it throws an Actionability Error.</p>
+    <p><strong>Scenario:</strong> What is the speed advantage of Playwright BrowserContexts over launching new browsers?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Creating a BrowserContext takes ~10ms, whereas launching a browser process takes 1000ms+.</p>
   </details>
 </div>
 
 <div class="quiz-box">
   <h3>🧪 Knowledge Check</h3>
   <details>
-    <summary>Question: Why are web-first assertions superior to standard Jest expect(await element.isVisible()).toBe(true)?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> Web-first assertions automatically retry polling the DOM for state changes, eliminating timing race conditions.</p>
-    <p><em>Rationale:</em> expect(locator).toBeVisible() retries up to timeout, whereas expect(boolean).toBe(true) evaluates once instantly.</p>
+    <summary>Question: How does Playwright communicate with Chromium, Firefox, and WebKit engines?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> Via direct WebSocket protocol connections (CDP/DevTools protocol) at the browser binary level.</p>
+    <p><em>Rationale:</em> WebSockets eliminate HTTP protocol overhead, providing sub-millisecond command execution.</p>
   </details>
 </div>
 
@@ -162,84 +172,151 @@ test('User authentication flow', async ({ page }) => {
 
 <hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
 
-<h2 id="s2">2. Page Object Model (POM) Design Pattern <span class="est-time">⏱ ~25 min</span></h2>
-<div class="why">🚩 <strong>Why it matters:</strong> Hardcoding locators inside test files leads to massive code duplication when UI elements change. POM encapsulates page locators and actions into reusable class objects.</div>
-<p>The Page Object Model (POM) creates an abstraction layer between test scenarios and page structure. Test files focus on business logic while Page Object classes handle DOM locators and page interactions.</p>
+<h2 id="s2">2. User-Facing Locators: getByRole, getByLabel, getByTestId & Filtering <span class="est-time">⏱ ~35 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> Brittle CSS selectors like `div > span:nth-child(3) > input` break the instant a designer alters HTML layout. Playwright user-facing locators mimic how real humans locate elements on screen.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of finding a friend at a crowded stadium:\n• Brittle CSS Locator = "Walk to Section B, Row 4, Seat 12" (If anyone moves or seat numbers change, you find the wrong person!).\n• Playwright User-Facing Locator = "Find the person wearing a red shirt with the name Tag 'ALICE'" (Works regardless of which seat she sits in!).</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Playwright locator priority guidelines (from official Playwright documentation):\n\n1. `page.getByRole(role, { name })`: Matches accessibility tree roles (`button`, `link`, `checkbox`, `textbox`, `heading`, `dialog`) and accessible text names. Highest resilience!\n2. `page.getByLabel(text)`: Locates form input elements linked to an explicit `<label>` tag.\n3. `page.getByText(text)`: Finds non-interactive text nodes.\n4. `page.getByTestId(id)`: Locates elements by `data-testid` attribute when role or text is dynamic.\n\nAdvanced Chaining & Filtering:\nYou can chain locators to scope searches: `page.getByRole("listitem").filter({ hasText: "Apple" }).getByRole("button")`.</p>
+    </p>
 
 
 
 
 <div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-<pre><code>// pages/LoginPage.ts
-import { Page, Locator, expect } from '@playwright/test';
+<pre><code>import { test, expect } from '@playwright/test';
 
-export class LoginPage {
-  readonly page: Page;
-  readonly usernameInput: Locator;
-  readonly passwordInput: Locator;
-  readonly submitButton: Locator;
+test('Advanced Locator Strategy & Filtering', async ({ page }) => {
+  await page.goto('/products');
 
-  constructor(page: Page) {
-    this.page = page;
-    this.usernameInput = page.getByLabel('Username');
-    this.passwordInput = page.getByLabel('Password');
-    this.submitButton = page.getByRole('button', { name: 'Sign In' });
-  }
+  // 1. Locate button by accessibility role & text
+  const checkoutBtn = page.getByRole('button', { name: 'Proceed to Checkout' });
+  await checkoutBtn.click();
 
-  async goto() {
-    await this.page.goto('/login');
-  }
+  // 2. Locate form input by label
+  await page.getByLabel('Shipping Address').fill('123 Main Street');
 
-  async login(user: string, pass: string) {
-    await this.usernameInput.fill(user);
-    await this.passwordInput.fill(pass);
-    await this.submitButton.click();
-  }
-}</code></pre>
+  // 3. Chaining & Filtering: Find product card containing 'MacBook' and click its Add to Cart button
+  const macbookCard = page
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('heading', { name: 'MacBook Pro' }) });
+
+  await macbookCard.getByRole('button', { name: 'Add to Cart' }).click();
+
+  // 4. Fallback: Locate using custom data-testid
+  await page.getByTestId('cart-badge').click();
+});</code></pre>
 
 
-<div class="line-annotation"><code>readonly page: Page</code> — Stores Playwright Page instance inside class.</div><div class="line-annotation"><code>this.usernameInput = page.getByLabel(...)</code> — Initializes locators lazily inside constructor.</div><div class="line-annotation"><code>async login(user, pass)</code> — Reusable business action encapsulating form interaction.</div>
+<div class="line-annotation"><code>page.getByRole('button', { name: '...' })</code> — Best practice locator matching accessibility tree role and accessible name.</div><div class="line-annotation"><code>.filter({ has: page.getByRole(...) })</code> — Filters parent list items to only those containing a specific child heading.</div><div class="line-annotation"><code>page.getByTestId('cart-badge')</code> — Decoupled test identifier locator.</div>
 
 
 
 <div class="spotbug">
   <details>
     <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
-    <p><strong>Common Pitfall:</strong> Calling `await page.locator()` inside constructor instead of assigning locator reference.</p>
-    <p class="quiz-correct"><strong>Fix:</strong> Assign `page.locator()` directly to property without `await` because locators are lazy references.</p>
+    <p><strong>Common Pitfall:</strong> Using auto-generated XPath strings like `/html/body/div[2]/div[1]/form/button`.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Replace XPath with `getByRole`, `getByLabel`, or `getByTestId`.</p>
   </details>
 </div>
 
 <div class="predict">
   <details>
     <summary>🔮 Predict the Output / Behavior</summary>
-    <p><strong>Scenario:</strong> If the ID of the username field changes in HTML, how many files do you edit in a POM architecture?</p>
-    <p class="quiz-correct"><strong>Answer:</strong> Only 1 file (the LoginPage class), preserving all 50+ test files without edits.</p>
+    <p><strong>Scenario:</strong> Why does Playwright officially recommend `getByRole` over CSS class locators?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Because `getByRole` reflects how screen readers and real users perceive the page, ensuring UI accessibility and resilience against styling refactors.</p>
   </details>
 </div>
 
 <div class="quiz-box">
   <h3>🧪 Knowledge Check</h3>
   <details>
-    <summary>Question: What is the main benefit of Page Object Model in test automation pipelines?</summary>
-    <p class="quiz-correct">✅ <strong>Answer:</strong> Maintainability, reusability, and elimination of locator duplication across test suites.</p>
-    <p><em>Rationale:</em> POM separates test intent from DOM implementation details.</p>
+    <summary>Question: How do you filter a list of row locators to find one containing a specific user email?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> page.getByRole("row").filter({ hasText: "user@example.com" })</p>
+    <p><em>Rationale:</em> filter({ hasText }) filters matching locators to only those containing the target string.</p>
   </details>
 </div>
 
 <div class="mark"><button type="button" class="mark-btn" data-sec="2" onclick="toggleSection(2)">Mark Section 2 Complete</button></div>
 
+<hr style="border:none;border-top:1px solid var(--border);margin:30px 0;">
+
+<h2 id="s3">3. Auto-Waiting & The 5 Actionability Checks <span class="est-time">⏱ ~30 min</span></h2>
+<div class="why">🚩 <strong>Why it matters:</strong> In traditional test frameworks, clicking a loading button causes `ElementNotInteractableException`. Playwright automatically performs 5 actionability checks before executing any action.</div>
+<p>
+      <div style="background:#1e293b;border-left:4px solid #38bdf8;padding:16px;border-radius:8px;margin:16px 0;">
+        <h4 style="margin-top:0;color:#38bdf8;font-size:1.1rem;">💡 Explain Like I'm 5 (ELI5) / Beginner Analogy:</h4>
+        <p style="margin-bottom:0;font-size:1.05rem;line-height:1.8;color:#f8fafc;">Think of Playwright Auto-Waiting like a trained driver before pulling out of a driveway:\n1. Attached = Is the car physically on the driveway? (Element is in DOM).\n2. Visible = Is the garage door open so you can see the car? (CSS is not `display:none` or `opacity:0`).\n3. Stable = Has the car stopped shaking/moving? (No ongoing CSS animation or movement).\n4. Enabled = Is the emergency brake turned off? (Element is not `disabled`).\n5. Receives Events = Is another car blocking the exit? (No loading spinner overlay shielding mouse clicks).</p>
+      </div>
+
+      <h3 style="color:#7dd3fc;margin-top:24px;">📖 Deep Conceptual Breakdown:</h3>
+      <p style="font-size:1.05rem;line-height:1.8;color:#e2e8f0;">Before performing actions like `.click()`, `.fill()`, `.check()`, or `.selectOption()`, Playwright automatically waits up to `timeout` (default 30 seconds) for the element to satisfy all 5 Actionability Criteria:\n\n• Attached: Node is present in DOM tree.\n• Visible: Element has non-zero bounding box and is not hidden by `display:none`, `visibility:hidden`, or `opacity:0`.\n• Stable: Bounding box has remained identical across consecutive animation frames.\n• Enabled: Element lacks `disabled` attribute.\n• Receives Events: Element is not obscured by overlay elements (like modal backdrops or loading spinners) at the click target point.</p>
+    </p>
+
+
+
+
+<div class="code-header"><span>Complete Example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+<pre><code>import { test, expect } from '@playwright/test';
+
+test('Demonstrating Playwright Auto-Waiting', async ({ page }) => {
+  await page.goto('/slow-form');
+
+  // Playwright automatically waits for button to become Attached, Visible, Stable, Enabled, and Unobscured
+  // NO sleep() or waitFor() required!
+  await page.getByRole('button', { name: 'Submit Application' }).click();
+
+  // Web-First assertion automatically polls until banner appears
+  await expect(page.getByRole('alert')).toBeVisible({ timeout: 10000 });
+});</code></pre>
+
+
+<div class="line-annotation"><code>await page.getByRole(...).click()</code> — Automatically performs all 5 actionability checks before firing mouse event.</div><div class="line-annotation"><code>await expect(...).toBeVisible({ timeout: 10000 })</code> — Web-first assertion polling DOM continuously up to 10s custom timeout.</div>
+
+
+
+<div class="spotbug">
+  <details>
+    <summary>🐞 Spot the Bug / Edge Case in this topic</summary>
+    <p><strong>Common Pitfall:</strong> Adding manual `await page.waitForTimeout(5000)` calls before clicking elements.</p>
+    <p class="quiz-correct"><strong>Fix:</strong> Delete hardcoded timeouts! Trust Playwright auto-waiting actionability checks.</p>
+  </details>
+</div>
+
+<div class="predict">
+  <details>
+    <summary>🔮 Predict the Output / Behavior</summary>
+    <p><strong>Scenario:</strong> What error does Playwright throw if an element remains covered by a loading spinner overlay for 30s?</p>
+    <p class="quiz-correct"><strong>Answer:</strong> Actionability Error: element is not receiving events because overlay element intercepts clicks.</p>
+  </details>
+</div>
+
+<div class="quiz-box">
+  <h3>🧪 Knowledge Check</h3>
+  <details>
+    <summary>Question: What are the 5 actionability criteria checked by Playwright before clicking?</summary>
+    <p class="quiz-correct">✅ <strong>Answer:</strong> Attached, Visible, Stable (no animation), Enabled, Receives Events (unobscured).</p>
+    <p><em>Rationale:</em> These 5 checks eliminate timing race conditions and flaky test failures.</p>
+  </details>
+</div>
+
+<div class="mark"><button type="button" class="mark-btn" data-sec="3" onclick="toggleSection(3)">Mark Section 3 Complete</button></div>
+
 
     <!-- CERTIFICATE -->
     <div id="certificate" class="certificate">
       <h2>🏆 Certificate of Completion</h2>
-      <p>Congratulations! You have completed 100% of <strong>Playwright Essentials — Part 1: Locators, Auto-Waiting & Assertions</strong>!</p>
-      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 2/2 Sections Passed</p>
+      <p>Congratulations! You have completed 100% of <strong>Playwright Masterclass — Part 1: Locators, Auto-Waiting, Filtering & Web-First Assertions</strong>!</p>
+      <p style="font-size:1.2rem;color:#facc15;font-weight:bold;">Verified Mastery: 3/3 Sections Passed</p>
     </div>
   </div>
 
   <script>
-    const flashcards = [{"q":"What actionability checks does Playwright perform before clicking an element?","a":"Visible, Stable (no animation), Receives Events, Enabled, Editable."},{"q":"What is Playwright trace viewer used for?","a":"Visual post-mortem debugging showing DOM snapshots, network calls, and action timelines for failed tests."}];
+    const flashcards = [{"q":"What is auto-waiting in Playwright?","a":"Playwright automatically waits for elements to pass actionability checks before performing actions."},{"q":"What is the default action timeout in Playwright?","a":"30 seconds (configurable in playwright.config.ts)."}];
     let cardIdx = -1;
     let completedSet = new Set();
     let xp = 0;
@@ -268,7 +345,7 @@ export class LoginPage {
     }
 
     function updateProgress() {
-      const total = 2;
+      const total = 3;
       const count = completedSet.size;
       const pct = Math.round((count / total) * 100);
       document.getElementById('progressBar').innerText = `📊 Progress: ${count}/${total} sections completed (${pct}%)`;
@@ -295,7 +372,7 @@ export class LoginPage {
     }
 
     function surpriseMe() {
-      const sec = Math.floor(Math.random() * 2) + 1;
+      const sec = Math.floor(Math.random() * 3) + 1;
       document.getElementById('s' + sec).scrollIntoView({ behavior: 'smooth' });
     }
   </script>
